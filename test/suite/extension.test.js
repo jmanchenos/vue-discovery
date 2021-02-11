@@ -24,10 +24,10 @@ const components = [
 const LF = '\r\n';
 
 const props = [
-    new vscode.CompletionItem('label', vscode.CompletionItemKind.Variable),
-    new vscode.CompletionItem('defaultValue', vscode.CompletionItemKind.Variable),
-    new vscode.CompletionItem('name', vscode.CompletionItemKind.Variable),
-    new vscode.CompletionItem('names', vscode.CompletionItemKind.Variable),
+    new vscode.CompletionItem('label', vscode.CompletionItemKind.Property),
+    new vscode.CompletionItem('defaultValue', vscode.CompletionItemKind.Property),
+    new vscode.CompletionItem('name', vscode.CompletionItemKind.Property),
+    new vscode.CompletionItem('names', vscode.CompletionItemKind.Property),
 ];
 
 const events = [

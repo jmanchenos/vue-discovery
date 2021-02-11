@@ -123,7 +123,7 @@ class Parser {
         return this;
     }
     events() {
-        const events = this.content.match(/\$emit\(['"][A-Za-z]+/g);
+        const events = this.content.match(/\$emit\(['"][A-Za-z\-:]+/g);
 
         this.parsed.events = (events || []).map(event => event.slice(7, event.length));
 

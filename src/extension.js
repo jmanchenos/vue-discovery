@@ -92,18 +92,28 @@ function createComponentCompletionItem(file) {
     return snippetCompletion;
 }
 
-function createPropCompletionItem(prop) {
-    const snippetCompletion = new CompletionItem(prop, CompletionItemKind.Variable);
+/**
+ * @param {String} prop
+ * @param {boolean}  isBeforeSpace
+ * @param {boolean} isAfterSpace
+ * @returns {vscode.CompletionItem}
+ */
+function createPropCompletionItem(prop, isBeforeSpace, isAfterSpace) {
+    const snippetCompletion = new CompletionItem(prop, CompletionItemKind.Property);
 
-    snippetCompletion.insertText = new SnippetString(`${prop}="$0"`);
+    snippetCompletion.insertText = new SnippetString(
+        `${isBeforeSpace ? '' : ' '}${prop}="$0"${isAfterSpace ? '' : ' '}`
+    );
 
     return snippetCompletion;
 }
 
-function createEventCompletionItem(event) {
+function createEventCompletionItem(event, isBeforeSpace, isAfterSpace) {
     const snippetCompletion = new CompletionItem(event, CompletionItemKind.Event);
 
-    snippetCompletion.insertText = new SnippetString(`${kebabCase(event)}="$0"`);
+    snippetCompletion.insertText = new SnippetString(
+        `${isBeforeSpace ? '' : ' '}@${kebabCase(event)}="$0"${isAfterSpace ? '' : ' '}`
+    );
 
     return snippetCompletion;
 }
@@ -630,7 +640,16 @@ function activate(context) {
                     return;
                 }
 
-                return events.map(createEventCompletionItem);
+                const isBeforeSpace =
+                    getDocument()
+                        .lineAt(position.line)
+                        ?.text?.charAt(position.character - 1) === ' ';
+                const isAfterSpace =
+                    getDocument()
+                        .lineAt(position.line)
+                        ?.text?.charAt(position.character) === ' ';
+
+                return events.map(event => createEventCompletionItem(event, isBeforeSpace, isAfterSpace));
             },
         },
         '@'
@@ -650,7 +669,16 @@ function activate(context) {
                     return;
                 }
 
-                return Object.keys(props).map(createPropCompletionItem);
+                const isBeforeSpace =
+                    getDocument()
+                        .lineAt(position.line)
+                        ?.text?.charAt(position.character - 1) === ' ';
+                const isAfterSpace =
+                    getDocument()
+                        .lineAt(position.line)
+                        ?.text?.charAt(position.character) === ' ';
+
+                return Object.keys(props).map(prop => createPropCompletionItem(prop, isBeforeSpace, isAfterSpace));
             },
         },
         ':'
