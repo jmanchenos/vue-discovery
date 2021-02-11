@@ -1,12 +1,24 @@
 const assert = require('assert');
 const vscode = require('vscode');
-const { showFile, getDocUri, position, getDocPath, sleep, range } = require('../util');
-const { testLineEquals, rangeEquals, testHover, testCompletion, testCompletionDoesNotContainItems } = require('../helpers');
+const { showFile, getDocUri, position, getDocPathWithSlash, sleep, range } = require('../util');
+const {
+    testLineEquals,
+    rangeEquals,
+    testHover,
+    testCompletion,
+    testCompletionDoesNotContainItems,
+} = require('../helpers');
 
 const components = [
-    Object.assign(new vscode.CompletionItem('ComponentWithProps', vscode.CompletionItemKind.Constructor), { detail: 'components/ComponentWithProps.vue' }),
-    Object.assign(new vscode.CompletionItem('AnotherComponent', vscode.CompletionItemKind.Constructor), { detail: 'components/AnotherComponent.vue' }),
-    Object.assign(new vscode.CompletionItem('App', vscode.CompletionItemKind.Constructor), { detail: 'src/App.vue' }),
+    Object.assign(new vscode.CompletionItem('ComponentWithPropsName', vscode.CompletionItemKind.Constructor), {
+        detail: 'components/ComponentWithProps.vue',
+    }),
+    Object.assign(new vscode.CompletionItem('AnotherComponentName', vscode.CompletionItemKind.Constructor), {
+        detail: 'components/AnotherComponent.vue',
+    }),
+    Object.assign(new vscode.CompletionItem('RegisteredComponentName', vscode.CompletionItemKind.Constructor), {
+        detail: 'registeredComponents/RegisteredComponent.vue',
+    }),
 ];
 
 const props = [
@@ -22,14 +34,26 @@ const events = [
     new vscode.CompletionItem('eventInSubMixin', vscode.CompletionItemKind.Event),
 ];
 
-describe('Interactions', function () {
+const LF = '\r\n';
+describe('Interactions', function() {
     const docUri = getDocUri('App.vue');
-    const componentWithoutPropsSnippet = '<component-with-props :name="" :names="" :defaultValue=""></component-with-props>';
+    const componentWithoutPropsSnippet =
+        '<component-with-props-name :name="" :names="" :defaultValue=""></component-with-props-name>';
 
     before('activate', async () => {
-        await vscode.commands.executeCommand('vueDiscovery.tests.setConfigOption', 'componentCase', 'kebab');
-        await vscode.commands.executeCommand('vueDiscovery.tests.setConfigOption', 'propCase', 'camel');
-        await vscode.commands.executeCommand('vueDiscovery.tests.setConfigOption', 'addTrailingComma', false);
+        await vscode.commands.executeCommand('vueDiscoveryManchen.tests.setConfigOption', 'componentCase', 'kebab');
+        await vscode.commands.executeCommand('vueDiscoveryManchen.tests.setConfigOption', 'propCase', 'camel');
+        await vscode.commands.executeCommand('vueDiscoveryManchen.tests.setConfigOption', 'addTrailingComma', false);
+        await vscode.commands.executeCommand(
+            'vueDiscoveryManchen.tests.setConfigOption',
+            'registeredDirectory',
+            '/src/registeredComponents'
+        );
+        await vscode.commands.executeCommand(
+            'vueDiscoveryManchen.tests.setConfigOption',
+            'rootDirectory',
+            '/src/components;/src/mixins'
+        );
         await sleep(50);
 
         await showFile(docUri);
@@ -49,7 +73,11 @@ describe('Interactions', function () {
 
         editor.selection = new vscode.Selection(pos, pos);
 
-        await vscode.commands.executeCommand('vueDiscovery.importFile', getDocPath('components/ComponentWithProps.vue'), 'ComponentWithProps');
+        await vscode.commands.executeCommand(
+            'vueDiscoveryManchen.importFile',
+            getDocPathWithSlash('components/ComponentWithProps.vue'),
+            'ComponentWithProps'
+        );
 
         await sleep(50);
 
@@ -57,11 +85,11 @@ describe('Interactions', function () {
     });
 
     it('imports a component and respects alias', async () => {
-        testLineEquals(8, 'import ComponentWithProps from \'@/components/ComponentWithProps.vue\'');
+        testLineEquals(8, "import ComponentWithPropsName from '@/components/ComponentWithProps.vue'");
     });
 
     it('registers the component', async () => {
-        const expected = '    components: {\n        \'component-with-props\': ComponentWithProps\n    },\n';
+        const expected = `    components: {${LF}        'component-with-props-name': ComponentWithPropsName${LF}    },${LF}`;
         rangeEquals(range(10, 0, 13, 0), expected);
     });
 
@@ -90,7 +118,11 @@ describe('Interactions', function () {
 
         editor.selection = new vscode.Selection(pos, pos);
 
-        await vscode.commands.executeCommand('vueDiscovery.importFile', getDocPath('components/ComponentWithProps.vue'), 'ComponentWithProps');
+        await vscode.commands.executeCommand(
+            'vueDiscoveryManchen.importFile',
+            getDocPathWithSlash('components/ComponentWithProps.vue'),
+            'ComponentWithProps'
+        );
 
         await sleep(50);
 
@@ -99,12 +131,13 @@ describe('Interactions', function () {
 
     it('does not import the component twice', async () => {
         const text = vscode.window.activeTextEditor.document.getText();
-        const occurrences = text.split('import ComponentWithProps from \'@/components/ComponentWithProps.vue\'').length - 1;
+        const occurrences =
+            text.split("import ComponentWithPropsName from '@/components/ComponentWithProps.vue'").length - 1;
         assert.ok(occurrences === 1);
     });
 
     it('does not register the component twice', async () => {
-        const expected = '    components: {\n        \'component-with-props\': ComponentWithProps\n    },\n';
+        const expected = `    components: {${LF}        'component-with-props-name': ComponentWithPropsName${LF}    },${LF}`;
         rangeEquals(range(10, 0, 13, 0), expected);
     });
 
@@ -114,19 +147,26 @@ describe('Interactions', function () {
 
         editor.selection = new vscode.Selection(pos, pos);
 
-        await vscode.commands.executeCommand('vueDiscovery.importFile', getDocPath('components/AnotherComponent.vue'), 'AnotherComponent');
+        await vscode.commands.executeCommand(
+            'vueDiscoveryManchen.importFile',
+            getDocPathWithSlash('components/AnotherComponent.vue'),
+            'AnotherComponent'
+        );
 
         await sleep(50);
 
-        testLineEquals(3, `\t\t${componentWithoutPropsSnippet}${componentWithoutPropsSnippet}<another-component :name="" :names=""></another-component>`);
+        testLineEquals(
+            3,
+            `\t\t${componentWithoutPropsSnippet}${componentWithoutPropsSnippet}<another-component-name :name="" :names=""></another-component-name>`
+        );
     });
 
     it('imports another component and respects alias', async () => {
-        testLineEquals(8, 'import AnotherComponent from \'@/components/AnotherComponent.vue\'');
+        testLineEquals(8, "import AnotherComponentName from '@/components/AnotherComponent.vue'");
     });
 
     it('registers another component', async () => {
-        const expected = '    components: {\n        \'component-with-props\': ComponentWithProps,\n        \'another-component\': AnotherComponent\n    },\n';
+        const expected = `    components: {${LF}        'component-with-props-name': ComponentWithPropsName,${LF}        'another-component-name': AnotherComponentName${LF}    },${LF}`;
         rangeEquals(range(11, 0, 15, 0), expected);
     });
 });

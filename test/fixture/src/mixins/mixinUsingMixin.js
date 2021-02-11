@@ -1,4 +1,4 @@
-import mixin from '@/mixins';
+import mixin from '@/mixins/mixin';
 export default {
     mixins: [mixin],
     props: {
@@ -8,6 +8,6 @@ export default {
         },
     },
     created() {
-        this.$emit('eventInSubMixin')
-    }
+        this.$emit('eventInSubMixin');
+    },
 };

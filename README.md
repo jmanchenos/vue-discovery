@@ -1,16 +1,16 @@
 <p>
-  <h1 align="center">Vue discovery 🔭</h1>
+  <h1 align="center">Vue discovery Manchen🔭</h1>
 </p>
 
 <p align="center">
-  <a href="https://marketplace.visualstudio.com/items?itemName=Maantje.vue-discovery">
-    <img src="https://vsmarketplacebadge.apphb.com/version-short/Maantje.vue-discovery.svg?style=flat-square">
+  <a href="https://marketplace.visualstudio.com/items?itemName=jmanchenos.vue-discovery">
+    <img src="https://vsmarketplacebadge.apphb.com/version-short/jmanchenos.vue-discovery.svg?style=flat-square">
   </a>
-  <a href="https://marketplace.visualstudio.com/items?itemName=Maantje.vue-discovery">
-    <img src="https://vsmarketplacebadge.apphb.com/downloads/Maantje.vue-discovery.svg?style=flat-square">
+  <a href="https://marketplace.visualstudio.com/items?itemName=jmanchenos.vue-discovery">
+    <img src="https://vsmarketplacebadge.apphb.com/downloads/jmanchenos.vue-discovery.svg?style=flat-square">
   </a>
-  <a href="https://marketplace.visualstudio.com/items?itemName=Maantje.vue-discovery">
-    <img src="https://vsmarketplacebadge.apphb.com/rating-star/Maantje.vue-discovery.svg?style=flat-square">
+  <a href="https://marketplace.visualstudio.com/items?itemName=jmanchenos.vue-discovery">
+    <img src="https://vsmarketplacebadge.apphb.com/rating-star/jmanchenos.vue-discovery.svg?style=flat-square">
   </a>
 </p>
 
@@ -21,35 +21,42 @@ This extension discovers Vue components in your workspace and provides IntelliSe
 ## ✨ Features
 
 ##### Provide IntelliSense for components in template section
+
 <img src="images/show-components.gif" width="680">
 
 ##### Automatically import, register and expand required props
+
 <img src="images/auto-import.gif" width="680">
 
 ##### Provide IntelliSense for props on components
+
 <img src="images/show-available-props.gif" width="680">
 
 ##### Show available props on hover
+
 <img src="images/show-props-on-hover.gif" width="680">
 
 ##### Provide IntelliSense for events
+
 <img src="images/event-intellisense.gif" width="680">
 
 ##### Uses your defined paths in `jsconfig.json`
+
 <img src="images/uses-paths.gif" width="680">
 
 ##### Import with `cmd + i`, this is useful for importing pasted components
-<img src="images/import-keybind.gif" width="680">
 
+<img src="images/import-keybind.gif" width="680">
 
 ## 🔧 Extension Settings
 
 This extension can be customized with the following settings:
 
-* `vueDiscovery.rootDirectory`: this tells where to look for vue components (default: `src`)
-* `vueDiscovery.componentCase`: The casing for the component, available options are `kebab` for kebab-case and `pascal` for PascalCase (default: `pascal`)
-* `vueDiscovery.addTrailingComma`: Add a trailing comma to the registered component (default: `true`)
-* `vueDiscovery.propCase`: The casing for the props, available options are `kebab` for kebab-case and `camel` for camelCase (default: `kebab`)
+-   `vueDiscoveryManchen.rootDirectory`: this tells where to look for vue components. It admits several paths with a ';' separator (default: `\src`)
+-   `vueDiscoveryManchen.registeredDirectory`: this tells where to look for vue components that are previosly registered in Vue an do not need to be imported. It admits several paths with a ';' separator (default: ``)
+-   `vueDiscoveryManchen.componentCase`: The casing for the component, available options are `kebab` for kebab-case and `pascal` for PascalCase (default: `pascal`)
+-   `vueDiscoveryManchen.addTrailingComma`: Add a trailing comma to the registered component (default: `true`)
+-   `vueDiscoveryManchen.propCase`: The casing for the props, available options are `kebab` for kebab-case and `camel` for camelCase (default: `kebab`)
 
 ## 🔖 Release Notes
 

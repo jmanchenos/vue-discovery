@@ -5,31 +5,27 @@ function rangeEquals(range, value) {
     const editor = vscode.window.activeTextEditor;
     const text = editor.document.getText(range);
 
-    assert.equal(text, value);
+    assert.strictEqual(text, value);
 }
 
 function testLineEquals(line, value) {
     const editor = vscode.window.activeTextEditor;
     const { text } = editor.document.lineAt(line);
 
-    assert.equal(text, value);
+    assert.strictEqual(text, value);
 }
 
 async function triggerCompletion(docUri, position) {
     vscode.window.activeTextEditor.selection = new vscode.Selection(position, position);
 
-    return (await vscode.commands.executeCommand(
-        'vscode.executeCompletionItemProvider',
-        docUri,
-        position,
-    ));
+    return await vscode.commands.executeCommand('vscode.executeCompletionItemProvider', docUri, position);
 }
 
-async function testCompletionDoesNotContainItems(docUri,position, illegalItems) {
+async function testCompletionDoesNotContainItems(docUri, position, illegalItems) {
     const { items } = await triggerCompletion(docUri, position);
     const illegalItemsInItems = items.filter(({ label }) => illegalItems.find(i => i.label === label));
 
-    assert.equal(illegalItemsInItems.length, 0);
+    assert.strictEqual(illegalItemsInItems.length, 0);
 }
 
 async function testCompletion(docUri, position, expectedItems) {
@@ -48,30 +44,27 @@ async function testCompletion(docUri, position, expectedItems) {
                 `Can't find matching item for\n${JSON.stringify(expectedItem, null, 2)}\nSeen items:\n${JSON.stringify(
                     result.items,
                     null,
-                    2,
-                )}`,
+                    2
+                )}`
             );
             return;
         }
 
-        assert.equal(match.label, expectedItem.label);
+        assert.strictEqual(match.label, expectedItem.label);
 
         if (expectedItem.kind) {
-            assert.equal(match.kind, expectedItem.kind);
+            assert.strictEqual(match.kind, expectedItem.kind);
         }
         if (expectedItem.detail) {
-            assert.equal(match.detail, expectedItem.detail);
+            assert.strictEqual(match.detail, expectedItem.detail);
         }
 
         if (expectedItem.documentation) {
             if (typeof match.documentation === 'string') {
-                assert.equal(match.documentation, expectedItem.documentation);
+                assert.strictEqual(match.documentation, expectedItem.documentation);
             } else {
                 if (expectedItem.documentation && expectedItem.documentation.value && match.documentation) {
-                    assert.equal(
-                        match.documentation.value,
-                        expectedItem.documentation.value,
-                    );
+                    assert.strictEqual(match.documentation.value, expectedItem.documentation.value);
                 }
             }
         }
@@ -87,17 +80,12 @@ async function testCompletion(docUri, position, expectedItems) {
 }
 
 async function testHover(docUri, position, expectedHover) {
-    const result = (await vscode.commands.executeCommand(
-        'vscode.executeHoverProvider',
-        docUri,
-        position,
-    ));
-
+    const result = await vscode.commands.executeCommand('vscode.executeHoverProvider', docUri, position);
     if (!result[0]) {
         throw Error('Hover failed');
     }
 
-    const contents = result[0].contents;
+    const { contents } = result[0];
 
     contents.forEach((c, i) => {
         const actualContent = markedStringToString(c);
@@ -105,7 +93,6 @@ async function testHover(docUri, position, expectedHover) {
         assert.ok(actualContent.startsWith(expectedContent));
     });
 }
-
 
 function markedStringToString(s) {
     return typeof s === 'string' ? s : s.value;

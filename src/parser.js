@@ -67,7 +67,12 @@ class Parser {
         return { content: contentAtStart, ...this.getPositionOfStartAndEnd(contentAtStart, start, end) };
     }
     attributeWithObjectNotation(attribute) {
-        const { content, start, end } = this.startAtAndGetPositionOfStartAndEnd(this.parsed.script, `${attribute}:`, '{', '}');
+        const { content, start, end } = this.startAtAndGetPositionOfStartAndEnd(
+            this.parsed.script,
+            `${attribute}:`,
+            '{',
+            '}'
+        );
 
         if (!content || !start || !end) {
             return null;
@@ -76,21 +81,29 @@ class Parser {
         return content.substring(start, end);
     }
     attributeWithArrayNotation(attribute) {
-        const { content, start, end } = this.startAtAndGetPositionOfStartAndEnd(this.parsed.script, `${attribute}:`, '[', ']');
+        const { content, start, end } = this.startAtAndGetPositionOfStartAndEnd(
+            this.parsed.script,
+            `${attribute}:`,
+            '[',
+            ']'
+        );
 
         if (!content || !start || !end) {
             return null;
         }
 
-        return content.substring(start + 1, end - 1)
+        return content
+            .substring(start + 1, end - 1)
             .split(',')
             .map(mixin => mixin.trim());
     }
+
     mixins() {
         this.parsed.mixins = this.attributeWithArrayNotation('mixins');
 
         return this;
     }
+
     props() {
         const props = this.attributeWithObjectNotation('props');
 
@@ -122,7 +135,12 @@ class Parser {
         return this;
     }
     script() {
-        const { content, start, end } = this.startAtAndGetPositionOfStartAndEnd(this.content, 'export default', '{', '}');
+        const { content, start, end } = this.startAtAndGetPositionOfStartAndEnd(
+            this.content,
+            'export default',
+            '{',
+            '}'
+        );
 
         if (!content || !start || !end) {
             return null;
@@ -142,6 +160,5 @@ class Parser {
         return this.parsed;
     }
 }
-
 
 module.exports = Parser;

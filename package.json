@@ -1,90 +1,97 @@
 {
-  "name": "vue-discovery",
-  "displayName": "Vue discovery",
-  "description": "This extension discovers Vue components in your workspace and provides IntelliSense for them.",
-  "publisher": "maantje",
-  "repository": "https://github.com/maantje/vue-discovery",
-  "version": "1.3.1",
-  "icon": "images/icon.png",
-  "engines": {
-    "vscode": "^1.44.0"
-  },
-  "categories": [
-    "Other"
-  ],
-  "activationEvents": [
-    "*"
-  ],
-  "main": "./src/extension.js",
-  "contributes": {
-    "configuration": {
-      "type": "object",
-      "title": "Vue discovery",
-      "properties": {
-        "vueDiscovery.rootDirectory": {
-          "type": "string",
-          "default": "/src",
-          "description": "root directory in your workspace"
-        },
-        "vueDiscovery.componentCase": {
-          "type": "string",
-          "enum": [
-            "pascal",
-            "kebab"
-          ],
-          "default": "pascal",
-          "description": "The casing of the imported component"
-        },
-        "vueDiscovery.addTrailingComma": {
-          "type": "boolean",
-          "default": true,
-          "description": "Add a trailing comma"
-        },
-        "vueDiscovery.propCase": {
-          "type": "string",
-          "enum": [
-            "camel",
-            "kebab"
-          ],
-          "default": "kebab",
-          "description": "The casing of the props"
-        }
-      }
+    "name": "vue-discovery",
+    "displayName": "Vue discovery Manchen",
+    "description": "This extension discovers Vue components in your workspace and provides IntelliSense for them.",
+    "publisher": "jmanchenos",
+    "repository": "https://github.com/jmanchenos/vue-discovery",
+    "version": "1.5.0",
+    "icon": "images/icon.png",
+    "engines": {
+        "vscode": "^1.44.0"
     },
-    "keybindings": [
-      {
-        "command": "vueDiscovery.importExisting",
-        "key": "ctrl+i",
-        "mac": "cmd+i",
-        "when": "editorTextFocus"
-      }
+    "categories": [
+        "Other"
     ],
-    "commands": [
-      {
-        "command": "vueDiscovery.importExisting",
-        "title": "Vue Discovery: Import a vue component"
-      }
-    ]
-  },
-  "scripts": {
-    "lint": "eslint .",
-    "pretest": "yarn run lint",
-    "test": "node ./test/runTest.js"
-  },
-  "devDependencies": {
-    "@types/glob": "^7.1.1",
-    "@types/mocha": "^7.0.2",
-    "@types/node": "^13.11.0",
-    "@types/vscode": "^1.44.0",
-    "eslint": "^6.8.0",
-    "eslint-config-spatie": "^2.0.3",
-    "mocha": "^7.1.1",
-    "typescript": "^3.8.3",
-    "vscode-test": "^1.3.0"
-  },
-  "dependencies": {
-    "glob": "^7.1.6",
-    "lodash": "^4.17.19",
-    "vue-parser": "^1.1.6"
-  }
+    "activationEvents": [
+        "*"
+    ],
+    "main": "./src/extension.js",
+    "contributes": {
+        "configuration": {
+            "type": "object",
+            "title": "Vue discovery Manchen",
+            "properties": {
+                "vueDiscoveryManchen.rootDirectory": {
+                    "type": "string",
+                    "default": "/src",
+                    "description": "list of root directories in your workspace on whcich search components separated by ;"
+                },
+                "vueDiscoveryManchen.registeredDirectory": {
+                    "type": "string",
+                    "default": "",
+                    "description": "list of root directories in your workspace on whcich search registered components separated by ;"
+                },
+                "vueDiscoveryManchen.componentCase": {
+                    "type": "string",
+                    "enum": [
+                        "pascal",
+                        "kebab"
+                    ],
+                    "default": "pascal",
+                    "description": "The casing of the imported component"
+                },
+                "vueDiscoveryManchen.addTrailingComma": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Add a trailing comma"
+                },
+                "vueDiscoveryManchen.propCase": {
+                    "type": "string",
+                    "enum": [
+                        "camel",
+                        "kebab"
+                    ],
+                    "default": "kebab",
+                    "description": "The casing of the props"
+                }
+            }
+        },
+        "keybindings": [
+            {
+                "command": "vueDiscoveryManchen.importExisting",
+                "key": "ctrl+i",
+                "mac": "cmd+i",
+                "when": "editorTextFocus"
+            }
+        ],
+        "commands": [
+            {
+                "command": "vueDiscoveryManchen.importExisting",
+                "title": "Vue Discovery: Import a vue component"
+            }
+        ]
+    },
+    "scripts": {
+        "lint": "eslint .",
+        "pretest": "yarn run lint",
+        "test": "node ./test/runTest.js"
+    },
+    "devDependencies": {
+        "@types/glob": "^7.1.1",
+        "@types/mocha": "^7.0.2",
+        "@types/node": "^13.13.41",
+        "@types/vscode": "^1.53.0",
+        "eslint": "^6.8.0",
+        "eslint-config-prettier": "^6.7.0",
+        "eslint-plugin-prettier": "^3.1.1",
+        "mocha": "^7.1.1",
+        "prettier": "^1.19.1",
+        "typescript": "^3.9.9",
+        "vscode-test": "^1.3.0"
+    },
+    "dependencies": {
+        "@vuese/parser": "^2.10.3",
+        "glob": "^7.1.6",
+        "lodash": "^4.17.19"
+    }
 }

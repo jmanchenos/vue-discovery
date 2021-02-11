@@ -1,7 +1,6 @@
 const vscode = require('vscode');
 const path = require('path');
 
-
 function position(line, char) {
     return new vscode.Position(line, char);
 }
@@ -22,11 +21,16 @@ function sameLineLocation(uri, line, startChar, endChar) {
     return new vscode.Location(uri, sameLineRange(line, startChar, endChar));
 }
 
-const getDocPath = (p) => {
+const getDocPath = p => {
     return path.resolve(__dirname, 'fixture/src', p);
 };
 
-const getDocUri = (p) => {
+const getDocPathWithSlash = p => {
+    const path = getDocUri(p).path.slice(1);
+    return path;
+};
+
+const getDocUri = p => {
     return vscode.Uri.file(getDocPath(p));
 };
 
@@ -49,6 +53,7 @@ module.exports = {
     location,
     getDocPath,
     getDocUri,
+    getDocPathWithSlash,
     sleep,
     showFile,
 };

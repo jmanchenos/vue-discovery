@@ -1,41 +1,50 @@
 const vscode = require('vscode');
-const _ = require('lodash');
-const {
-    CompletionItemKind,
-    CompletionItem,
-    SnippetString,
-    window,
-    workspace,
-    Position,
-    languages,
-    commands,
-} = vscode;
+const { CompletionItemKind, CompletionItem, SnippetString, window, workspace, Position, languages, commands } = vscode;
 
 const glob = require('glob');
 const fs = require('fs');
 const path = require('path');
-const Parser  = require('./parser');
+const Parser = require('./parser');
+const vueParser = require('@vuese/parser');
+const { toNumber, kebabCase, camelCase, upperFirst } = require('lodash');
 const configOverride = {};
-let jsFiles = [];
+let jsFiles,
+    vueFiles,
+    vueRegisteredFiles = [];
 
-function getFilesByExtension(extension) {
-    return new Promise((resolve, reject) => {
-        glob(`${getRootPath()}${config('rootDirectory')}/**/*.${extension}`, (err, res) => {
-            if (err) {
-                return reject(err);
-            }
+/**
+ * @param {String} extension  extension of the file
+ * @param {String} configAtrib  atribute of config that contains list of path on which search files
+ * @returns {Promise<Array>} list of files
+ *  */
+async function getFilesByExtension(extension, configAtrib = 'rootDirectory') {
+    const listaRoot = (config(configAtrib)?.split(';') || []).filter(x => !!x);
+    let fileList = [];
+    const listaPromesas = listaRoot.map(
+        element =>
+            new Promise((resolve, reject) =>
+                glob(`${getRootPath()}${element}/**/*.${extension}`, (err, res) => {
+                    if (err) {
+                        return reject(err);
+                    }
+                    resolve(res);
+                })
+            )
+    );
 
-            resolve(res);
-        });
-    });
+    await Promise.all(listaPromesas).then(result => result.forEach(x => fileList.push(...x)));
+    return fileList;
 }
 
-function getVueFiles() {
-    return getFilesByExtension('vue');
+async function getVueFiles() {
+    const rootFiles = await getFilesByExtension('vue');
+    const registeredFiles = await getFilesByExtension('vue', 'registeredDirectory');
+    const setVueFiles = new Set([...rootFiles, ...registeredFiles]);
+    return { vueFiles: [...setVueFiles], vueRegisteredFiles: registeredFiles };
 }
 
-function getJsFiles() {
-    return getFilesByExtension('js');
+async function getJsFiles() {
+    return await getFilesByExtension('js');
 }
 
 /**
@@ -66,10 +75,16 @@ function retrieveWithDirectoryInformationFromFile(file) {
  */
 function createComponentCompletionItem(file) {
     const fileName = retrieveComponentNameFromFile(file);
-    const snippetCompletion = new CompletionItem(fileName, CompletionItemKind.Constructor);
+
+    const componentName = retrieveComponentName(file) || fileName;
+    const snippetCompletion = new CompletionItem(componentName, CompletionItemKind.Constructor);
 
     snippetCompletion.detail = retrieveWithDirectoryInformationFromFile(file);
-    snippetCompletion.command = { title: 'Import file', command: 'vueDiscovery.importFile', arguments: [file, fileName] };
+    snippetCompletion.command = {
+        title: 'Import file',
+        command: 'vueDiscoveryManchen.importFile',
+        arguments: [file, fileName],
+    };
 
     // We don't want to insert anything here since this will be done in the importFile command
     snippetCompletion.insertText = '';
@@ -88,12 +103,12 @@ function createPropCompletionItem(prop) {
 function createEventCompletionItem(event) {
     const snippetCompletion = new CompletionItem(event, CompletionItemKind.Event);
 
-    snippetCompletion.insertText = new SnippetString(`${_.kebabCase(event)}="$0"`);
+    snippetCompletion.insertText = new SnippetString(`${kebabCase(event)}="$0"`);
 
     return snippetCompletion;
 }
 
-function hasScriptTagInactiveTextEditor() {
+function hasScriptTagInActiveTextEditor() {
     const text = window.activeTextEditor.document.getText();
     const scriptTagMatch = /<script/.exec(text);
 
@@ -105,24 +120,31 @@ function config(key) {
         return configOverride[key];
     }
 
-    return workspace
-        .getConfiguration()
-        .get(`vueDiscovery.${key}`);
+    return workspace.getConfiguration().get(`vueDiscoveryManchen.${key}`);
 }
 
 /**
- * Retrieves the props from a fire
+ * Retrieves the name of the component
+ * @param {String} file
+ */
+function retrieveComponentName(file) {
+    const content = fs.readFileSync(file, 'utf8');
+    const { name } = vueParser.parser(content);
+    return name;
+}
+
+/**
+ * Retrieves the props from a file
  * @param {String} file
  */
 function retrievePropsFrom(file) {
-    const content = fs.readFileSync(file,'utf8');
+    const content = fs.readFileSync(file, 'utf8');
     const { mixins, props } = new Parser(content).parse();
-
     let mixinProps = {};
 
     if (mixins) {
         mixinProps = mixins.reduce((accumulator, mixin) => {
-            const file = jsFiles.find(file => file.includes(mixin));
+            const file = jsFiles?.find(file => file.includes(mixin));
 
             if (!file) {
                 return accumulator;
@@ -132,7 +154,7 @@ function retrievePropsFrom(file) {
         }, {});
     }
 
-    return { ...mixinProps,...props };
+    return { ...mixinProps, ...props };
 }
 
 /**
@@ -140,14 +162,14 @@ function retrievePropsFrom(file) {
  * @param {String} file
  */
 function retrieveEventsFrom(file) {
-    const content = fs.readFileSync(file,'utf8');
+    const content = fs.readFileSync(file, 'utf8');
     const { mixins, events } = new Parser(content).parse();
 
     let mixinEvents = [];
 
     if (mixins) {
         mixinEvents = mixins.reduce((accumulator, mixin) => {
-            const file = jsFiles.find(file => file.includes(mixin));
+            const file = jsFiles?.find(file => file.includes(mixin));
 
             if (!file) {
                 return accumulator;
@@ -157,7 +179,7 @@ function retrieveEventsFrom(file) {
         }, []);
     }
 
-    return [...mixinEvents,...events];
+    return [...mixinEvents, ...events];
 }
 
 /**
@@ -187,7 +209,7 @@ function insertSnippet(file, fileName) {
     let tabStop = 1;
 
     const requiredPropsSnippetString = requiredProps.reduce((accumulator, prop) => {
-        return accumulator += ` :$${tabStop++}${propCase(prop)}="$${tabStop++}"`;
+        return (accumulator += ` :$${tabStop++}${propCase(prop)}="$${tabStop++}"`);
     }, '');
 
     fileName = caseFileName(fileName);
@@ -201,20 +223,20 @@ function propCase(prop) {
     const casing = config('propCase');
 
     if (casing === 'kebab') {
-        return _.kebabCase(prop);
+        return kebabCase(prop);
     }
 
-    return _.camelCase(prop);
+    return camelCase(prop);
 }
 
 function caseFileName(fileName) {
     const casing = config('componentCase');
 
     if (casing === 'kebab') {
-        return _.kebabCase(fileName);
+        return kebabCase(fileName);
     }
 
-    return _.upperFirst(_.camelCase(fileName));
+    return upperFirst(camelCase(fileName));
 }
 
 function getEditor() {
@@ -231,7 +253,9 @@ function getDocumentText() {
 
 function getAlias(fileWithoutRootPath) {
     const aliases = findAliases();
-    const aliasKey = Object.keys(aliases).find(alias => fileWithoutRootPath.startsWith(aliases[alias][0].replace('*', '')));
+    const aliasKey = Object.keys(aliases)?.find(alias =>
+        fileWithoutRootPath.startsWith(aliases[alias][0].replace('*', ''))
+    );
 
     let alias = null;
 
@@ -279,12 +303,13 @@ async function insertImport(file, fileName) {
     const text = getDocumentText();
     const match = /<script/.exec(text);
     const importPath = getImportPath(file, fileName);
+    const componentName = retrieveComponentName(file) || fileName;
 
-    if (text.indexOf(`import ${fileName} from '${importPath}`) === -1) {
+    if (text.indexOf(`import ${componentName} from '${importPath}`) === -1 && !isComponentRegistered(componentName)) {
         const scriptTagPosition = document.positionAt(match.index);
         const insertPosition = new Position(scriptTagPosition.line + 1, 0);
         await getEditor().edit(edit => {
-            edit.insert(insertPosition, `import ${fileName} from '${importPath}'\n`);
+            edit.insert(insertPosition, `import ${componentName} from '${importPath}'\n`);
         });
     }
 }
@@ -292,9 +317,7 @@ async function insertImport(file, fileName) {
 function getIndentBase() {
     const editor = getEditor();
 
-    return editor.options.insertSpaces
-        ? ' '.repeat(editor.options.tabSize)
-        : '\t';
+    return editor.options.insertSpaces ? ' '.repeat(toNumber(editor.options.tabSize)) : '\t';
 }
 
 function getIndent() {
@@ -324,7 +347,7 @@ async function insertComponents(text, componentName) {
 
 function componentCase(componentName) {
     if (config('componentCase') === 'kebab') {
-        return `'${_.kebabCase(componentName)}': ${componentName}`;
+        return `'${kebabCase(componentName)}': ${componentName}`;
     }
 
     return componentName;
@@ -373,6 +396,9 @@ function addTrailingComma(component) {
  * @param {String} componentName
  */
 async function insertComponent(componentName) {
+    if (isComponentRegistered(componentName)) {
+        return;
+    }
     componentName = addTrailingComma(componentCase(componentName));
     const text = getDocumentText();
 
@@ -392,11 +418,6 @@ async function insertComponent(componentName) {
     insertInExistingComponents(match, componentName);
 }
 
-function lineAt(line) {
-    const { text } = getDocument().lineAt(line);
-    return text;
-}
-
 function isPositionInBetweenTag(selector, position) {
     const document = getDocument();
     const text = getDocumentText();
@@ -411,6 +432,18 @@ function isPositionInBetweenTag(selector, position) {
     const endLine = document.positionAt(end).line;
 
     return position.line > startLine && position.line < endLine;
+}
+
+/**
+ * @param {vscode.TextDocument} document
+ * @returns {boolean} */
+function isPositionOverAComponentTag(document, position) {
+    if (!isCursorInTemplateSection()) {
+        return false;
+    }
+    const word = document.getText(document.getWordRangeAtPosition(position));
+    getComponentNameForLine(position.line);
+    return !!word;
 }
 
 function isCursorInBetweenTag(selector) {
@@ -438,7 +471,7 @@ function findAliases() {
 }
 
 function getRootPath() {
-    return workspace.rootPath;
+    return workspace.workspaceFolders[0].uri.path.slice(1);
 }
 
 function matchTagName(markup) {
@@ -457,7 +490,7 @@ function getComponentNameForLine(line, character = null) {
     let lineToCheck = line;
 
     do {
-        let lineContent = lineAt(lineToCheck);
+        let lineContent = getDocument().lineAt(lineToCheck)?.text;
 
         if (lineToCheck === line && character) {
             lineContent = lineContent.substring(0, character);
@@ -476,8 +509,14 @@ function getComponentNameForLine(line, character = null) {
         lineToCheck--;
     } while (component === false);
 
-    return _.upperFirst(_.camelCase(component.toString()));
+    return upperFirst(camelCase(component.toString()));
 }
+
+function findFileByComponentName(file, name) {
+    const compName = retrieveComponentName(file);
+    return compName ? compName === name : file.includes(`${name}.vue`);
+}
+
 async function getEventsForLine(line, character = null) {
     const component = getComponentNameForLine(line, character);
 
@@ -485,9 +524,7 @@ async function getEventsForLine(line, character = null) {
         return;
     }
 
-    const files = await getVueFiles();
-
-    const file = files.find(file => file.includes(component));
+    const file = vueFiles?.find(file => findFileByComponentName(file, component));
 
     if (!file) {
         return;
@@ -502,9 +539,7 @@ async function getPropsForLine(line, character = null) {
         return;
     }
 
-    const files = await getVueFiles();
-
-    const file = files.find(file => file.includes(component));
+    const file = vueFiles?.find(file => findFileByComponentName(file, component));
 
     if (!file) {
         return;
@@ -512,7 +547,6 @@ async function getPropsForLine(line, character = null) {
 
     return retrievePropsFrom(file);
 }
-
 
 function getComponentAtCursor() {
     const position = getActiveEditorPosition();
@@ -530,123 +564,137 @@ function isCursorInsideComponent() {
 function hoverContentFromProps(props) {
     return Object.keys(props).map(propName => {
         const { required, type } = props[propName];
-
-        let requiredText = '';
-        let typeText = '';
-
-        if (required) {
-            requiredText = '(required) ';
-        }
-
-        if (type) {
-            typeText = `: ${type.name}`;
-        }
-
+        const requiredText = required ? '(required) ' : '';
+        const typeText = type ? `: ${type.name}` : '';
         return `${requiredText}${propName}${typeText}`;
     });
 }
 
+/**
+ *  @param {String} name name of the component
+ * @returns {boolean} return true if component is registered in Vue */
+function isComponentRegistered(name) {
+    return vueRegisteredFiles.some(file => retrieveComponentName(file) === name);
+}
+
 function activate(context) {
-    languages.registerHoverProvider({ pattern: '**/*.vue' }, {
-        async provideHover(document, position) {
-            if (!isPositionInBetweenTag('template', position)) {
-                return;
-            }
+    /**
+     * @param {vscode.DocumentSelector} selector A selector that defines the documents this provider is applicable to.
+     * @param {vscode.HoverProvider} provider A hover provider
+     * @returns {vscode.Disposable} A disposable that unregisters this provider when being disposed.
+     */
+    languages.registerHoverProvider(
+        { pattern: '**/*.vue' },
+        {
+            async provideHover(document, position) {
+                if (!isPositionInBetweenTag('template', position)) {
+                    // if (!isPositionOverAComponentTag(document, position)) {
+                    return;
+                }
+                const props = await getPropsForLine(position.line);
+                if (!props) {
+                    return;
+                }
+                return { contents: hoverContentFromProps(props) };
+            },
+        }
+    );
 
-            jsFiles = await getJsFiles();
-            const props = await getPropsForLine(position.line);
+    const componentsCompletionItemProvider = languages.registerCompletionItemProvider(
+        { pattern: '**/*.vue' },
+        {
+            async provideCompletionItems() {
+                if (!isCursorInTemplateSection() || isCursorInsideComponent()) {
+                    return;
+                }
+                jsFiles = await getJsFiles();
+                const data = await getVueFiles();
+                vueFiles = data.vueFiles;
+                vueRegisteredFiles = data.vueRegisteredFiles;
+                return vueFiles?.map(createComponentCompletionItem);
+            },
+        }
+    );
 
-            if (!props) {
-                return;
-            }
+    const eventsCompletionItemProvider = languages.registerCompletionItemProvider(
+        { pattern: '**/*.vue' },
+        {
+            async provideCompletionItems(document, position) {
+                if (!isCursorInsideComponent()) {
+                    return;
+                }
 
+                const events = await getEventsForLine(position.line, position.character);
 
-            return {
-                contents: hoverContentFromProps(props),
-            };
+                if (!events) {
+                    return;
+                }
+
+                return events.map(createEventCompletionItem);
+            },
         },
-    });
+        '@'
+    );
 
-    const componentsCompletionItemProvider = languages.registerCompletionItemProvider({ pattern: '**/*.vue' }, {
-        async provideCompletionItems() {
-            if (!isCursorInTemplateSection() || isCursorInsideComponent()) {
-                return;
-            }
-            jsFiles = await getJsFiles();
-            const files = await getVueFiles();
+    const propsCompletionItemProvider = languages.registerCompletionItemProvider(
+        { pattern: '**/*.vue' },
+        {
+            async provideCompletionItems(document, position) {
+                if (!isCursorInsideComponent()) {
+                    return;
+                }
 
-            return files.map(createComponentCompletionItem);
+                const props = await getPropsForLine(position.line, position.character);
+
+                if (!props) {
+                    return;
+                }
+
+                return Object.keys(props).map(createPropCompletionItem);
+            },
         },
-    });
+        ':'
+    );
 
-    const eventsCompletionItemProvider = languages.registerCompletionItemProvider({ pattern: '**/*.vue' }, {
-        async provideCompletionItems(document, position) {
-            if (!isCursorInsideComponent()) {
-                return;
-            }
-
-            jsFiles = await getJsFiles();
-            const events = await getEventsForLine(position.line, position.character);
-
-            if (!events) {
-                return;
-            }
-
-            return events.map(createEventCompletionItem);
-        },
-    }, '@');
-
-    const propsCompletionItemProvider = languages.registerCompletionItemProvider({ pattern: '**/*.vue' }, {
-        async provideCompletionItems(document, position) {
-            if (!isCursorInsideComponent()) {
-                return;
-            }
-
-            jsFiles = await getJsFiles();
-            const props = await getPropsForLine(position.line, position.character);
-
-            if (!props) {
-                return;
-            }
-
-            return Object.keys(props).map(createPropCompletionItem);
-        },
-    }, ':');
-
-    const importExisting = commands.registerCommand('vueDiscovery.importExisting', async () => {
-        if (!hasScriptTagInactiveTextEditor()) {
+    const importExisting = commands.registerCommand('vueDiscoveryManchen.importExisting', async () => {
+        if (!hasScriptTagInActiveTextEditor()) {
             return window.showWarningMessage('Looks like there is no script tag in this file!');
         }
 
         const fileName = getComponentAtCursor();
-        const file = (await getVueFiles()).find(file => file.includes(`${fileName}.vue`));
+        const file = vueFiles?.find(file => findFileByComponentName(file, fileName));
 
         if (!fileName || !file) {
             return;
         }
 
-        jsFiles = await getJsFiles();
-
-        await insertImport(file, fileName.toString());
-        await insertComponent(fileName.toString());
+        const componentName = retrieveComponentName(file) || fileName;
+        await insertImport(file, componentName);
+        await insertComponent(componentName);
     });
 
-    const importFile = commands.registerCommand('vueDiscovery.importFile', async (file, fileName) => {
-        if (!hasScriptTagInactiveTextEditor()) {
+    const importFile = commands.registerCommand('vueDiscoveryManchen.importFile', async (file, fileName) => {
+        if (!hasScriptTagInActiveTextEditor()) {
             return window.showWarningMessage('Looks like there is no script tag in this file!');
         }
 
-        jsFiles = await getJsFiles();
-
         await insertImport(file, fileName);
-        await insertComponent(fileName);
-        await insertSnippet(file, fileName);
+        const componentName = retrieveComponentName(file) || fileName;
+        await insertComponent(componentName);
+        await insertSnippet(file, componentName);
     });
 
-    const setConfigOption = commands.registerCommand('vueDiscovery.tests.setConfigOption', (key, value) => {
+    const setConfigOption = commands.registerCommand('vueDiscoveryManchen.tests.setConfigOption', (key, value) => {
         configOverride[key] = value;
     });
-    context.subscriptions.push(componentsCompletionItemProvider, propsCompletionItemProvider, eventsCompletionItemProvider, importExisting, importFile, setConfigOption);
+    context.subscriptions.push(
+        componentsCompletionItemProvider,
+        propsCompletionItemProvider,
+        eventsCompletionItemProvider,
+        importExisting,
+        importFile,
+        setConfigOption
+    );
 }
 
 module.exports = {

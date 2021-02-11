@@ -1,25 +1,24 @@
 <template>
-    <div @click="$emit('eventInComponent')"></div>
+    <div></div>
 </template>
 
 <script>
 import mixinUsingMixin from '@/mixins/mixinUsingMixin';
 export default {
     mixins: [mixinUsingMixin],
-    name: 'ComponentWithPropsName',
+    name: 'RegisteredComponentName',
     props: {
-        label: {
+        value: {
             type: String,
             required: false,
-            value: '',
+            default: '',
         },
-        defaultValue: {
+        anotherValue: {
             type: String,
             required: true,
-            value: '',
+            value: 'defaultValue',
         },
     },
-    created() {},
 };
 </script>
 

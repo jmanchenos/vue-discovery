@@ -1,13 +1,10 @@
 {
-	"compilerOptions": {
-		"module": "commonjs",
-		"target": "es6",
-		"checkJs": true,
-		"lib": [
-			"es6"
-		]
-	},
-	"includes": [
-		"src/**/*"
-	]
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es6",
+        "checkJs": true,
+        "lib": ["es6"],
+        "newLine": "lf"
+    },
+    "includes": ["src/**/*"]
 }

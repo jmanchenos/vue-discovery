@@ -6,6 +6,6 @@ export default {
         },
     },
     mounted() {
-        this.$emit('eventInMixin')
-    }
+        this.$emit('eventInMixin');
+    },
 };

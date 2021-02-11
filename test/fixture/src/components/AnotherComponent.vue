@@ -1,13 +1,12 @@
 <template>
-  <div>
-
-  </div>
+    <div></div>
 </template>
 
 <script>
 import mixinUsingMixin from '@/mixins/mixinUsingMixin';
 export default {
     mixins: [mixinUsingMixin],
+    name: 'AnotherComponentName',
     props: {
         value: {
             type: String,
@@ -18,6 +17,4 @@ export default {
 };
 </script>
 
-<style>
-
-</style>
+<style></style>
