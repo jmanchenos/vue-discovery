@@ -70,20 +70,20 @@ function retrieveWithDirectoryInformationFromFile(file) {
 }
 
 /**
- * Creates a completion item for a components from a path
- * @param {String} file
+ * Creates a completion item for a components from a tuple {filePath, componentName}
+ * @param {Object} item
  */
-function createComponentCompletionItem(file) {
-    const fileName = retrieveComponentNameFromFile(file);
+function createComponentCompletionItem(item) {
+    const fileName = retrieveComponentNameFromFile(item.filePath);
 
-    const componentName = retrieveComponentName(file) || fileName;
+    const componentName = item.componentName || fileName;
     const snippetCompletion = new CompletionItem(componentName, CompletionItemKind.Constructor);
 
-    snippetCompletion.detail = retrieveWithDirectoryInformationFromFile(file);
+    snippetCompletion.detail = retrieveWithDirectoryInformationFromFile(item.filePath);
     snippetCompletion.command = {
         title: 'Import file',
         command: 'vueDiscoveryManchen.importFile',
-        arguments: [file, fileName],
+        arguments: [item.filePath, fileName],
     };
 
     // We don't want to insert anything here since this will be done in the importFile command
@@ -452,8 +452,8 @@ function isPositionOverAComponentTag(document, position) {
         return false;
     }
     const word = document.getText(document.getWordRangeAtPosition(position));
-    getComponentNameForLine(position.line);
-    return !!word;
+
+    return vueFiles.some(item => item.componentName === word);
 }
 
 function isCursorInBetweenTag(selector) {
@@ -522,10 +522,10 @@ function getComponentNameForLine(line, character = null) {
     return upperFirst(camelCase(component.toString()));
 }
 
-function findFileByComponentName(file, name) {
-    const compName = retrieveComponentName(file);
-    return compName ? compName === name : file.includes(`${name}.vue`);
-}
+// function findFileByComponentName(file, name) {
+//     const compName = retrieveComponentName(file);
+//     return compName ? compName === name : file.includes(`${name}.vue`);
+// }
 
 async function getEventsForLine(line, character = null) {
     const component = getComponentNameForLine(line, character);
@@ -534,7 +534,8 @@ async function getEventsForLine(line, character = null) {
         return;
     }
 
-    const file = vueFiles?.find(file => findFileByComponentName(file, component));
+    // const file = vueFiles?.find(file => findFileByComponentName(file, component));
+    const file = vueFiles?.find(item => item.componentName === component);
 
     if (!file) {
         return;
@@ -549,7 +550,8 @@ async function getPropsForLine(line, character = null) {
         return;
     }
 
-    const file = vueFiles?.find(file => findFileByComponentName(file, component));
+    // const file = vueFiles?.find(file => findFileByComponentName(file, component));
+    const file = vueFiles?.find(item => item.componentName === component).filePath;
 
     if (!file) {
         return;
@@ -584,7 +586,7 @@ function hoverContentFromProps(props) {
  *  @param {String} name name of the component
  * @returns {boolean} return true if component is registered in Vue */
 function isComponentRegistered(name) {
-    return vueRegisteredFiles.some(file => retrieveComponentName(file) === name);
+    return vueRegisteredFiles.some(item => retrieveComponentName(item.filePath) === name);
 }
 
 function activate(context) {
@@ -598,7 +600,9 @@ function activate(context) {
         {
             async provideHover(document, position) {
                 if (!isPositionInBetweenTag('template', position)) {
-                    // if (!isPositionOverAComponentTag(document, position)) {
+                    return;
+                }
+                if (!isPositionOverAComponentTag(document, position)) {
                     return;
                 }
                 const props = await getPropsForLine(position.line);
@@ -619,12 +623,22 @@ function activate(context) {
                 }
                 jsFiles = await getJsFiles();
                 const data = await getVueFiles();
-                vueFiles = data.vueFiles;
-                vueRegisteredFiles = data.vueRegisteredFiles;
+                vueFiles = data.vueFiles.map(getComponentTuple);
+                vueRegisteredFiles = data.vueRegisteredFiles.map(getComponentTuple);
                 return vueFiles?.map(createComponentCompletionItem);
             },
         }
     );
+
+    /**
+     * Provides tuple object with fileName and component name
+     * @param {string} filePath
+     * @returns {object}  object with 2 properties: fileName and componentName
+     */
+    const getComponentTuple = function(filePath) {
+        const componentName = retrieveComponentName(filePath);
+        return { filePath, componentName };
+    };
 
     const eventsCompletionItemProvider = languages.registerCompletionItemProvider(
         { pattern: '**/*.vue' },
@@ -690,7 +704,8 @@ function activate(context) {
         }
 
         const fileName = getComponentAtCursor();
-        const file = vueFiles?.find(file => findFileByComponentName(file, fileName));
+        // const file = vueFiles?.find(file => findFileByComponentName(file, fileName));
+        const file = vueFiles?.find(item => item.componentName === fileName)?.filePath;
 
         if (!fileName || !file) {
             return;
