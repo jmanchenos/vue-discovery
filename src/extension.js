@@ -12,6 +12,9 @@ let jsFiles,
     vueFiles,
     vueRegisteredFiles = [];
 
+function pascalCase(str) {
+    return upperFirst(camelCase(str));
+}
 /**
  * @param {String} extension  extension of the file
  * @param {String} configAtrib  atribute of config that contains list of path on which search files
@@ -74,16 +77,16 @@ function retrieveWithDirectoryInformationFromFile(file) {
  * @param {Object} item
  */
 function createComponentCompletionItem(item) {
-    const fileName = retrieveComponentNameFromFile(item.filePath);
+    const fileName = retrieveComponentNameFromFile(item?.filePath);
 
     const componentName = item.componentName || fileName;
     const snippetCompletion = new CompletionItem(componentName, CompletionItemKind.Constructor);
 
-    snippetCompletion.detail = retrieveWithDirectoryInformationFromFile(item.filePath);
+    snippetCompletion.detail = retrieveWithDirectoryInformationFromFile(item?.filePath);
     snippetCompletion.command = {
         title: 'Import file',
         command: 'vueDiscoveryManchen.importFile',
-        arguments: [item.filePath, fileName],
+        arguments: [item?.filePath, fileName],
     };
 
     // We don't want to insert anything here since this will be done in the importFile command
@@ -140,7 +143,9 @@ function config(key) {
 function retrieveComponentName(file) {
     const content = fs.readFileSync(file, 'utf8');
     const { name } = vueParser.parser(content);
-    return name;
+    const casing = config('componentCase');
+
+    return casing === 'pascal' ? pascalCase(name) : kebabCase(name);
 }
 
 /**
@@ -231,22 +236,12 @@ function insertSnippet(file, fileName) {
 
 function propCase(prop) {
     const casing = config('propCase');
-
-    if (casing === 'kebab') {
-        return kebabCase(prop);
-    }
-
-    return camelCase(prop);
+    return casing === 'kebab' ? kebabCase(prop) : camelCase(prop);
 }
 
 function caseFileName(fileName) {
     const casing = config('componentCase');
-
-    if (casing === 'kebab') {
-        return kebabCase(fileName);
-    }
-
-    return upperFirst(camelCase(fileName));
+    return casing === 'kebab' ? kebabCase(fileName) : pascalCase(fileName);
 }
 
 function getEditor() {
@@ -357,7 +352,7 @@ async function insertComponents(text, componentName) {
 
 function componentCase(componentName) {
     if (config('componentCase') === 'kebab') {
-        return `'${kebabCase(componentName)}': ${componentName}`;
+        return `'${kebabCase(componentName)}': ${pascalCase(componentName)}`;
     }
 
     return componentName;
@@ -451,9 +446,9 @@ function isPositionOverAComponentTag(document, position) {
     if (!isCursorInTemplateSection()) {
         return false;
     }
-    const word = document.getText(document.getWordRangeAtPosition(position));
+    const word = document.getText(document.getWordRangeAtPosition(position, /\w[-\w\.]*/g));
 
-    return vueFiles.some(item => item.componentName === word);
+    return vueFiles.some(item => kebabCase(item.componentName) === kebabCase(word));
 }
 
 function isCursorInBetweenTag(selector) {
@@ -518,14 +513,9 @@ function getComponentNameForLine(line, character = null) {
 
         lineToCheck--;
     } while (component === false);
-
-    return upperFirst(camelCase(component.toString()));
+    const casing = config('componentCase');
+    return casing === 'kebab' ? kebabCase(component.toString()) : pascalCase(component.toString());
 }
-
-// function findFileByComponentName(file, name) {
-//     const compName = retrieveComponentName(file);
-//     return compName ? compName === name : file.includes(`${name}.vue`);
-// }
 
 async function getEventsForLine(line, character = null) {
     const component = getComponentNameForLine(line, character);
@@ -534,8 +524,7 @@ async function getEventsForLine(line, character = null) {
         return;
     }
 
-    // const file = vueFiles?.find(file => findFileByComponentName(file, component));
-    const file = vueFiles?.find(item => item.componentName === component);
+    const file = vueFiles?.find(item => item.componentName === component)?.filePath;
 
     if (!file) {
         return;
@@ -550,8 +539,7 @@ async function getPropsForLine(line, character = null) {
         return;
     }
 
-    // const file = vueFiles?.find(file => findFileByComponentName(file, component));
-    const file = vueFiles?.find(item => item.componentName === component).filePath;
+    const file = vueFiles?.find(item => item.componentName === component)?.filePath;
 
     if (!file) {
         return;
@@ -586,7 +574,7 @@ function hoverContentFromProps(props) {
  *  @param {String} name name of the component
  * @returns {boolean} return true if component is registered in Vue */
 function isComponentRegistered(name) {
-    return vueRegisteredFiles.some(item => retrieveComponentName(item.filePath) === name);
+    return vueRegisteredFiles.some(item => retrieveComponentName(item?.filePath) === name);
 }
 
 function activate(context) {
@@ -704,7 +692,6 @@ function activate(context) {
         }
 
         const fileName = getComponentAtCursor();
-        // const file = vueFiles?.find(file => findFileByComponentName(file, fileName));
         const file = vueFiles?.find(item => item.componentName === fileName)?.filePath;
 
         if (!fileName || !file) {
