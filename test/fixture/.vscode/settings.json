@@ -1,4 +1,4 @@
 {
-    "vueDiscoveryManchen.registeredDirectory": "/src/registeredComponents",
-    "vueDiscoveryManchen.rootDirectory": "/src/components;/src/mixins"
+    "VueDiscoveryMTM.registeredDirectory": "/src/registeredComponents",
+    "VueDiscoveryMTM.rootDirectory": "/src/components;/src/mixins"
 }

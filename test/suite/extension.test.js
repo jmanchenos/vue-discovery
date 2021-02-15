@@ -42,16 +42,16 @@ describe('Interactions', function() {
         '<ComponentWithPropsName :name="" :names="" :default-value=""></ComponentWithPropsName>';
 
     before('activate', async () => {
-        await vscode.commands.executeCommand('vueDiscoveryManchen.tests.setConfigOption', 'componentCase', 'pascal');
-        await vscode.commands.executeCommand('vueDiscoveryManchen.tests.setConfigOption', 'propCase', 'kebab');
-        await vscode.commands.executeCommand('vueDiscoveryManchen.tests.setConfigOption', 'addTrailingComma', true);
+        await vscode.commands.executeCommand('VueDiscoveryMTM.tests.setConfigOption', 'componentCase', 'pascal');
+        await vscode.commands.executeCommand('VueDiscoveryMTM.tests.setConfigOption', 'propCase', 'kebab');
+        await vscode.commands.executeCommand('VueDiscoveryMTM.tests.setConfigOption', 'addTrailingComma', true);
         await vscode.commands.executeCommand(
-            'vueDiscoveryManchen.tests.setConfigOption',
+            'VueDiscoveryMTM.tests.setConfigOption',
             'registeredDirectory',
             '/src/registeredComponents'
         );
         await vscode.commands.executeCommand(
-            'vueDiscoveryManchen.tests.setConfigOption',
+            'VueDiscoveryMTM.tests.setConfigOption',
             'rootDirectory',
             '/src/components;/src/mixins'
         );
@@ -73,7 +73,7 @@ describe('Interactions', function() {
         editor.selection = new vscode.Selection(pos, pos);
 
         await vscode.commands.executeCommand(
-            'vueDiscoveryManchen.importFile',
+            'VueDiscoveryMTM.importFile',
             getDocPathWithSlash('components/ComponentWithProps.vue'),
             'ComponentWithProps'
         );
@@ -118,7 +118,7 @@ describe('Interactions', function() {
         editor.selection = new vscode.Selection(pos, pos);
 
         await vscode.commands.executeCommand(
-            'vueDiscoveryManchen.importFile',
+            'VueDiscoveryMTM.importFile',
             getDocPathWithSlash('components/ComponentWithProps.vue'),
             'ComponentWithProps'
         );
@@ -147,7 +147,7 @@ describe('Interactions', function() {
         editor.selection = new vscode.Selection(pos, pos);
 
         await vscode.commands.executeCommand(
-            'vueDiscoveryManchen.importFile',
+            'VueDiscoveryMTM.importFile',
             getDocPathWithSlash('components/AnotherComponent.vue'),
             'AnotherComponent'
         );

@@ -85,7 +85,7 @@ function createComponentCompletionItem(item) {
     snippetCompletion.detail = retrieveWithDirectoryInformationFromFile(item?.filePath);
     snippetCompletion.command = {
         title: 'Import file',
-        command: 'vueDiscoveryManchen.importFile',
+        command: 'VueDiscoveryMTM.importFile',
         arguments: [item?.filePath, fileName],
     };
 
@@ -133,7 +133,7 @@ function config(key) {
         return configOverride[key];
     }
 
-    return workspace.getConfiguration().get(`vueDiscoveryManchen.${key}`);
+    return workspace.getConfiguration().get(`VueDiscoveryMTM.${key}`);
 }
 
 /**
@@ -699,7 +699,7 @@ function activate(context) {
         ':'
     );
 
-    const importExisting = commands.registerCommand('vueDiscoveryManchen.importExisting', async () => {
+    const importExisting = commands.registerCommand('VueDiscoveryMTM.importExisting', async () => {
         if (!hasScriptTagInActiveTextEditor()) {
             return window.showWarningMessage('Looks like there is no script tag in this file!');
         }
@@ -716,7 +716,7 @@ function activate(context) {
         await insertComponent(componentName);
     });
 
-    const importFile = commands.registerCommand('vueDiscoveryManchen.importFile', async (file, fileName) => {
+    const importFile = commands.registerCommand('VueDiscoveryMTM.importFile', async (file, fileName) => {
         if (!hasScriptTagInActiveTextEditor()) {
             return window.showWarningMessage('Looks like there is no script tag in this file!');
         }
@@ -727,7 +727,7 @@ function activate(context) {
         await insertSnippet(file, componentName);
     });
 
-    const setConfigOption = commands.registerCommand('vueDiscoveryManchen.tests.setConfigOption', (key, value) => {
+    const setConfigOption = commands.registerCommand('VueDiscoveryMTM.tests.setConfigOption', (key, value) => {
         configOverride[key] = value;
     });
     context.subscriptions.push(
