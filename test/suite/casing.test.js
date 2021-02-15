@@ -10,13 +10,13 @@ const {
 } = require('../helpers');
 
 const components = [
-    Object.assign(new vscode.CompletionItem('ComponentWithPropsName', vscode.CompletionItemKind.Constructor), {
+    Object.assign(new vscode.CompletionItem('component-with-props-name', vscode.CompletionItemKind.Constructor), {
         detail: 'components/ComponentWithProps.vue',
     }),
-    Object.assign(new vscode.CompletionItem('AnotherComponentName', vscode.CompletionItemKind.Constructor), {
+    Object.assign(new vscode.CompletionItem('another-component-name', vscode.CompletionItemKind.Constructor), {
         detail: 'components/AnotherComponent.vue',
     }),
-    Object.assign(new vscode.CompletionItem('RegisteredComponentName', vscode.CompletionItemKind.Constructor), {
+    Object.assign(new vscode.CompletionItem('registered-component-name', vscode.CompletionItemKind.Constructor), {
         detail: 'registeredComponents/RegisteredComponent.vue',
     }),
 ];

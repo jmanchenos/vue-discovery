@@ -321,7 +321,7 @@ async function insertImport(file, fileName) {
     const text = getDocumentText();
     const match = /<script/.exec(text);
     const importPath = getImportPath(file, fileName);
-    const componentName = retrieveComponentName(file) || fileName;
+    const componentName = pascalCase(retrieveComponentName(file) || fileName);
 
     if (text.indexOf(`import ${componentName} from '${importPath}`) === -1 && !isComponentRegistered(componentName)) {
         const scriptTagPosition = document.positionAt(match.index);
