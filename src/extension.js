@@ -142,10 +142,23 @@ function config(key) {
  */
 function retrieveComponentName(file) {
     const content = fs.readFileSync(file, 'utf8');
-    const { name } = vueParser.parser(content);
+    const options = {
+        onComputed: null,
+        onDesc: null,
+        onProp: null,
+        onEvent: null,
+        onMixin: null,
+        onMethod: null,
+        onData: null,
+        onWatch: null,
+    };
+    const { name } = vueParser.parser(content, options);
     const casing = config('componentCase');
-
-    return casing === 'pascal' ? pascalCase(name) : kebabCase(name);
+    if (!name) {
+        return '';
+    } else {
+        return casing === 'pascal' ? pascalCase(name) : kebabCase(name);
+    }
 }
 
 /**
@@ -448,7 +461,7 @@ function isPositionOverAComponentTag(document, position) {
     }
     const word = document.getText(document.getWordRangeAtPosition(position, /\w[-\w\.]*/g));
 
-    return vueFiles.some(item => kebabCase(item.componentName) === kebabCase(word));
+    return vueFiles?.some(item => kebabCase(item.componentName) === kebabCase(word));
 }
 
 function isCursorInBetweenTag(selector) {
@@ -574,7 +587,7 @@ function hoverContentFromProps(props) {
  *  @param {String} name name of the component
  * @returns {boolean} return true if component is registered in Vue */
 function isComponentRegistered(name) {
-    return vueRegisteredFiles.some(item => retrieveComponentName(item?.filePath) === name);
+    return vueRegisteredFiles?.some(item => retrieveComponentName(item?.filePath) === name);
 }
 
 function activate(context) {
