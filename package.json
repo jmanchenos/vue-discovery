@@ -28,7 +28,7 @@
                 },
                 "VueDiscoveryMTM.registeredDirectory": {
                     "type": "string",
-                    "default": "/sgtnj-vue-components",
+                    "default": "/sgtnj-vue-components/src/components",
                     "description": "list of root directories in your workspace on whcich search registered components separated by ;"
                 },
                 "VueDiscoveryMTM.componentCase": {
