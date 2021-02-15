@@ -102,11 +102,14 @@ function createComponentCompletionItem(item) {
  * @returns {vscode.CompletionItem}
  */
 function createPropCompletionItem(prop, isBeforeSpace, isAfterSpace) {
-    const snippetCompletion = new CompletionItem(prop, CompletionItemKind.Property);
+    const propIconType = config('propIconType');
+    const snippetCompletion = new CompletionItem(prop, CompletionItemKind[`${propIconType}`]);
 
     snippetCompletion.insertText = new SnippetString(
         `${isBeforeSpace ? '' : ' '}${prop}="$0"${isAfterSpace ? '' : ' '}`
     );
+
+    snippetCompletion.detail = 'Vue Discovery MTM';
 
     return snippetCompletion;
 }
@@ -117,7 +120,7 @@ function createEventCompletionItem(event, isBeforeSpace, isAfterSpace) {
     snippetCompletion.insertText = new SnippetString(
         `${isBeforeSpace ? '' : ' '}@${kebabCase(event)}="$0"${isAfterSpace ? '' : ' '}`
     );
-
+    snippetCompletion.detail = 'Vue Discovery MTM';
     return snippetCompletion;
 }
 

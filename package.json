@@ -53,6 +53,24 @@
                     ],
                     "default": "kebab",
                     "description": "The casing of the props"
+                },
+                "VueDiscoveryMTM.propIconType": {
+                    "type": "string",
+                    "enum": [
+                        "Constant",
+                        "Constructor",
+                        "Enum",
+                        "Field",
+                        "Keyword",
+                        "Module",
+                        "Property",
+                        "Snippet",
+                        "Text",
+                        "Value",
+                        "Variable"
+                    ],
+                    "default": "Property",
+                    "description": "The type of icon shown for properties of the component"
                 }
             }
         },
