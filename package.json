@@ -2,7 +2,7 @@
     "name": "vue-discovery",
     "displayName": "Vue Discovery MTM",
     "description": "This extension discovers Vue components in your workspace and provides IntelliSense for them.",
-    "publisher": "",
+    "publisher": "jmanchenos",
     "repository": "https://github.com/jmanchenos/vue-discovery",
     "version": "1.5.0",
     "icon": "images/icon.png",
