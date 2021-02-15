@@ -60,26 +60,6 @@ This extension can be customized with the following settings:
 
 ## 🔖 Release Notes
 
-### 1.4.0
+### 0.1.0
 
-Add IntelliSense for events
-
-### 1.3.1
-
-Fix relative import for relative paths.
-
-### 1.3.0
-
-Add badges to readme and update description.
-
-### 1.2.0
-
-Add badges to readme and update description.
-
-### 1.1.0
-
-Add icon.
-
-### 1.0.0
-
-Initial release of Vue discovery.
+Initial version
