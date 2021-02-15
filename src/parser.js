@@ -125,8 +125,9 @@ class Parser {
     events() {
         const events = this.content.match(/\$emit\(['"][A-Za-z\-:]+/g);
 
-        this.parsed.events = (events || []).map(event => event.slice(7, event.length));
-
+        const eventList = (events || []).map(event => event.slice(7, event.length));
+        //Eliminate duplicates
+        this.parsed.events = [...new Set([...eventList])];
         return this;
     }
     template() {
