@@ -47,7 +47,7 @@ async function getVueFiles() {
 }
 
 async function getJsFiles() {
-    return await getFilesByExtension('js');
+    return getFilesByExtension('js');
 }
 
 /**
@@ -132,11 +132,7 @@ function hasScriptTagInActiveTextEditor() {
 }
 
 function config(key) {
-    if (key in configOverride) {
-        return configOverride[key];
-    }
-
-    return workspace.getConfiguration().get(`VueDiscoveryMTM.${key}`);
+    return key in configOverride ? configOverride[key] : workspace.getConfiguration().get(`VueDiscoveryMTM.${key}`);
 }
 
 /**
@@ -176,12 +172,7 @@ function retrievePropsFrom(file) {
     if (mixins) {
         mixinProps = mixins.reduce((accumulator, mixin) => {
             const _file = jsFiles?.find(f => f.includes(mixin));
-
-            if (!_file) {
-                return accumulator;
-            }
-
-            return { ...accumulator, ...retrievePropsFrom(_file) };
+            return !_file ? accumulator : { ...accumulator, ...retrievePropsFrom(_file) };
         }, {});
     }
 
@@ -201,12 +192,7 @@ function retrieveEventsFrom(file) {
     if (mixins) {
         mixinEvents = mixins.reduce((accumulator, mixin) => {
             const _file = jsFiles?.find(f => f.includes(mixin));
-
-            if (!_file) {
-                return accumulator;
-            }
-
-            return [...accumulator, ...retrieveEventsFrom(_file)];
+            return !_file ? accumulator : [...accumulator, ...retrieveEventsFrom(_file)];
         }, []);
     }
 
@@ -219,14 +205,9 @@ function retrieveEventsFrom(file) {
  */
 function retrieveRequirePropsFromFile(file) {
     const props = retrievePropsFrom(file);
-
-    if (!props) {
-        return;
+    if (props) {
+        return Object.keys(props).filter(prop => props[prop].required);
     }
-
-    return Object.keys(props).filter(prop => {
-        return props[prop].required;
-    });
 }
 
 /**
@@ -291,27 +272,22 @@ function getRelativePath(fileWithoutRootPath) {
     const openFileWithoutRootPath = getDocument().uri.fsPath.replace(`${getRootPath()}/`, '');
 
     const importPath = path.relative(path.dirname(openFileWithoutRootPath), path.dirname(fileWithoutRootPath));
-
+    let result = `./${importPath}`;
     if (importPath === '') {
-        return '.';
+        result = '.';
+    } else if (importPath.startsWith('..')) {
+        result = importPath;
     }
-
-    if (importPath.startsWith('..')) {
-        return importPath;
-    }
-
-    return `./${importPath}`;
+    return result;
 }
 
 function getImportPath(file, fileName) {
     const fileWithoutRootPath = file.replace(`${getRootPath()}/`, '');
     const alias = getAlias(fileWithoutRootPath);
 
-    if (alias) {
-        return fileWithoutRootPath.replace(`${alias.path}`, alias.value);
-    }
-
-    return `${getRelativePath(fileWithoutRootPath)}/${fileName}.vue`;
+    return alias
+        ? fileWithoutRootPath.replace(`${alias.path}`, alias.value)
+        : `${getRelativePath(fileWithoutRootPath)}/${fileName}.vue`;
 }
 
 /**
@@ -367,11 +343,9 @@ async function insertComponents(text, componentName) {
 }
 
 function componentCase(componentName) {
-    if (config('componentCase') === 'kebab') {
-        return `'${kebabCase(componentName)}': ${pascalCase(componentName)}`;
-    }
-
-    return componentName;
+    return config('componentCase') === 'kebab'
+        ? `'${kebabCase(componentName)}': ${pascalCase(componentName)}`
+        : componentName;
 }
 /**
  * Inserts the component in an existing components section
@@ -406,11 +380,7 @@ async function insertInExistingComponents(match, componentName) {
     });
 }
 function addTrailingComma(component) {
-    if (!config('addTrailingComma')) {
-        return component;
-    }
-
-    return `${component},`;
+    return !config('addTrailingComma') ? component : `${component},`;
 }
 /**
  * Checks whether to create a new components section or append to an existing one and appends it
@@ -499,11 +469,7 @@ function matchTagName(markup) {
     const pattern = /<([^\s></]+)/;
     const match = markup.match(pattern);
 
-    if (match) {
-        return match[1];
-    }
-
-    return false;
+    return match ? match[1] : false;
 }
 
 function getComponentNameForLine(line, character = null) {
@@ -536,42 +502,28 @@ function getComponentNameForLine(line, character = null) {
 async function getEventsForLine(line, character = null) {
     const component = getComponentNameForLine(line, character);
 
-    if (!component) {
-        return;
+    if (component) {
+        const file = vueFiles?.find(item => item.componentName === component)?.filePath;
+        if (file) {
+            return retrieveEventsFrom(file);
+        }
     }
-
-    const file = vueFiles?.find(item => item.componentName === component)?.filePath;
-
-    if (!file) {
-        return;
-    }
-
-    return retrieveEventsFrom(file);
 }
 async function getPropsForLine(line, character = null) {
     const component = getComponentNameForLine(line, character);
 
-    if (!component) {
-        return;
+    if (component) {
+        const file = vueFiles?.find(item => item.componentName === component)?.filePath;
+        if (file) {
+            return retrievePropsFrom(file);
+        }
     }
-
-    const file = vueFiles?.find(item => item.componentName === component)?.filePath;
-
-    if (!file) {
-        return;
-    }
-
-    return retrievePropsFrom(file);
 }
 
 function getComponentAtCursor() {
     const position = getActiveEditorPosition();
 
-    if (!position) {
-        return false;
-    }
-
-    return getComponentNameForLine(position.line);
+    return !position ? false : getComponentNameForLine(position.line);
 }
 function isCursorInsideComponent() {
     return getComponentAtCursor() !== false;
@@ -603,17 +555,12 @@ function activate(context) {
         { pattern: '**/*.vue' },
         {
             async provideHover(document, position) {
-                if (!isPositionInBetweenTag('template', position)) {
-                    return;
+                if (isPositionInBetweenTag('template', position) && isPositionOverAComponentTag(document, position)) {
+                    const props = await getPropsForLine(position.line);
+                    if (props) {
+                        return { contents: hoverContentFromProps(props) };
+                    }
                 }
-                if (!isPositionOverAComponentTag(document, position)) {
-                    return;
-                }
-                const props = await getPropsForLine(position.line);
-                if (!props) {
-                    return;
-                }
-                return { contents: hoverContentFromProps(props) };
             },
         }
     );
