@@ -16,12 +16,9 @@ class Parser {
         const indexOfTagStart = this.content.indexOf(tagStart);
         const indexOfTagEnd = this.content.indexOf(tagEnd);
 
-        // Can't find the tag
-        if (indexOfTagStart === -1 || indexOfTagEnd === -1) {
-            return null;
-        }
-
-        return this.content.substring(indexOfTagStart, indexOfTagEnd + tagEnd.length);
+        return indexOfTagStart === -1 || indexOfTagEnd === -1
+            ? null
+            : this.content.substring(indexOfTagStart, indexOfTagEnd + tagEnd.length);
     }
     getPositionOfStartAndEnd(content, startCharacter, endCharacter) {
         const position = {
@@ -74,11 +71,7 @@ class Parser {
             '}'
         );
 
-        if (!content || !start || !end) {
-            return null;
-        }
-
-        return content.substring(start, end);
+        return !content || !start || !end ? null : content.substring(start, end);
     }
     attributeWithArrayNotation(attribute) {
         const { content, start, end } = this.startAtAndGetPositionOfStartAndEnd(
@@ -88,14 +81,12 @@ class Parser {
             ']'
         );
 
-        if (!content || !start || !end) {
-            return null;
-        }
-
-        return content
-            .substring(start + 1, end - 1)
-            .split(',')
-            .map(mixin => mixin.trim());
+        return !content || !start || !end
+            ? null
+            : content
+                  .substring(start + 1, end - 1)
+                  .split(',')
+                  .map(mixin => mixin.trim());
     }
 
     mixins() {

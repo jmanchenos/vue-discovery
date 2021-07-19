@@ -175,13 +175,13 @@ function retrievePropsFrom(file) {
 
     if (mixins) {
         mixinProps = mixins.reduce((accumulator, mixin) => {
-            const file = jsFiles?.find(file => file.includes(mixin));
+            const _file = jsFiles?.find(f => f.includes(mixin));
 
-            if (!file) {
+            if (!_file) {
                 return accumulator;
             }
 
-            return { ...accumulator, ...retrievePropsFrom(file) };
+            return { ...accumulator, ...retrievePropsFrom(_file) };
         }, {});
     }
 
@@ -200,13 +200,13 @@ function retrieveEventsFrom(file) {
 
     if (mixins) {
         mixinEvents = mixins.reduce((accumulator, mixin) => {
-            const file = jsFiles?.find(file => file.includes(mixin));
+            const _file = jsFiles?.find(f => f.includes(mixin));
 
-            if (!file) {
+            if (!_file) {
                 return accumulator;
             }
 
-            return [...accumulator, ...retrieveEventsFrom(file)];
+            return [...accumulator, ...retrieveEventsFrom(_file)];
         }, []);
     }
 
@@ -240,7 +240,7 @@ function insertSnippet(file, fileName) {
     let tabStop = 1;
 
     const requiredPropsSnippetString = requiredProps.reduce((accumulator, prop) => {
-        return (accumulator += ` :$${tabStop++}${propCase(prop)}="$${tabStop++}"`);
+        return `${accumulator} :$${tabStop++}${propCase(prop)}="$${tabStop++}"`;
     }, '');
 
     fileName = caseFileName(fileName);
@@ -274,8 +274,8 @@ function getDocumentText() {
 
 function getAlias(fileWithoutRootPath) {
     const aliases = findAliases();
-    const aliasKey = Object.keys(aliases)?.find(alias =>
-        fileWithoutRootPath.startsWith(aliases[alias][0].replace('*', ''))
+    const aliasKey = Object.keys(aliases)?.find(key =>
+        fileWithoutRootPath.startsWith(aliases[key][0].replace('*', ''))
     );
 
     let alias = null;
@@ -288,7 +288,7 @@ function getAlias(fileWithoutRootPath) {
 }
 
 function getRelativePath(fileWithoutRootPath) {
-    const openFileWithoutRootPath = getDocument().uri.fsPath.replace(getRootPath() + '/', '');
+    const openFileWithoutRootPath = getDocument().uri.fsPath.replace(`${getRootPath()}/`, '');
 
     const importPath = path.relative(path.dirname(openFileWithoutRootPath), path.dirname(fileWithoutRootPath));
 
@@ -304,7 +304,7 @@ function getRelativePath(fileWithoutRootPath) {
 }
 
 function getImportPath(file, fileName) {
-    const fileWithoutRootPath = file.replace(getRootPath() + '/', '');
+    const fileWithoutRootPath = file.replace(`${getRootPath()}/`, '');
     const alias = getAlias(fileWithoutRootPath);
 
     if (alias) {
@@ -410,7 +410,7 @@ function addTrailingComma(component) {
         return component;
     }
 
-    return component + ',';
+    return `${component},`;
 }
 /**
  * Checks whether to create a new components section or append to an existing one and appends it
@@ -483,7 +483,7 @@ function isCursorInTemplateSection() {
 
 function findAliases() {
     try {
-        const { compilerOptions } = require(getRootPath() + '/jsconfig.json');
+        const { compilerOptions } = require(`${getRootPath()}/jsconfig.json`);
 
         return compilerOptions.paths;
     } catch (e) {
@@ -639,7 +639,7 @@ function activate(context) {
      * @param {string} filePath
      * @returns {object}  object with 2 properties: fileName and componentName
      */
-    const getComponentTuple = function(filePath) {
+    const getComponentTuple = filePath => {
         const componentName = retrieveComponentName(filePath);
         return { filePath, componentName };
     };
