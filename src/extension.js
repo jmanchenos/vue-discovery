@@ -120,17 +120,18 @@ function createComponentCompletionItem(item) {
 
 /**
  * @param {String} prop
- * @param {boolean}  isBeforeSpace
- * @param {boolean} isAfterSpace
+ * @param {String} charBefore
+ * @param {String} charAfter
  * @returns {vscode.CompletionItem}
  */
-function createPropCompletionItem(prop, isBeforeSpace, isAfterSpace) {
+function createPropCompletionItem(prop, charBefore, charAfter) {
     try {
         const propIconType = config('propIconType');
         const snippetCompletion = new CompletionItem(prop, CompletionItemKind[`${propIconType}`]);
-
+        const includeSpaceBefore = ![' ', ':'].includes(charBefore);
+        const includeSpaceAfter = ![' '].includes(charAfter);
         snippetCompletion.insertText = new SnippetString(
-            `${isBeforeSpace ? '' : ' '}${prop}="$0"${isAfterSpace ? '' : ' '}`
+            `${includeSpaceBefore ? ' ' : ''}${prop}="$0"${includeSpaceAfter ? ' ' : ''}`
         );
 
         snippetCompletion.detail = 'Vue Discovery MTM';
@@ -141,12 +142,22 @@ function createPropCompletionItem(prop, isBeforeSpace, isAfterSpace) {
     }
 }
 
-function createEventCompletionItem(event, isBeforeSpace, isAfterSpace) {
+/**
+ * @param {String} event
+ * @param {String} charBefore
+ * @param {String} charAfter
+ * @returns {vscode.CompletionItem}
+ */
+function createEventCompletionItem(event, charBefore, charAfter) {
     try {
         const snippetCompletion = new CompletionItem(event, CompletionItemKind.Event);
-
+        const includeSpaceBefore = ![' ', '@'].includes(charBefore);
+        const includeSpaceAfter = ![' '].includes(charAfter);
+        const hasArroba = charBefore === '@';
         snippetCompletion.insertText = new SnippetString(
-            `${isBeforeSpace ? '' : ' '}@${kebabCase(event)}="$0"${isAfterSpace ? '' : ' '}`
+            `${includeSpaceBefore ? ' ' : ''}${hasArroba ? '' : '@'}${kebabCase(event)}="$0"${
+                includeSpaceAfter ? ' ' : ''
+            }`
         );
         snippetCompletion.detail = 'Vue Discovery MTM';
         return snippetCompletion;
@@ -659,7 +670,7 @@ function isComponentRegistered(name) {
     return vueRegisteredFiles?.some(item => pascalCase(item.componentName) === pascalCase(name));
 }
 
-function activate(context) {
+async function activate(context) {
     /**
      * @param {vscode.DocumentSelector} selector A selector that defines the documents this provider is applicable to.
      * @param {vscode.HoverProvider} provider A hover provider
@@ -681,14 +692,13 @@ function activate(context) {
         patternObject,
         {
             async provideCompletionItems() {
-                if (!isCursorInTemplateSection() || isCursorInsideComponent()) {
-                    return;
+                if (isCursorInTemplateSection() && !isCursorInsideComponent()) {
+                    // jsFiles = await getJsFiles();
+                    // const data = await getVueFiles();
+                    // vueFiles = data.vueFiles.map(getComponentTuple);
+                    // vueRegisteredFiles = data.vueRegisteredFiles.map(getComponentTuple);
+                    return vueFiles?.map(createComponentCompletionItem);
                 }
-                jsFiles = await getJsFiles();
-                const data = await getVueFiles();
-                vueFiles = data.vueFiles.map(getComponentTuple);
-                vueRegisteredFiles = data.vueRegisteredFiles.map(getComponentTuple);
-                return vueFiles?.map(createComponentCompletionItem);
             },
         },
         ' ',
@@ -721,19 +731,19 @@ function activate(context) {
                     return;
                 }
 
-                const isBeforeSpace =
-                    getDocument()
-                        .lineAt(position.line)
-                        ?.text?.charAt(position.character - 1) === ' ';
-                const isAfterSpace =
-                    getDocument()
-                        .lineAt(position.line)
-                        ?.text?.charAt(position.character) === ' ';
+                const charBefore = getDocument()
+                    .lineAt(position.line)
+                    ?.text?.charAt(position.character - 1);
+                const charAfter = getDocument()
+                    .lineAt(position.line)
+                    ?.text?.charAt(position.character);
 
-                return events.map(event => createEventCompletionItem(event, isBeforeSpace, isAfterSpace));
+                return events.map(event => createEventCompletionItem(event, charBefore, charAfter));
             },
         },
-        '@'
+        '@',
+        ' ',
+        '.'
     );
 
     const propsCompletionItemProvider = languages.registerCompletionItemProvider(
@@ -750,19 +760,19 @@ function activate(context) {
                     return;
                 }
 
-                const isBeforeSpace =
-                    getDocument()
-                        .lineAt(position.line)
-                        ?.text?.charAt(position.character - 1) === ' ';
-                const isAfterSpace =
-                    getDocument()
-                        .lineAt(position.line)
-                        ?.text?.charAt(position.character) === ' ';
+                const charBefore = getDocument()
+                    .lineAt(position.line)
+                    ?.text?.charAt(position.character - 1);
+                const charAfter = getDocument()
+                    .lineAt(position.line)
+                    ?.text?.charAt(position.character);
 
-                return Object.keys(props).map(prop => createPropCompletionItem(prop, isBeforeSpace, isAfterSpace));
+                return Object.keys(props).map(prop => createPropCompletionItem(prop, charBefore, charAfter));
             },
         },
-        ':'
+        ':',
+        ' ',
+        '.'
     );
 
     const importExisting = commands.registerCommand('VueDiscoveryMTM.importExisting', async () => {
@@ -803,6 +813,12 @@ function activate(context) {
             importFile,
             setConfigOption
         );
+        //Inicializamos lista compoentes
+        jsFiles = await getJsFiles();
+        const data = await getVueFiles();
+        vueFiles = data.vueFiles.map(getComponentTuple);
+        vueRegisteredFiles = data.vueRegisteredFiles.map(getComponentTuple);
+
         outputChannel.clear();
         outputChannel.appendLine('extensión activada');
     } catch (error) {
