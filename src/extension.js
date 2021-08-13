@@ -682,8 +682,7 @@ async function getPropsForLine(line, character = null) {
 
 function getComponentAtCursor() {
     const position = getActiveEditorPosition();
-    return !position ? false : getComponentNameForLine(position.line);
-    //return !position ? false : getNewComponentNameForLine(position);
+    return !position ? false : getNewComponentNameForLine(position);
 }
 function isCursorInsideComponent() {
     return getComponentAtCursor() !== false;
@@ -769,11 +768,7 @@ export async function activate(context) {
         patternObject,
         {
             async provideCompletionItems() {
-                if (isCursorInTemplateSection() && !isCursorInsideComponent()) {
-                    // jsFiles = await getJsFiles();
-                    // const data = await getVueFiles();
-                    // vueFiles = data.vueFiles.map(getComponentTuple);
-                    // vueRegisteredFiles = data.vueRegisteredFiles.map(getComponentTuple);
+                if (isCursorInTemplateSection() && !isCursorInsideEntryTagComponent()) {
                     return vueFiles?.map(createComponentCompletionItem);
                 }
             },
