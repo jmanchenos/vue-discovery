@@ -2,6 +2,10 @@
 .vscode-test/**
 test/**
 .gitignore
+.editorconfig
+out/
+src/
+node_modules
 vsc-extension-quickstart.md
 **/jsconfig.json
 **/*.map
