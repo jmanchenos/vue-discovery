@@ -5,7 +5,7 @@
     "publisher": "jmanchenos",
     "repository": "https://github.com/jmanchenos/vue-discovery",
     "version": "0.1.0",
-    "icon": "https://github.com/jmanchenos/vue-discovery/tree/master/images/icon.png",
+    "icon": "images/icon.png",
     "engines": {
         "vscode": "^1.53.0"
     },
