@@ -699,11 +699,29 @@ function getTagRangeAtPosition(document, position, selector = `(\\w|-)*`) {
         .toString()
         .replace('1', '\\n')
         .replace('2', '\\r|\\n');
-    const stringRegExp = `<(${selector})(.|${eol})*(<\\/\\1>|\\/>){1}`;
-    const regExp = new RegExp(stringRegExp);
-    const a = document.getText().match(regExp);
+    const stringRegExp = `<(${selector})(?:.|${eol})*?(?:<\\/\\1>|\\/>){1}`;
+    const regExp = new RegExp(stringRegExp, 'g');
+    // recuperamos todo el rango que incluye el componente completo aunqeu esté en varias líneas
+    return getAlternativeWordRangeAtPosition(document, position, regExp);
+}
+/** Recupera el rango completo (multilinea) que engloba a la posicion actual para el componente y cumple con el match del regExp pasado*/
+function getAlternativeWordRangeAtPosition(document, position, regExp) {
+    const text = document.getText();
+    const matchList = text.match(regExp);
 
-    return document.getWordRangeAtPosition(position, regExp);
+    const matched = matchList.filter(x => {
+        const posStart = document.positionAt(text.indexOf(x));
+        const posEnd = document.positionAt(text.indexOf(x) + x.length);
+        return posStart.isBeforeOrEqual(position) && posEnd.isAfterOrEqual(position);
+    })?.[0];
+
+    if (!matched) {
+        return undefined;
+    } else {
+        const positionStart = document.positionAt(text.indexOf(matched));
+        const positionEnd = document.positionAt(text.indexOf(matched) + matched.length);
+        return new vscode.Range(positionStart, positionEnd);
+    }
 }
 
 function hoverContentFromProps(props) {
