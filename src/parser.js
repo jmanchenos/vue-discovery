@@ -1,4 +1,4 @@
-class Parser {
+export class Parser {
     constructor(content) {
         this.content = content;
         this.parsed = {
@@ -152,5 +152,3 @@ class Parser {
         return this.parsed;
     }
 }
-
-module.exports = Parser;

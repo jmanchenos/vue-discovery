@@ -1,12 +1,11 @@
-const vscode = require('vscode');
+import vscode from 'vscode';
+import glob from 'glob';
+import fs from 'fs';
+import path from 'path';
+import { Parser } from './parser';
+import * as vueParser from '@vuese/parser';
+import { toNumber, kebabCase, camelCase, upperFirst } from 'lodash';
 const { CompletionItemKind, CompletionItem, SnippetString, window, workspace, Position, languages, commands } = vscode;
-
-const glob = require('glob');
-const fs = require('fs');
-const path = require('path');
-const Parser = require('./parser');
-const vueParser = require('@vuese/parser');
-const { toNumber, kebabCase, camelCase, upperFirst } = require('lodash');
 const configOverride = {};
 const outputChannel = window.createOutputChannel('Vue Discovery - MTM');
 const patternObject = { pattern: '**/src/**/*.vue' };
@@ -284,16 +283,19 @@ function retrieveRequirePropsFromFile(file) {
 function insertSnippet(file, fileName) {
     try {
         const requiredProps = retrieveRequirePropsFromFile(file);
+        const includeRef = config('includeRefAtribute');
 
         let tabStop = 1;
+        const ref = includeRef ? ` ref="$${tabStop++}"` : '';
 
         const requiredPropsSnippetString = requiredProps.reduce((accumulator, prop) => {
-            return `${accumulator} :$${tabStop++}${propCase(prop)}="$${tabStop++}"`;
+            return `${accumulator} :${propCase(prop)}="$${tabStop++}"`;
         }, '');
 
         fileName = caseFileName(fileName);
+        const openTagChar = getCharBefore() === '<' ? '' : '<';
 
-        const snippetString = `<${fileName}${requiredPropsSnippetString}>$0</${fileName}>`;
+        const snippetString = `${openTagChar}${fileName}${ref}${requiredPropsSnippetString}>$${tabStop}</${fileName}>`;
 
         getEditor().insertSnippet(new SnippetString(snippetString));
         outputChannel.appendLine(`insertado snippet en template:  ${snippetString}`);
@@ -526,16 +528,39 @@ function isPositionInBetweenTag(selector, position) {
     const document = getDocument();
     const text = getDocumentText();
     const start = text.indexOf(`<${selector}>`);
-    const end = text.indexOf(`</${selector}>`);
+    let end = text.indexOf(`</${selector}>`, start);
+    if (end === -1) {
+        end = text.indexOf(`/>`, start);
+    }
+
+    if (start === -1 || end === -1) {
+        return false;
+    }
+    const startPosition = document.positionAt(start);
+    const endPosition = document.positionAt(end);
+
+    // return position.line > startLine && position.line < endLine;
+    return startPosition.isBeforeOrEqual(position) && endPosition.isAfterOrEqual(position);
+}
+
+function isPositionInEntryTag(selector, position) {
+    const document = getDocument();
+    const range = getTagRangeAtPosition(document, position, selector);
+    if (!range) {
+        return false;
+    }
+    const text = document.getText(range);
+    const start = text.indexOf(`<${selector}`);
+    const end = text.indexOf(`>`, start);
 
     if (start === -1 || end === -1) {
         return false;
     }
 
-    const startLine = document.positionAt(start).line;
-    const endLine = document.positionAt(end).line;
+    const startPosition = document.positionAt(document.offsetAt(range.start) + start + `<${selector}`.length);
+    const endPosition = document.positionAt(document.offsetAt(range.start) + end);
 
-    return position.line > startLine && position.line < endLine;
+    return startPosition.isBefore(position) && endPosition.isAfterOrEqual(position);
 }
 
 /**
@@ -583,6 +608,16 @@ function matchTagName(markup) {
     const match = markup.match(pattern);
 
     return match ? match[1] : false;
+}
+
+function getNewComponentNameForLine(position) {
+    try {
+        const document = getDocument();
+        const range = getTagRangeAtPosition(document, position);
+        return range ? getComponentNameForLine(range.start.line) : '';
+    } catch (error) {
+        outputChannel.append(error);
+    }
 }
 
 function getComponentNameForLine(line, character = null) {
@@ -647,11 +682,28 @@ async function getPropsForLine(line, character = null) {
 
 function getComponentAtCursor() {
     const position = getActiveEditorPosition();
-
     return !position ? false : getComponentNameForLine(position.line);
+    //return !position ? false : getNewComponentNameForLine(position);
 }
 function isCursorInsideComponent() {
     return getComponentAtCursor() !== false;
+}
+
+function isCursorInsideEntryTagComponent() {
+    const componentName = getComponentAtCursor();
+    return componentName ? isPositionInEntryTag(componentName, getEditor().selection.active) : false;
+}
+
+function getTagRangeAtPosition(document, position, selector = `(\\w|-)*`) {
+    const eol = document.eol
+        .toString()
+        .replace('1', '\\n')
+        .replace('2', '\\r|\\n');
+    const stringRegExp = `<(${selector})(.|${eol})*(<\\/\\1>|\\/>){1}`;
+    const regExp = new RegExp(stringRegExp);
+    const a = document.getText().match(regExp);
+
+    return document.getWordRangeAtPosition(position, regExp);
 }
 
 function hoverContentFromProps(props) {
@@ -663,6 +715,13 @@ function hoverContentFromProps(props) {
     });
 }
 
+function getCharBefore(document = getDocument(), position = getActiveEditorPosition()) {
+    return document.lineAt(position.line)?.text?.charAt(position.character - 1);
+}
+function getCharAfter(document = getDocument(), position = getActiveEditorPosition()) {
+    return document.lineAt(position.line)?.text?.charAt(position.character);
+}
+
 /**
  *  @param {String} name name of the component
  * @returns {boolean} return true if component is registered in Vue */
@@ -670,7 +729,7 @@ function isComponentRegistered(name) {
     return vueRegisteredFiles?.some(item => pascalCase(item.componentName) === pascalCase(name));
 }
 
-async function activate(context) {
+export async function activate(context) {
     /**
      * @param {vscode.DocumentSelector} selector A selector that defines the documents this provider is applicable to.
      * @param {vscode.HoverProvider} provider A hover provider
@@ -702,9 +761,7 @@ async function activate(context) {
             },
         },
         ' ',
-        '@',
-        ':',
-        '.'
+        '<'
     );
 
     /**
@@ -721,24 +778,18 @@ async function activate(context) {
         patternObject,
         {
             async provideCompletionItems(document, position) {
-                if (!isCursorInsideComponent()) {
+                if (!isCursorInsideEntryTagComponent()) {
                     return;
                 }
 
                 const events = await getEventsForLine(position.line, position.character);
 
-                if (!events) {
-                    return;
+                if (events) {
+                    const charBefore = getCharBefore(document, position);
+                    const charAfter = getCharAfter(document, position);
+
+                    return events.map(event => createEventCompletionItem(event, charBefore, charAfter));
                 }
-
-                const charBefore = getDocument()
-                    .lineAt(position.line)
-                    ?.text?.charAt(position.character - 1);
-                const charAfter = getDocument()
-                    .lineAt(position.line)
-                    ?.text?.charAt(position.character);
-
-                return events.map(event => createEventCompletionItem(event, charBefore, charAfter));
             },
         },
         '@',
@@ -750,24 +801,18 @@ async function activate(context) {
         patternObject,
         {
             async provideCompletionItems(document, position) {
-                if (!isCursorInsideComponent()) {
+                if (!isCursorInsideEntryTagComponent()) {
                     return;
                 }
 
                 const props = await getPropsForLine(position.line, position.character);
 
-                if (!props) {
-                    return;
+                if (props) {
+                    const charBefore = getCharBefore(document, position);
+                    const charAfter = getCharAfter(document, position);
+
+                    return Object.keys(props).map(prop => createPropCompletionItem(prop, charBefore, charAfter));
                 }
-
-                const charBefore = getDocument()
-                    .lineAt(position.line)
-                    ?.text?.charAt(position.character - 1);
-                const charAfter = getDocument()
-                    .lineAt(position.line)
-                    ?.text?.charAt(position.character);
-
-                return Object.keys(props).map(prop => createPropCompletionItem(prop, charBefore, charAfter));
             },
         },
         ':',
@@ -826,12 +871,7 @@ async function activate(context) {
     }
 }
 
-function deactivate() {
+export function deactivate() {
     outputChannel.appendLine('extensión desactivada');
     outputChannel.dispose();
 }
-
-module.exports = {
-    activate,
-    deactivate,
-};
