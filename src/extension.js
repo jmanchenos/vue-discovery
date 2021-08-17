@@ -261,6 +261,21 @@ function retrieveEventsFrom(file) {
 }
 
 /**
+ * Retrieves if component template includes slots
+ * @param {String} file
+ * @returns {Boolean}
+ */
+function retrieveHasSlots(file) {
+    try {
+        const content = fs.readFileSync(file, 'utf8');
+        const { template } = new Parser(content).parse();
+        return template.includes('<slot');
+    } catch (error) {
+        outputChannel.append(error);
+    }
+}
+
+/**
  * Retrieves the required props from a fire
  * @param {String} file
  */
@@ -283,6 +298,7 @@ function retrieveRequirePropsFromFile(file) {
 function insertSnippet(file, fileName) {
     try {
         const requiredProps = retrieveRequirePropsFromFile(file);
+        const hasSlots = retrieveHasSlots(file);
         const includeRef = config('includeRefAtribute');
 
         let tabStop = 1;
@@ -294,8 +310,9 @@ function insertSnippet(file, fileName) {
 
         fileName = caseFileName(fileName);
         const openTagChar = getCharBefore() === '<' ? '' : '<';
+        const closeTag = hasSlots ? `>$${tabStop}</${fileName}>` : '/>';
 
-        const snippetString = `${openTagChar}${fileName}${ref}${requiredPropsSnippetString}>$${tabStop}</${fileName}>`;
+        const snippetString = `${openTagChar}${fileName}${ref}${requiredPropsSnippetString}${closeTag}`;
 
         getEditor().insertSnippet(new SnippetString(snippetString));
         outputChannel.appendLine(`insertado snippet en template:  ${snippetString}`);
@@ -610,16 +627,6 @@ function matchTagName(markup) {
     return match ? match[1] : false;
 }
 
-function getNewComponentNameForLine(position) {
-    try {
-        const document = getDocument();
-        const range = getTagRangeAtPosition(document, position);
-        return range ? getComponentNameForLine(range.start.line) : '';
-    } catch (error) {
-        outputChannel.append(error);
-    }
-}
-
 function getComponentNameForLine(line, character = null) {
     try {
         let component = false;
@@ -680,12 +687,30 @@ async function getPropsForLine(line, character = null) {
     }
 }
 
+/**
+ * Devuelve el nombre del tag del componente sobre el que esta posicionad el cursor
+ * @returns {String}  nombre del tag del componente
+ **/
 function getComponentAtCursor() {
-    const position = getActiveEditorPosition();
-    return !position ? false : getNewComponentNameForLine(position);
-}
-function isCursorInsideComponent() {
-    return getComponentAtCursor() !== false;
+    try {
+        const position = getActiveEditorPosition();
+        if (!position) {
+            return undefined;
+        }
+        const document = getDocument();
+        const regExp = /<((\w|-)+)(?:[^<])+?(?:<\/\1>|\/>){1}/g;
+        //filtramos todo lo que encontremos en ese regExp (tab abiertos y cerrados)
+        let text = document.getText().substring(0, document.offsetAt(position));
+        while (text !== text.replace(regExp, '')) {
+            text = text.replace(regExp, '');
+        }
+        // recuperamos primer caracter < anterior y s tag asociado
+        const arr = text.split('<');
+        const arrText = arr?.[arr.length - 1];
+        return arrText?.split(/\s|>/)?.[0] || '';
+    } catch (error) {
+        outputChannel.append(error);
+    }
 }
 
 function isCursorInsideEntryTagComponent() {
@@ -700,13 +725,13 @@ function getTagRangeAtPosition(document, position, selector = `(\\w|-)*`) {
         .replace('2', '\\r|\\n');
     const stringRegExp = `<(${selector})(?:.|${eol})*?(?:<\\/\\1>|\\/>){1}`;
     const regExp = new RegExp(stringRegExp, 'g');
-    // recuperamos todo el rango que incluye el componente completo aunqeu esté en varias líneas
+    // recuperamos todo el rango que incluye el componente completo aunque esté en varias líneas
     return getAlternativeWordRangeAtPosition(document, position, regExp);
 }
 /** Recupera el rango completo (multilinea) que engloba a la posicion actual para el componente y cumple con el match del regExp pasado*/
 function getAlternativeWordRangeAtPosition(document, position, regExp) {
     const text = document.getText();
-    const matchList = text.match(regExp);
+    const matchList = text.match(regExp) || [];
 
     const matched = matchList.filter(x => {
         const posStart = document.positionAt(text.indexOf(x));
