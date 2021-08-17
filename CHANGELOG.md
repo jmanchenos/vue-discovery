@@ -1,27 +1,11 @@
 # Change Log
 
 All notable changes to the "vue-discovery" extension will be documented in this file.
-## [Unreleased]
-
-## [1.4.0] 2020-05-21
-### Added
-- IntelliSense for events
-
-## [1.3.1] 2020-05-21
+## [0.1.1] 2021-08-17
 ### Fixed
-- Relative import for relative paths.
+- Fix how detect where pointer in in templaate section
 
-## [1.3.0] 2020-05-21
+## [0.1.0] 2021-08-16
 ### Added
-- Badges to readme and update description.
+- Initial version of Vue-discovery-MTM
 
-## [1.3.0] 2020-05-21
-### Added
-- Badges to readme and update description.
-
-## [1.1.0] 2020-05-21
-### Added
-- Icon
-
-## [1.0.0] 2020-05-21
-Initial release of Vue discovery.

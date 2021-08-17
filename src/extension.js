@@ -603,7 +603,23 @@ function getActiveEditorPosition() {
 }
 
 function isCursorInTemplateSection() {
-    return isCursorInBetweenTag('template');
+    try {
+        const regexp = /(?<=<template>)(.|\n|\r)+(?=<\/template>)/g;
+
+        const document = getDocument();
+        const text = getDocumentText();
+        const position = document.offsetAt(getActiveEditorPosition());
+        let result;
+        if ((result = regexp.exec(text)) !== null) {
+            const posStart = result.index;
+            const posEnd = regexp.lastIndex;
+            return posStart <= position && position <= posEnd;
+        } else {
+            return false;
+        }
+    } catch (error) {
+        outputChannel.append(error);
+    }
 }
 
 function findAliases() {
