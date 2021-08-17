@@ -826,7 +826,12 @@ export async function activate(context) {
                     const charBefore = getCharBefore(document, position);
                     const charAfter = getCharAfter(document, position);
 
-                    return events.map(event => createEventCompletionItem(event, charBefore, charAfter));
+                    // se filtran los props por los que ya tiene el componente para no repetirlos
+                    const text = document.getText(getTagRangeAtPosition(document, position));
+
+                    return events
+                        .filter(event => !text.includes(`@${kebabCase(event)}="`) && !text.includes(`@${event}="`))
+                        .map(event => createEventCompletionItem(event, charBefore, charAfter));
                 }
             },
         },
@@ -849,7 +854,12 @@ export async function activate(context) {
                     const charBefore = getCharBefore(document, position);
                     const charAfter = getCharAfter(document, position);
 
-                    return Object.keys(props).map(prop => createPropCompletionItem(prop, charBefore, charAfter));
+                    // se filtran los props por los que ya tiene el componente para no repetirlos
+                    const text = document.getText(getTagRangeAtPosition(document, position));
+
+                    return Object.keys(props)
+                        .filter(prop => !text.includes(`${prop}="`))
+                        .map(prop => createPropCompletionItem(prop, charBefore, charAfter));
                 }
             },
         },
