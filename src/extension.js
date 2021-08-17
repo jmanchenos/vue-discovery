@@ -541,25 +541,6 @@ async function insertComponent(componentName) {
     }
 }
 
-function isPositionInBetweenTag(selector, position) {
-    const document = getDocument();
-    const text = getDocumentText();
-    const start = text.indexOf(`<${selector}>`);
-    let end = text.indexOf(`</${selector}>`, start);
-    if (end === -1) {
-        end = text.indexOf(`/>`, start);
-    }
-
-    if (start === -1 || end === -1) {
-        return false;
-    }
-    const startPosition = document.positionAt(start);
-    const endPosition = document.positionAt(end);
-
-    // return position.line > startLine && position.line < endLine;
-    return startPosition.isBeforeOrEqual(position) && endPosition.isAfterOrEqual(position);
-}
-
 function isPositionInEntryTag(selector, position) {
     const document = getDocument();
     const range = getTagRangeAtPosition(document, position, selector);
@@ -584,16 +565,12 @@ function isPositionInEntryTag(selector, position) {
  * @param {vscode.TextDocument} document
  * @returns {boolean} */
 function isPositionOverAComponentTag(document, position) {
-    if (!isCursorInTemplateSection()) {
+    if (!isPositionInTemplateSection(position)) {
         return false;
     }
     const word = document.getText(document.getWordRangeAtPosition(position, /\w[-\w\.]*/g));
 
     return vueFiles?.some(item => kebabCase(item.componentName) === kebabCase(word));
-}
-
-function isCursorInBetweenTag(selector) {
-    return isPositionInBetweenTag(selector, getEditor().selection.active);
 }
 
 function getActiveEditorPosition() {
@@ -602,18 +579,18 @@ function getActiveEditorPosition() {
     return editor.selection.active;
 }
 
-function isCursorInTemplateSection() {
+function isPositionInTemplateSection(position) {
     try {
         const regexp = /(?<=<template>)(.|\n|\r)+(?=<\/template>)/g;
 
         const document = getDocument();
         const text = getDocumentText();
-        const position = document.offsetAt(getActiveEditorPosition());
+        const offset = document.offsetAt(position);
         let result;
         if ((result = regexp.exec(text)) !== null) {
             const posStart = result.index;
             const posEnd = regexp.lastIndex;
-            return posStart <= position && position <= posEnd;
+            return posStart <= offset && offset <= posEnd;
         } else {
             return false;
         }
@@ -796,7 +773,7 @@ export async function activate(context) {
 
     languages.registerHoverProvider(patternObject, {
         async provideHover(document, position) {
-            if (isPositionInBetweenTag('template', position) && isPositionOverAComponentTag(document, position)) {
+            if (isPositionInTemplateSection(position) && isPositionOverAComponentTag(document, position)) {
                 const props = await getPropsForLine(position.line);
                 if (props) {
                     return { contents: hoverContentFromProps(props) };
@@ -809,7 +786,8 @@ export async function activate(context) {
         patternObject,
         {
             async provideCompletionItems() {
-                if (isCursorInTemplateSection() && !isCursorInsideEntryTagComponent()) {
+                const position = getActiveEditorPosition();
+                if (isPositionInTemplateSection(position) && !isCursorInsideEntryTagComponent()) {
                     return vueFiles?.map(createComponentCompletionItem);
                 }
             },
