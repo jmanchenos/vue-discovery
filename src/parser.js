@@ -117,11 +117,9 @@ export class Parser {
         return this;
     }
     events() {
-        const events = this.content.match(/\$emit\(['"][A-Za-z\-:]+/g);
-
-        const eventList = (events || []).map(event => event.slice(7, event.length));
+        const events = this.content.match(/(?<=\$emit\([^,\)]*?)(?<=['"])([a-z\-:]+)(?=['"])/gi) || [];
         //Eliminate duplicates
-        this.parsed.events = [...new Set([...eventList])];
+        this.parsed.events = [...new Set([...events])];
         return this;
     }
     template() {
