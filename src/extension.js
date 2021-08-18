@@ -743,9 +743,9 @@ function getAlternativeWordRangeAtPosition(document, position, regExp) {
 
 function hoverContentFromProps(props) {
     return Object.keys(props).map(propName => {
-        const { required, type } = props[propName];
+        const { required, type, name } = props[propName];
         const requiredText = required ? '(required) ' : '';
-        const typeText = type ? `: ${type.name}` : '';
+        const typeText = type ? `: ${type.name}` : `: ${name || ''}`;
         return `${requiredText}${propName}${typeText}`;
     });
 }
