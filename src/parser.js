@@ -117,7 +117,7 @@ export class Parser {
         return this;
     }
     events() {
-        const events = this.content.match(/(?<=\$emit\([^,\)]*?)(?<=['"])([a-z\-:]+)(?=['"])/gi) || [];
+        const events = this.content.match(/(?<=\$emit\([^,\)]*?)(?<=(['"`]))([a-z\-:]+)(?=\1)/gi) || [];
         //Eliminate duplicates
         this.parsed.events = [...new Set([...events])];
         return this;
