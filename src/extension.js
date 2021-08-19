@@ -5,7 +5,19 @@ import path from 'path';
 import { Parser } from './parser';
 import * as vueParser from '@vuese/parser';
 import { toNumber, kebabCase, camelCase, upperFirst } from 'lodash';
-const { CompletionItemKind, CompletionItem, SnippetString, window, workspace, Position, languages, commands } = vscode;
+
+const {
+    CompletionItemKind,
+    CompletionItem,
+    SnippetString,
+    window,
+    workspace,
+    Location,
+    Uri,
+    Position,
+    languages,
+    commands,
+} = vscode;
 const configOverride = {};
 const outputChannel = window.createOutputChannel('Vue Discovery - MTM');
 const patternObject = { pattern: '**/src/**/*.vue' };
@@ -58,6 +70,13 @@ async function getJsFiles() {
     } catch (err) {
         outputChannel.append(err);
     }
+}
+
+function getEol() {
+    return getDocument()
+        .eol.toString()
+        .replace('1', '\\n')
+        .replace('2', '\\r|\\n');
 }
 
 /**
@@ -290,6 +309,25 @@ function retrieveRequirePropsFromFile(file) {
     }
 }
 
+/**
+ * Retrieves range that includes the documentation of the component file
+ * @param {String} file
+ */
+function retrieveRangeFromDocFile(file) {
+    try {
+        const eol = getEol();
+        const content = fs.readFileSync(file, 'utf8');
+        let { start, end } = Parser.startAtAndGetPositionOfStartAndEnd(content, 'export default', '{', '}');
+        const offset = content.indexOf('export default');
+        start = start + offset;
+        end = end + offset;
+        const startLine = (content.substr(0, start).match(new RegExp(eol, 'g')) || []).length;
+        const endLine = (content.substr(0, end).match(new RegExp(eol, 'g')) || []).length;
+        return new vscode.Range(startLine, 0, endLine, 0);
+    } catch (error) {
+        outputChannel.append(error);
+    }
+}
 /**
  * Inserts the snippet for the component in the template section
  * @param {String} file
@@ -541,6 +579,12 @@ async function insertComponent(componentName) {
     }
 }
 
+/**
+ * Find if the position is on the entry tag which name is passed by param
+ * @param {String} selector name of the tag
+ * @param {vscode.Position} position position on the document
+ * @returns {boolean} true if position over the selected entry tag
+ **/
 function isPositionInEntryTag(selector, position) {
     const document = getDocument();
     const range = getTagRangeAtPosition(document, position, selector);
@@ -562,8 +606,10 @@ function isPositionInEntryTag(selector, position) {
 }
 
 /**
+ * Find if the position of document passed by params is over a component tag
  * @param {vscode.TextDocument} document
- * @returns {boolean} */
+ * @returns {boolean} true if position over a component tag
+ **/
 function isPositionOverAComponentTag(document, position) {
     if (!isPositionInTemplateSection(position)) {
         return false;
@@ -573,12 +619,29 @@ function isPositionOverAComponentTag(document, position) {
     return vueFiles?.some(item => kebabCase(item.componentName) === kebabCase(word));
 }
 
+/**
+ * @param {vscode.TextDocument} document
+ * @returns {String} */
+function getComponenteTagPositionIsOver(document, position) {
+    if (!isPositionInTemplateSection(position)) {
+        return undefined;
+    }
+    const word = document.getText(document.getWordRangeAtPosition(position, /\w[-\w\.]*/g));
+    // retornamos el nombre del componente para asegurarno sde que o cojemos ne el modo correcto
+    // (kebab -case o PascalCase)
+    return vueFiles?.find(item => kebabCase(item.componentName) === kebabCase(word))?.componentName;
+}
+
 function getActiveEditorPosition() {
     const editor = window.activeTextEditor;
 
     return editor.selection.active;
 }
 
+/** Return if position is over the template section of Vue file
+ * @param {vscode.Position} position position
+ * @returns {Boolean} true if position is over
+ **/
 function isPositionInTemplateSection(position) {
     try {
         const regexp = /(?<=<template>)(.|\n|\r)+(?=<\/template>)/g;
@@ -712,10 +775,7 @@ function isCursorInsideEntryTagComponent() {
 }
 
 function getTagRangeAtPosition(document, position, selector = `(\\w|-)*`) {
-    const eol = document.eol
-        .toString()
-        .replace('1', '\\n')
-        .replace('2', '\\r|\\n');
+    const eol = getEol();
     const stringRegExp = `<(${selector})(?:.|${eol})*?(?:<\\/\\1>|\\/>){1}`;
     const regExp = new RegExp(stringRegExp, 'g');
     // recuperamos todo el rango que incluye el componente completo aunque esté en varias líneas
@@ -862,6 +922,18 @@ export async function activate(context) {
         '.'
     );
 
+    const componentsDefinitionProvider = languages.registerDefinitionProvider(patternObject, {
+        async provideDefinition(document, position) {
+            if (!isPositionInTemplateSection(position) || !isPositionOverAComponentTag(document, position)) {
+                return null;
+            }
+            const fileName = getComponenteTagPositionIsOver(document, position);
+            const filepath = vueFiles?.find(item => item.componentName === fileName)?.filePath;
+
+            return new Location(Uri.file(filepath), retrieveRangeFromDocFile(filepath));
+        },
+    });
+
     const importExisting = commands.registerCommand('VueDiscoveryMTM.importExisting', async () => {
         if (!hasScriptTagInActiveTextEditor()) {
             return window.showWarningMessage('Looks like there is no script tag in this file!');
@@ -896,6 +968,7 @@ export async function activate(context) {
             componentsCompletionItemProvider,
             propsCompletionItemProvider,
             eventsCompletionItemProvider,
+            componentsDefinitionProvider,
             importExisting,
             importFile,
             setConfigOption

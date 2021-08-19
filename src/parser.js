@@ -20,7 +20,7 @@ export class Parser {
             ? null
             : this.content.substring(indexOfTagStart, indexOfTagEnd + tagEnd.length);
     }
-    getPositionOfStartAndEnd(content, startCharacter, endCharacter) {
+    static getPositionOfStartAndEnd(content, startCharacter, endCharacter) {
         const position = {
             start: null,
             end: null,
@@ -51,7 +51,7 @@ export class Parser {
 
         return position;
     }
-    startAtAndGetPositionOfStartAndEnd(content, search, start, end) {
+    static startAtAndGetPositionOfStartAndEnd(content, search, start, end) {
         const indexOfStart = content.indexOf(search);
 
         // Can't find start of mixins
@@ -61,10 +61,10 @@ export class Parser {
 
         const contentAtStart = content.substring(indexOfStart, content.length);
 
-        return { content: contentAtStart, ...this.getPositionOfStartAndEnd(contentAtStart, start, end) };
+        return { content: contentAtStart, ...Parser.getPositionOfStartAndEnd(contentAtStart, start, end) };
     }
     attributeWithObjectNotation(attribute) {
-        const { content, start, end } = this.startAtAndGetPositionOfStartAndEnd(
+        const { content, start, end } = Parser.startAtAndGetPositionOfStartAndEnd(
             this.parsed.script,
             `${attribute}:`,
             '{',
@@ -74,7 +74,7 @@ export class Parser {
         return !content || !start || !end ? null : content.substring(start, end);
     }
     attributeWithArrayNotation(attribute) {
-        const { content, start, end } = this.startAtAndGetPositionOfStartAndEnd(
+        const { content, start, end } = Parser.startAtAndGetPositionOfStartAndEnd(
             this.parsed.script,
             `${attribute}:`,
             '[',
@@ -128,7 +128,7 @@ export class Parser {
         return this;
     }
     script() {
-        const { content, start, end } = this.startAtAndGetPositionOfStartAndEnd(
+        const { content, start, end } = Parser.startAtAndGetPositionOfStartAndEnd(
             this.content,
             'export default',
             '{',

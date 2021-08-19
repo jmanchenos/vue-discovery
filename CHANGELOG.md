@@ -1,6 +1,12 @@
 # Change Log
 
 All notable changes to the "vue-discovery" extension will be documented in this file.
+
+
+## [0.2.0] 2021-08-19
+### Added
+- Added possibility of showing the description of the component and accessing the file by clicking on the Ctrl key when mouse is over the component tag
+
 ## [0.1.1] 2021-08-18
 ### Fixed
 - Fix how detect where pointer in in templaate section

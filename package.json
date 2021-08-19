@@ -4,7 +4,7 @@
     "description": "This extension discovers Vue components in your workspace and provides IntelliSense for them.",
     "publisher": "jmanchenos",
     "repository": "https://github.com/jmanchenos/vue-discovery",
-    "version": "0.1.1",
+    "version": "0.2.0",
     "icon": "images/icon.png",
     "engines": {
         "vscode": "^1.53.0"
