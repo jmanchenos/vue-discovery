@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import { Parser } from './parser';
 import * as vueParser from '@vuese/parser';
+// @ts-ignore
 import { toNumber, kebabCase, camelCase, upperFirst } from 'lodash';
 
 const {
@@ -832,14 +833,18 @@ function isComponentRegistered(name) {
     return vueRegisteredFiles?.some(item => pascalCase(item.componentName) === pascalCase(name));
 }
 
-export async function activate(context) {
-    /**
-     * @param {vscode.DocumentSelector} selector A selector that defines the documents this provider is applicable to.
-     * @param {vscode.HoverProvider} provider A hover provider
-     * @returns {vscode.Disposable} A disposable that unregisters this provider when being disposed.
-     */
+/**
+ * Provides tuple object with fileName and component name
+ * @param {string} filePath
+ * @returns {object}  object with 2 properties: fileName and componentName
+ */
+const getComponentTuple = filePath => {
+    const componentName = retrieveComponentName(filePath);
+    return { filePath, componentName };
+};
 
-    languages.registerHoverProvider(patternObject, {
+export async function activate(context) {
+    const componentsHoverProvider = languages.registerHoverProvider(patternObject, {
         async provideHover(document, position) {
             if (isPositionInTemplateSection(position) && isPositionOverAComponentTag(document, position)) {
                 const props = await getPropsForLine(position.line);
@@ -863,16 +868,6 @@ export async function activate(context) {
         ' ',
         '<'
     );
-
-    /**
-     * Provides tuple object with fileName and component name
-     * @param {string} filePath
-     * @returns {object}  object with 2 properties: fileName and componentName
-     */
-    const getComponentTuple = filePath => {
-        const componentName = retrieveComponentName(filePath);
-        return { filePath, componentName };
-    };
 
     const eventsCompletionItemProvider = languages.registerCompletionItemProvider(
         patternObject,
@@ -972,22 +967,24 @@ export async function activate(context) {
         configOverride[key] = value;
     });
     try {
-        context.subscriptions.push(
-            componentsCompletionItemProvider,
-            propsCompletionItemProvider,
-            eventsCompletionItemProvider,
-            componentsDefinitionProvider,
-            importExisting,
-            importFile,
-            setConfigOption
-        );
+        outputChannel.clear();
         //Inicializamos lista componentes
         jsFiles = await getJsFiles();
         const data = await getVueFiles();
         vueFiles = data.vueFiles.map(getComponentTuple);
         vueRegisteredFiles = data.vueRegisteredFiles.map(getComponentTuple);
 
-        outputChannel.clear();
+        context.subscriptions.push(
+            componentsCompletionItemProvider,
+            propsCompletionItemProvider,
+            eventsCompletionItemProvider,
+            componentsDefinitionProvider,
+            componentsHoverProvider,
+            importExisting,
+            importFile,
+            setConfigOption
+        );
+
         outputChannel.appendLine('extensión activada');
     } catch (error) {
         outputChannel.append(error);
