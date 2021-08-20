@@ -2,7 +2,7 @@
     <div></div>
 </template>
 
-<script>
+    <script>
 import mixinUsingMixin from '@/mixins/mixinUsingMixin';
 export default {
     mixins: [mixinUsingMixin],
@@ -18,8 +18,9 @@ export default {
             required: true,
             value: 'defaultValue',
         },
+        theLastOne: 'Boolean',
     },
 };
 </script>
 
-<style></style>
+<style > </style>

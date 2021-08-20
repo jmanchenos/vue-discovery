@@ -1,8 +1,8 @@
 <template>
     <div></div>
-</template>
+    </template>
 
-<script>
+    <script>
 import mixinUsingMixin from '@/mixins/mixinUsingMixin';
 export default {
     /**
@@ -10,7 +10,7 @@ export default {
      * <another-component-name
      *   :value='hola'
      * />
-     */
+     **/
     mixins: [mixinUsingMixin],
     name: 'AnotherComponentName',
     props: {
@@ -23,4 +23,4 @@ export default {
 };
 </script>
 
-    < style > </style>
+    <style> </style>

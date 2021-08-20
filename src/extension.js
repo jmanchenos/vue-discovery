@@ -215,6 +215,7 @@ function config(key) {
 function retrieveComponentName(file) {
     try {
         const content = fs.readFileSync(file, 'utf8');
+        const casing = config('componentCase');
         const options = {
             onComputed: null,
             onDesc: null,
@@ -226,7 +227,6 @@ function retrieveComponentName(file) {
             onWatch: null,
         };
         const { name } = vueParser.parser(content, options);
-        const casing = config('componentCase');
         if (!name) {
             return '';
         } else {
@@ -323,11 +323,11 @@ function retrieveRangeFromDocFile(file) {
         const content = fs.readFileSync(file, 'utf8');
         let { start = 0, end = content.length } = Parser.startAtAndGetPositionOfStartAndEnd(
             content,
-            '@example',
-            '<',
-            '>'
+            'export default',
+            '{',
+            '}'
         );
-        const offset = Math.max(content.indexOf('@example'), 0);
+        const offset = Math.max(content.indexOf('export default'), 0);
         start = start + offset;
         end = end + offset;
         const startLine = Math.max((content.substr(0, start).match(/\n/g) || []).length - 1, 0);
