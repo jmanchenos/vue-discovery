@@ -20,12 +20,16 @@ const {
 } = vscode;
 const configOverride = {};
 const outputChannel = window.createOutputChannel('Vue Discovery - MTM');
-const patternObject = { pattern: '**/src/**/*.vue' };
+const patternObject = { scheme: 'file', pattern: '**/src/**/*.vue' };
 
 let jsFiles,
     vueFiles,
     vueRegisteredFiles = [];
 
+/**
+ * @param {String} str  string attribute to convert to PascalCase
+ * @returns {String}
+ *  */
 function pascalCase(str) {
     return upperFirst(camelCase(str));
 }
@@ -315,14 +319,18 @@ function retrieveRequirePropsFromFile(file) {
  */
 function retrieveRangeFromDocFile(file) {
     try {
-        const eol = getEol();
         const content = fs.readFileSync(file, 'utf8');
-        let { start, end } = Parser.startAtAndGetPositionOfStartAndEnd(content, 'export default', '{', '}');
-        const offset = content.indexOf('export default');
+        let { start = 0, end = content.length } = Parser.startAtAndGetPositionOfStartAndEnd(
+            content,
+            '@example',
+            '<',
+            '>'
+        );
+        const offset = Math.max(content.indexOf('@example'), 0);
         start = start + offset;
         end = end + offset;
-        const startLine = (content.substr(0, start).match(new RegExp(eol, 'g')) || []).length;
-        const endLine = (content.substr(0, end).match(new RegExp(eol, 'g')) || []).length;
+        const startLine = Math.max((content.substr(0, start).match(/\n/g) || []).length - 1, 0);
+        const endLine = (content.substr(0, end).match(/\n/g) || []).length + 1;
         return new vscode.Range(startLine, 0, endLine, 0);
     } catch (error) {
         outputChannel.append(error);
@@ -973,7 +981,7 @@ export async function activate(context) {
             importFile,
             setConfigOption
         );
-        //Inicializamos lista compoentes
+        //Inicializamos lista componentes
         jsFiles = await getJsFiles();
         const data = await getVueFiles();
         vueFiles = data.vueFiles.map(getComponentTuple);

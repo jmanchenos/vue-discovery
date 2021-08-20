@@ -5,6 +5,12 @@
 <script>
 import mixinUsingMixin from '@/mixins/mixinUsingMixin';
 export default {
+    /**
+     * @example
+     * <another-component-name
+     *   :value='hola'
+     * />
+     */
     mixins: [mixinUsingMixin],
     name: 'AnotherComponentName',
     props: {
@@ -17,4 +23,4 @@ export default {
 };
 </script>
 
-<style></style>
+    < style > </style>
