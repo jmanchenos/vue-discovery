@@ -2,17 +2,27 @@
 
 All notable changes to the "vue-discovery" extension will be documented in this file.
 
+## [0.3.0] 2021-08-23
+
+### Changed
+
+-   Cambio en las dependencias parseador vue
 
 ## [0.2.0] 2021-08-19
+
 ### Added
-- Added possibility of showing the description of the component and accessing the file by clicking on the Ctrl key when mouse is over the component tag
+
+-   Added possibility of showing the description of the component and accessing the file by clicking on the Ctrl key when mouse is over the component tag
 
 ## [0.1.1] 2021-08-18
+
 ### Fixed
-- Fix how detect where pointer in in templaate section
-- Fix lack of events detections in some components
+
+-   Fix how detect where pointer in in templaate section
+-   Fix lack of events detections in some components
 
 ## [0.1.0] 2021-08-16
-### Added
-- Initial version of Vue-discovery-MTM
 
+### Added
+
+-   Initial version of Vue-discovery-MTM

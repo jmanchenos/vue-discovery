@@ -3,7 +3,8 @@ import glob from 'glob';
 import fs from 'fs';
 import path from 'path';
 import { Parser } from './parser';
-import * as vueParser from '@vuese/parser';
+import * as vueParser from '@vuedoc/parser';
+import merge from 'deepmerge';
 // @ts-ignore
 import { toNumber, kebabCase, camelCase, upperFirst } from 'lodash';
 
@@ -23,9 +24,9 @@ const configOverride = {};
 const outputChannel = window.createOutputChannel('Vue Discovery - MTM');
 const patternObject = { scheme: 'file', pattern: '**/src/**/*.vue' };
 
-let jsFiles,
-    vueFiles,
-    vueRegisteredFiles = [];
+let jsFiles = [];
+let vueFiles = [];
+let vueRegisteredFiles = [];
 
 /**
  * @param {String} str  string attribute to convert to PascalCase
@@ -58,6 +59,10 @@ async function getFilesByExtension(extension, configAtrib = 'rootDirectory') {
     return fileList;
 }
 
+/**
+ * Recupera objet con lista de ficheros vue registrdos y sin registrar
+ * @returns {Promise<Object>}
+ */
 async function getVueFiles() {
     try {
         const rootFiles = await getFilesByExtension('vue');
@@ -69,6 +74,10 @@ async function getVueFiles() {
     }
 }
 
+/**
+ * Recupera listado ficheros Javascript
+ * @returns {Promise<Array>}
+ */
 async function getJsFiles() {
     try {
         return getFilesByExtension('js');
@@ -142,7 +151,7 @@ function createComponentCompletionItem(item) {
 }
 
 /**
- * @param {String} prop
+ * @param {Object} prop
  * @param {String} charBefore
  * @param {String} charAfter
  * @returns {vscode.CompletionItem}
@@ -150,11 +159,12 @@ function createComponentCompletionItem(item) {
 function createPropCompletionItem(prop, charBefore, charAfter) {
     try {
         const propIconType = config('propIconType');
-        const snippetCompletion = new CompletionItem(prop, CompletionItemKind[`${propIconType}`]);
+        const { name } = prop;
+        const snippetCompletion = new CompletionItem(name, CompletionItemKind[`${propIconType}`]);
         const includeSpaceBefore = ![' ', ':'].includes(charBefore);
         const includeSpaceAfter = ![' '].includes(charAfter);
         snippetCompletion.insertText = new SnippetString(
-            `${includeSpaceBefore ? ' ' : ''}${prop}="$0"${includeSpaceAfter ? ' ' : ''}`
+            `${includeSpaceBefore ? ' ' : ''}${name}="$0"${includeSpaceAfter ? ' ' : ''}`
         );
 
         snippetCompletion.detail = 'Vue Discovery MTM';
@@ -211,25 +221,16 @@ function config(key) {
 /**
  * Retrieves the name of the component
  * @param {String} file
+ * @returns {Promise<String>} component name
  */
-function retrieveComponentName(file) {
+async function retrieveComponentName(file) {
     try {
-        const content = fs.readFileSync(file, 'utf8');
-        const casing = config('componentCase');
-        const options = {
-            onComputed: null,
-            onDesc: null,
-            onProp: null,
-            onEvent: null,
-            onMixin: null,
-            onMethod: null,
-            onData: null,
-            onWatch: null,
-        };
-        const { name } = vueParser.parser(content, options);
+        const vuedocOptions = { filename: file, featues: ['name'] };
+        const { name } = await vueParser.parse(vuedocOptions);
         if (!name) {
             return '';
         } else {
+            const casing = config('componentCase');
             return casing === 'pascal' ? pascalCase(name) : kebabCase(name);
         }
     } catch (error) {
@@ -237,27 +238,31 @@ function retrieveComponentName(file) {
     }
 }
 
+function retrieveParsersMixin(file, parsers) {
+    const { mixins } = new Parser(fs.readFileSync(file, 'utf8')).parse();
+    if (mixins instanceof Array) {
+        mixins.forEach(mixin => {
+            const _file = jsFiles?.find(f => f.includes(mixin));
+            if (_file) {
+                parsers.push(vueParser.parse({ filename: _file, features: ['props'] }));
+                retrieveParsersMixin(_file, parsers);
+            }
+        });
+    }
+}
 /**
  * Retrieves the props from a file
  * @param {String} file
+ * @returns {Promise<Array>} array of props
  */
-function retrievePropsFrom(file) {
-    try {
-        const content = fs.readFileSync(file, 'utf8');
-        const { mixins, props } = new Parser(content).parse();
-        let mixinProps = {};
-
-        if (mixins) {
-            mixinProps = mixins.reduce((accumulator, mixin) => {
-                const _file = jsFiles?.find(f => f.includes(mixin));
-                return !_file ? accumulator : { ...accumulator, ...retrievePropsFrom(_file) };
-            }, {});
-        }
-
-        return { ...mixinProps, ...props };
-    } catch (error) {
-        outputChannel.append(error);
-    }
+async function newRetrievePropsFrom(file) {
+    const parsers = [];
+    parsers.push(vueParser.parse({ filename: file, features: ['props'] }));
+    retrieveParsersMixin(file, parsers);
+    return Promise.all(parsers)
+        .then(merge.all)
+        .then(result => result?.['props'] || [])
+        .catch(error => outputChannel.append(error));
 }
 
 /**
@@ -302,13 +307,12 @@ function retrieveHasSlots(file) {
 /**
  * Retrieves the required props from a fire
  * @param {String} file
+ * @returns {Promise<Array>}
  */
-function retrieveRequirePropsFromFile(file) {
+async function retrieveRequirePropsFromFile(file) {
     try {
-        const props = retrievePropsFrom(file);
-        if (props) {
-            return Object.keys(props).filter(prop => props[prop].required);
-        }
+        const props = await newRetrievePropsFrom(file);
+        return props.filter(prop => prop.required).map(prop => prop.name);
     } catch (error) {
         outputChannel.append(error);
     }
@@ -342,9 +346,9 @@ function retrieveRangeFromDocFile(file) {
  * @param {String} file
  * @param {String} fileName
  */
-function insertSnippet(file, fileName) {
+async function insertSnippet(file, fileName) {
     try {
-        const requiredProps = retrieveRequirePropsFromFile(file);
+        const requiredProps = await retrieveRequirePropsFromFile(file);
         const hasSlots = retrieveHasSlots(file);
         const includeRef = config('includeRefAtribute');
 
@@ -458,7 +462,7 @@ async function insertImport(file, fileName) {
         const text = getDocumentText();
         const match = /<script/.exec(text);
         const importPath = getImportPath(file, fileName);
-        const componentName = pascalCase(retrieveComponentName(file) || fileName);
+        const componentName = pascalCase((await retrieveComponentName(file)) || fileName);
 
         if (
             text.indexOf(`import ${componentName} from '${importPath}`) === -1 &&
@@ -560,6 +564,7 @@ function addTrailingComma(component) {
 /**
  * Checks whether to create a new components section or append to an existing one and appends it
  * @param {String} componentName
+ * @returns {Promise<void>}
  */
 async function insertComponent(componentName) {
     try {
@@ -722,7 +727,12 @@ function getComponentNameForLine(line, character = null) {
         outputChannel.append(error);
     }
 }
-
+/**
+ * Recupera la lista de events para la linea y caracter de entrada
+ * @param {Number} line
+ * @param {Number} character
+ * @returns {Promise<Array>}
+ */
 async function getEventsForLine(line, character = null) {
     try {
         const component = getComponentNameForLine(line, character);
@@ -737,6 +747,13 @@ async function getEventsForLine(line, character = null) {
         outputChannel.append(error);
     }
 }
+
+/**
+ * Recupera los propertes para la linea y caracter dado
+ * @param {Number} line
+ * @param {Number} character
+ * @returns {Promise<Array>}
+ */
 async function getPropsForLine(line, character = null) {
     try {
         const component = getComponentNameForLine(line, character);
@@ -744,7 +761,7 @@ async function getPropsForLine(line, character = null) {
         if (component) {
             const file = vueFiles?.find(item => item.componentName === component)?.filePath;
             if (file) {
-                return retrievePropsFrom(file);
+                return await newRetrievePropsFrom(file);
             }
         }
     } catch (error) {
@@ -811,11 +828,10 @@ function getAlternativeWordRangeAtPosition(document, position, regExp) {
 }
 
 function hoverContentFromProps(props) {
-    return Object.keys(props).map(propName => {
-        const { required, type, name } = props[propName];
-        const requiredText = required ? '(required) ' : '';
-        const typeText = type ? `: ${type.name}` : `: ${name || ''}`;
-        return `${requiredText}${propName}${typeText}`;
+    return props.map(x => {
+        const requiredText = !!x.required ? '(required) ' : '';
+        const defaultText = !!x.default ? `default: ${x.default}` : '';
+        return `${requiredText}${x.name}: ${x.type} ${defaultText} ${x.description || ''}`;
     });
 }
 
@@ -836,10 +852,10 @@ function isComponentRegistered(name) {
 /**
  * Provides tuple object with fileName and component name
  * @param {string} filePath
- * @returns {object}  object with 2 properties: fileName and componentName
+ * @returns {Promise<Object>}  object with 2 properties: fileName and componentName
  */
-const getComponentTuple = filePath => {
-    const componentName = retrieveComponentName(filePath);
+const getComponentTuple = async filePath => {
+    const componentName = await retrieveComponentName(filePath);
     return { filePath, componentName };
 };
 
@@ -914,8 +930,8 @@ export async function activate(context) {
                     // se filtran los props por los que ya tiene el componente para no repetirlos
                     const text = document.getText(getTagRangeAtPosition(document, position));
 
-                    return Object.keys(props)
-                        .filter(prop => !text.includes(`${prop}="`))
+                    return props
+                        .filter(prop => !text.includes(`${prop.name}="`))
                         .map(prop => createPropCompletionItem(prop, charBefore, charAfter));
                 }
             },
@@ -946,7 +962,7 @@ export async function activate(context) {
         const file = vueFiles?.find(item => item.componentName === fileName)?.filePath;
 
         if (fileName && file) {
-            const componentName = retrieveComponentName(file) || fileName;
+            const componentName = (await retrieveComponentName(file)) || fileName;
             await insertImport(file, componentName);
             await insertComponent(componentName);
         }
@@ -958,7 +974,7 @@ export async function activate(context) {
         }
 
         await insertImport(file, fileName);
-        const componentName = retrieveComponentName(file) || fileName;
+        const componentName = (await retrieveComponentName(file)) || fileName;
         await insertComponent(componentName);
         await insertSnippet(file, componentName);
     });
@@ -971,8 +987,12 @@ export async function activate(context) {
         //Inicializamos lista componentes
         jsFiles = await getJsFiles();
         const data = await getVueFiles();
-        vueFiles = data.vueFiles.map(getComponentTuple);
-        vueRegisteredFiles = data.vueRegisteredFiles.map(getComponentTuple);
+        await Promise.all(data.vueFiles.map(getComponentTuple)).then(result => {
+            (vueFiles || []).push(...result);
+        });
+        await Promise.all(data.vueRegisteredFiles.map(getComponentTuple)).then(result => {
+            (vueRegisteredFiles || []).push(...result);
+        });
 
         context.subscriptions.push(
             componentsCompletionItemProvider,
