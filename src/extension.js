@@ -225,7 +225,7 @@ function config(key) {
  */
 async function retrieveComponentName(file) {
     try {
-        const vuedocOptions = { filename: file, featues: ['name'] };
+        const vuedocOptions = { filename: file, features: ['name'] };
         const { name } = await vueParser.parse(vuedocOptions);
         if (!name) {
             return '';
@@ -859,137 +859,140 @@ const getComponentTuple = async filePath => {
     return { filePath, componentName };
 };
 
-export async function activate(context) {
-    const componentsHoverProvider = languages.registerHoverProvider(patternObject, {
-        async provideHover(document, position) {
-            if (isPositionInTemplateSection(position) && isPositionOverAComponentTag(document, position)) {
-                const props = await getPropsForLine(position.line);
-                if (props) {
-                    return { contents: hoverContentFromProps(props) };
-                }
+const componentsHoverProvider = languages.registerHoverProvider(patternObject, {
+    async provideHover(document, position) {
+        if (isPositionInTemplateSection(position) && isPositionOverAComponentTag(document, position)) {
+            const props = await getPropsForLine(position.line);
+            if (props) {
+                return { contents: hoverContentFromProps(props) };
+            }
+        }
+    },
+});
+
+const componentsCompletionItemProvider = languages.registerCompletionItemProvider(
+    patternObject,
+    {
+        async provideCompletionItems() {
+            const position = getActiveEditorPosition();
+            if (isPositionInTemplateSection(position) && !isCursorInsideEntryTagComponent()) {
+                return vueFiles?.map(createComponentCompletionItem);
             }
         },
-    });
+    },
+    ' ',
+    '<'
+);
 
-    const componentsCompletionItemProvider = languages.registerCompletionItemProvider(
-        patternObject,
-        {
-            async provideCompletionItems() {
-                const position = getActiveEditorPosition();
-                if (isPositionInTemplateSection(position) && !isCursorInsideEntryTagComponent()) {
-                    return vueFiles?.map(createComponentCompletionItem);
-                }
-            },
-        },
-        ' ',
-        '<'
-    );
-
-    const eventsCompletionItemProvider = languages.registerCompletionItemProvider(
-        patternObject,
-        {
-            async provideCompletionItems(document, position) {
-                if (!isCursorInsideEntryTagComponent()) {
-                    return;
-                }
-
-                const events = await getEventsForLine(position.line, position.character);
-
-                if (events) {
-                    const charBefore = getCharBefore(document, position);
-                    const charAfter = getCharAfter(document, position);
-
-                    // se filtran los props por los que ya tiene el componente para no repetirlos
-                    const text = document.getText(getTagRangeAtPosition(document, position));
-
-                    return events
-                        .filter(event => !text.includes(`@${kebabCase(event)}="`) && !text.includes(`@${event}="`))
-                        .map(event => createEventCompletionItem(event, charBefore, charAfter));
-                }
-            },
-        },
-        '@',
-        ' ',
-        '.'
-    );
-
-    const propsCompletionItemProvider = languages.registerCompletionItemProvider(
-        patternObject,
-        {
-            async provideCompletionItems(document, position) {
-                if (!isCursorInsideEntryTagComponent()) {
-                    return;
-                }
-
-                const props = await getPropsForLine(position.line, position.character);
-
-                if (props) {
-                    const charBefore = getCharBefore(document, position);
-                    const charAfter = getCharAfter(document, position);
-
-                    // se filtran los props por los que ya tiene el componente para no repetirlos
-                    const text = document.getText(getTagRangeAtPosition(document, position));
-
-                    return props
-                        .filter(prop => !text.includes(`${prop.name}="`))
-                        .map(prop => createPropCompletionItem(prop, charBefore, charAfter));
-                }
-            },
-        },
-        ':',
-        ' ',
-        '.'
-    );
-
-    const componentsDefinitionProvider = languages.registerDefinitionProvider(patternObject, {
-        async provideDefinition(document, position) {
-            if (!isPositionInTemplateSection(position) || !isPositionOverAComponentTag(document, position)) {
-                return null;
+const eventsCompletionItemProvider = languages.registerCompletionItemProvider(
+    patternObject,
+    {
+        async provideCompletionItems(document, position) {
+            if (!isCursorInsideEntryTagComponent()) {
+                return;
             }
-            const fileName = getComponenteTagPositionIsOver(document, position);
-            const filepath = vueFiles?.find(item => item.componentName === fileName)?.filePath;
 
-            return new Location(Uri.file(filepath), retrieveRangeFromDocFile(filepath));
+            const events = await getEventsForLine(position.line, position.character);
+
+            if (events) {
+                const charBefore = getCharBefore(document, position);
+                const charAfter = getCharAfter(document, position);
+
+                // se filtran los props por los que ya tiene el componente para no repetirlos
+                const text = document.getText(getTagRangeAtPosition(document, position));
+
+                return events
+                    .filter(event => !text.includes(`@${kebabCase(event)}="`) && !text.includes(`@${event}="`))
+                    .map(event => createEventCompletionItem(event, charBefore, charAfter));
+            }
         },
-    });
+    },
+    '@',
+    ' ',
+    '.'
+);
 
-    const importExisting = commands.registerCommand('VueDiscoveryMTM.importExisting', async () => {
-        if (!hasScriptTagInActiveTextEditor()) {
-            return window.showWarningMessage('Looks like there is no script tag in this file!');
+const propsCompletionItemProvider = languages.registerCompletionItemProvider(
+    patternObject,
+    {
+        async provideCompletionItems(document, position) {
+            if (!isCursorInsideEntryTagComponent()) {
+                return;
+            }
+
+            const props = await getPropsForLine(position.line, position.character);
+
+            if (props) {
+                const charBefore = getCharBefore(document, position);
+                const charAfter = getCharAfter(document, position);
+
+                // se filtran los props por los que ya tiene el componente para no repetirlos
+                const text = document.getText(getTagRangeAtPosition(document, position));
+
+                return props
+                    .filter(prop => !text.includes(`${prop.name}="`))
+                    .map(prop => createPropCompletionItem(prop, charBefore, charAfter));
+            }
+        },
+    },
+    ':',
+    ' ',
+    '.'
+);
+
+const componentsDefinitionProvider = languages.registerDefinitionProvider(patternObject, {
+    async provideDefinition(document, position) {
+        if (!isPositionInTemplateSection(position) || !isPositionOverAComponentTag(document, position)) {
+            return null;
         }
+        const fileName = getComponenteTagPositionIsOver(document, position);
+        const filepath = vueFiles?.find(item => item.componentName === fileName)?.filePath;
 
-        const fileName = getComponentAtCursor();
-        const file = vueFiles?.find(item => item.componentName === fileName)?.filePath;
+        return new Location(Uri.file(filepath), retrieveRangeFromDocFile(filepath));
+    },
+});
 
-        if (fileName && file) {
-            const componentName = (await retrieveComponentName(file)) || fileName;
-            await insertImport(file, componentName);
-            await insertComponent(componentName);
-        }
-    });
+const importExisting = commands.registerCommand('VueDiscoveryMTM.importExisting', async () => {
+    if (!hasScriptTagInActiveTextEditor()) {
+        return window.showWarningMessage('Looks like there is no script tag in this file!');
+    }
 
-    const importFile = commands.registerCommand('VueDiscoveryMTM.importFile', async (file, fileName) => {
-        if (!hasScriptTagInActiveTextEditor()) {
-            return window.showWarningMessage('Looks like there is no script tag in this file!');
-        }
+    const fileName = getComponentAtCursor();
+    const file = vueFiles?.find(item => item.componentName === fileName)?.filePath;
 
-        await insertImport(file, fileName);
+    if (fileName && file) {
         const componentName = (await retrieveComponentName(file)) || fileName;
+        await insertImport(file, componentName);
         await insertComponent(componentName);
-        await insertSnippet(file, componentName);
-    });
+    }
+});
 
-    const setConfigOption = commands.registerCommand('VueDiscoveryMTM.tests.setConfigOption', (key, value) => {
-        configOverride[key] = value;
-    });
+const importFile = commands.registerCommand('VueDiscoveryMTM.importFile', async (file, fileName) => {
+    if (!hasScriptTagInActiveTextEditor()) {
+        return window.showWarningMessage('Looks like there is no script tag in this file!');
+    }
+
+    await insertImport(file, fileName);
+    const componentName = (await retrieveComponentName(file)) || fileName;
+    await insertComponent(componentName);
+    await insertSnippet(file, componentName);
+});
+
+const setConfigOption = commands.registerCommand('VueDiscoveryMTM.tests.setConfigOption', (key, value) => {
+    configOverride[key] = value;
+});
+
+export async function activate(context) {
     try {
         outputChannel.clear();
         //Inicializamos lista componentes
         jsFiles = await getJsFiles();
         const data = await getVueFiles();
+
         await Promise.all(data.vueFiles.map(getComponentTuple)).then(result => {
             (vueFiles || []).push(...result);
         });
+
         await Promise.all(data.vueRegisteredFiles.map(getComponentTuple)).then(result => {
             (vueRegisteredFiles || []).push(...result);
         });
