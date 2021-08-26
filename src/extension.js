@@ -1,4 +1,4 @@
-import vscode from 'vscode';
+import vscode, { MarkdownString } from 'vscode';
 import glob from 'glob';
 import fs from 'fs';
 import path from 'path';
@@ -166,7 +166,7 @@ function createPropCompletionItem(prop, charBefore, charAfter) {
         snippetCompletion.insertText = new SnippetString(
             `${includeSpaceBefore ? ' ' : ''}${name}="$0"${includeSpaceAfter ? ' ' : ''}`
         );
-
+        snippetCompletion.documentation = markdownProp(prop);
         snippetCompletion.detail = 'Vue Discovery MTM';
 
         return snippetCompletion;
@@ -292,13 +292,14 @@ function retrieveEventsFrom(file) {
 /**
  * Retrieves if component template includes slots
  * @param {String} file
- * @returns {Boolean}
+ * @returns {Promise<Boolean>}
  */
-function retrieveHasSlots(file) {
+async function retrieveHasSlots(file) {
     try {
-        const content = fs.readFileSync(file, 'utf8');
-        const { template } = new Parser(content).parse();
-        return template.includes('<slot');
+        const options = { filename: file };
+        await vueParser.parseOptions(options);
+        const regexp = /<slot name="(\w|-)+".*(\/>|>.*<\/slot>)/;
+        return regexp.test(options?.source?.template || '');
     } catch (error) {
         outputChannel.append(error);
     }
@@ -349,7 +350,7 @@ function retrieveRangeFromDocFile(file) {
 async function insertSnippet(file, fileName) {
     try {
         const requiredProps = await retrieveRequirePropsFromFile(file);
-        const hasSlots = retrieveHasSlots(file);
+        const hasSlots = await retrieveHasSlots(file);
         const includeRef = config('includeRefAtribute');
 
         let tabStop = 1;
@@ -594,6 +595,16 @@ async function insertComponent(componentName) {
 }
 
 /**
+ * Find if the position is in a word between quotation marks
+ * @param {vscode.Position} position
+ * @returns {Boolean} true if the position is in quotation marks
+ */
+function isPositionInQuotationMarks(position) {
+    const document = getDocument();
+    const range = document.getWordRangeAtPosition(position, /"[^=<>]*"/);
+    return range ? position.isAfter(range.start) && position.isBefore(range.end) : false;
+}
+/**
  * Find if the position is on the entry tag which name is passed by param
  * @param {String} selector name of the tag
  * @param {vscode.Position} position position on the document
@@ -826,13 +837,37 @@ function getAlternativeWordRangeAtPosition(document, position, regExp) {
         return new vscode.Range(positionStart, positionEnd);
     }
 }
+/**
+ * Return info of a prop in markdown mode
+ * @param {Object} prop
+ * @returns {MarkdownString} value
+ */
+function markdownProp(prop, isHover = false) {
+    try {
+        const desc = prop.description || '';
+        // Controlamos si type tiene mas de un tipo y auqe puede ser un array
+        const type = prop.type instanceof Array ? `[${prop.type}]` : prop.type;
+        let text = `${prop.name}:
+    {
+      type: ${type},
+      required: ${prop.required},
+      default: ${prop.default},
+    }`.replace(/.*: undefined,\n/g, '');
+        if (isHover) {
+            text = text.replace(/\s{2,}/g, ' ').replace(/\n/g, '');
+        }
+        if (isHover) {
+            return new MarkdownString('', true).appendCodeblock(text, 'javascript');
+        } else {
+            return new MarkdownString('', true).appendText(desc).appendCodeblock(text, 'javascript');
+        }
+    } catch (error) {
+        outputChannel.append(error);
+    }
+}
 
 function hoverContentFromProps(props) {
-    return props.map(x => {
-        const requiredText = !!x.required ? '(required) ' : '';
-        const defaultText = !!x.default ? `default: ${x.default}` : '';
-        return `${requiredText}${x.name}: ${x.type} ${defaultText} ${x.description || ''}`;
-    });
+    return props.map(x => markdownProp(x, true));
 }
 
 function getCharBefore(document = getDocument(), position = getActiveEditorPosition()) {
@@ -875,7 +910,11 @@ const componentsCompletionItemProvider = languages.registerCompletionItemProvide
     {
         async provideCompletionItems() {
             const position = getActiveEditorPosition();
-            if (isPositionInTemplateSection(position) && !isCursorInsideEntryTagComponent()) {
+            if (
+                isPositionInTemplateSection(position) &&
+                !isCursorInsideEntryTagComponent() &&
+                !isPositionInQuotationMarks(position)
+            ) {
                 return vueFiles?.map(createComponentCompletionItem);
             }
         },
@@ -888,7 +927,7 @@ const eventsCompletionItemProvider = languages.registerCompletionItemProvider(
     patternObject,
     {
         async provideCompletionItems(document, position) {
-            if (!isCursorInsideEntryTagComponent()) {
+            if (!isCursorInsideEntryTagComponent() || isPositionInQuotationMarks(position)) {
                 return;
             }
 
@@ -916,7 +955,7 @@ const propsCompletionItemProvider = languages.registerCompletionItemProvider(
     patternObject,
     {
         async provideCompletionItems(document, position) {
-            if (!isCursorInsideEntryTagComponent()) {
+            if (!isCursorInsideEntryTagComponent() || isPositionInQuotationMarks(position)) {
                 return;
             }
 

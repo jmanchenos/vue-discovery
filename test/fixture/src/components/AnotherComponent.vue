@@ -14,10 +14,11 @@ export default {
     mixins: [mixinUsingMixin],
     name: 'AnotherComponentName',
     props: {
+        /* Es un ejemplo de descripcion*/
         value: {
-            type: String,
+            type: [String, Array],
             required: false,
-            value: '',
+            default: 'Pepe'
         },
     },
 };

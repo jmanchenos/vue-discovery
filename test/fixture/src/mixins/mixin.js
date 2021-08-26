@@ -3,6 +3,7 @@ export default {
         name: {
             type: String,
             required: true,
+            default: 'Ejemplo valor por defecto'
         },
     },
     mounted() {
