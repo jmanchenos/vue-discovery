@@ -1,9 +1,9 @@
 {
     "compilerOptions": {
-        "module": "commonjs",
-        "target": "es6",
+        "module": "commonJS",
+        "target": "esnext",
         "checkJs": true,
-        "lib": ["es6"],
+        "lib": ["esnext"],
         "newLine": "lf"
     },
     "includes": ["src/**/*"]

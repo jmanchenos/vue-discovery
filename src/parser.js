@@ -144,12 +144,7 @@ export class Parser {
         return this;
     }
     parse() {
-        this.template()
-            .script()
-            .mixins()
-            .props()
-            .events();
-
+        this.template().script().mixins().props().events();
         return this.parsed;
     }
 }

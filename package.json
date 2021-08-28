@@ -4,12 +4,13 @@
     "description": "This extension discovers Vue components in your workspace and provides IntelliSense for them.",
     "publisher": "jmanchenos",
     "repository": "https://github.com/jmanchenos/vue-discovery",
-    "version": "0.3.0",
+    "version": "0.4.0",
     "private": true,
     "license": "MIT",
     "icon": "images/icon.png",
     "engines": {
-        "vscode": "^1.53.0"
+        "vscode": "^1.53.0",
+        "node": ">= 14.0.0"
     },
     "categories": [
         "Other"
@@ -78,6 +79,24 @@
                     "type": "boolean",
                     "default": true,
                     "description": "include a 'ref' atribute in the component"
+                },
+                "VueDiscoveryMTM.hoverComponentInfoType": {
+                    "type": "String",
+                    "enum": [
+                        "catalogue",
+                        "props"
+                    ],
+                    "enumDescriptions": [
+                        "Displays component information obtained from the component catalog url",
+                        "Displays the list of component props"
+                    ],
+                    "default": "props",
+                    "description": "Define if Componente Catalogue Application help must be used to provide info of a component in DefinitionProvider"
+                },
+                "VueDiscoveryMTM.componentCatalogueUrl": {
+                    "type": "String",
+                    "default": "http://10.12.19.106:32006",
+                    "description": "URL for Componente Catalogue Application to show examples of how to use them. Only used when property hoverComponentInfoType is set to 'catalogue'"
                 }
             }
         },
@@ -107,22 +126,23 @@
     },
     "devDependencies": {
         "@types/glob": "^7.1.4",
-        "@types/mocha": "^7.0.2",
-        "@types/node": "^16.7.1",
-        "@types/vscode": "^1.53.0",
-        "esbuild": "^0.12.22",
-        "eslint": "^6.8.0",
-        "eslint-config-prettier": "^6.7.0",
+        "@types/mocha": "^9.0.0",
+        "@types/node": "^16.7.2",
+        "@types/vscode": "^1.59.0",
+        "esbuild": "^0.12.23",
+        "eslint": "^7.32.0",
+        "eslint-config-prettier": "^8.3.0",
         "eslint-plugin-prettier": "^3.4.1",
-        "mocha": "^7.1.1",
-        "prettier": "^1.19.1",
-        "typescript": "^3.9.10",
+        "mocha": "^9.1.0",
+        "prettier": "^2.3.2",
+        "typescript": "^4.4.2",
         "vscode-test": "^1.6.1"
     },
     "dependencies": {
         "@vuedoc/parser": "^3.3.0",
         "deepmerge": "^4.2.2",
         "glob": "^7.1.7",
-        "lodash": "^4.17.15"
+        "lodash": "^4.17.21",
+        "url-exists": "^1.0.3"
     }
 }

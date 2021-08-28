@@ -7,6 +7,8 @@ import * as vueParser from '@vuedoc/parser';
 import merge from 'deepmerge';
 // @ts-ignore
 import { toNumber, kebabCase, camelCase, upperFirst } from 'lodash';
+import http from 'http';
+import * as utils from './utils';
 
 const {
     CompletionItemKind,
@@ -87,10 +89,7 @@ async function getJsFiles() {
 }
 
 function getEol() {
-    return getDocument()
-        .eol.toString()
-        .replace('1', '\\n')
-        .replace('2', '\\r|\\n');
+    return getDocument().eol.toString().replace('1', '\\n').replace('2', '\\r|\\n');
 }
 
 /**
@@ -866,8 +865,42 @@ function markdownProp(prop, isHover = false) {
     }
 }
 
-function hoverContentFromProps(props) {
-    return props.map(x => markdownProp(x, true));
+/**
+ *  Return content of props as a hover content
+ * @param {String} component component name
+ * @returns  {Promise<any>}
+ */
+async function hoverContentFromProps(component) {
+    if (component) {
+        const file = vueFiles?.find(item => item.componentName === component)?.filePath;
+        if (file) {
+            const props = await newRetrievePropsFrom(file);
+            if (props) {
+                return props.map(x => markdownProp(x, true));
+            }
+        }
+    }
+}
+
+/**
+ *  Return content of component catalogue as a hover content
+ * @param {String} component component name
+ * @returns  {Promise<any>}
+ */
+async function hoverContentFromCatalogue(component) {
+    try {
+        if (component) {
+            const url = `${config('componentCatalogueUrl')}/docs/${pascalCase(component)}.html`;
+            try {
+                await commands.executeCommand('vue-discoveryMTM.showComponentHelp', url);
+            } catch (error) {
+                outputChannel.append(error);
+            }
+            return new MarkdownString('', true).appendMarkdown(`[Detalle del componente ${component}](${url})`);
+        }
+    } catch (error) {
+        outputChannel.append(error);
+    }
 }
 
 function getCharBefore(document = getDocument(), position = getActiveEditorPosition()) {
@@ -894,134 +927,198 @@ const getComponentTuple = async filePath => {
     return { filePath, componentName };
 };
 
-const componentsHoverProvider = languages.registerHoverProvider(patternObject, {
-    async provideHover(document, position) {
-        if (isPositionInTemplateSection(position) && isPositionOverAComponentTag(document, position)) {
-            const props = await getPropsForLine(position.line);
-            if (props) {
-                return { contents: hoverContentFromProps(props) };
-            }
-        }
-    },
-});
-
-const componentsCompletionItemProvider = languages.registerCompletionItemProvider(
-    patternObject,
-    {
-        async provideCompletionItems() {
-            const position = getActiveEditorPosition();
-            if (
-                isPositionInTemplateSection(position) &&
-                !isCursorInsideEntryTagComponent() &&
-                !isPositionInQuotationMarks(position)
-            ) {
-                return vueFiles?.map(createComponentCompletionItem);
-            }
-        },
-    },
-    ' ',
-    '<'
-);
-
-const eventsCompletionItemProvider = languages.registerCompletionItemProvider(
-    patternObject,
-    {
-        async provideCompletionItems(document, position) {
-            if (!isCursorInsideEntryTagComponent() || isPositionInQuotationMarks(position)) {
-                return;
-            }
-
-            const events = await getEventsForLine(position.line, position.character);
-
-            if (events) {
-                const charBefore = getCharBefore(document, position);
-                const charAfter = getCharAfter(document, position);
-
-                // se filtran los props por los que ya tiene el componente para no repetirlos
-                const text = document.getText(getTagRangeAtPosition(document, position));
-
-                return events
-                    .filter(event => !text.includes(`@${kebabCase(event)}="`) && !text.includes(`@${event}="`))
-                    .map(event => createEventCompletionItem(event, charBefore, charAfter));
-            }
-        },
-    },
-    '@',
-    ' ',
-    '.'
-);
-
-const propsCompletionItemProvider = languages.registerCompletionItemProvider(
-    patternObject,
-    {
-        async provideCompletionItems(document, position) {
-            if (!isCursorInsideEntryTagComponent() || isPositionInQuotationMarks(position)) {
-                return;
-            }
-
-            const props = await getPropsForLine(position.line, position.character);
-
-            if (props) {
-                const charBefore = getCharBefore(document, position);
-                const charAfter = getCharAfter(document, position);
-
-                // se filtran los props por los que ya tiene el componente para no repetirlos
-                const text = document.getText(getTagRangeAtPosition(document, position));
-
-                return props
-                    .filter(prop => !text.includes(`${prop.name}="`))
-                    .map(prop => createPropCompletionItem(prop, charBefore, charAfter));
-            }
-        },
-    },
-    ':',
-    ' ',
-    '.'
-);
-
-const componentsDefinitionProvider = languages.registerDefinitionProvider(patternObject, {
-    async provideDefinition(document, position) {
-        if (!isPositionInTemplateSection(position) || !isPositionOverAComponentTag(document, position)) {
-            return null;
-        }
-        const fileName = getComponenteTagPositionIsOver(document, position);
-        const filepath = vueFiles?.find(item => item.componentName === fileName)?.filePath;
-
-        return new Location(Uri.file(filepath), retrieveRangeFromDocFile(filepath));
-    },
-});
-
-const importExisting = commands.registerCommand('VueDiscoveryMTM.importExisting', async () => {
-    if (!hasScriptTagInActiveTextEditor()) {
-        return window.showWarningMessage('Looks like there is no script tag in this file!');
-    }
-
-    const fileName = getComponentAtCursor();
-    const file = vueFiles?.find(item => item.componentName === fileName)?.filePath;
-
-    if (fileName && file) {
-        const componentName = (await retrieveComponentName(file)) || fileName;
-        await insertImport(file, componentName);
-        await insertComponent(componentName);
-    }
-});
-
-const importFile = commands.registerCommand('VueDiscoveryMTM.importFile', async (file, fileName) => {
-    if (!hasScriptTagInActiveTextEditor()) {
-        return window.showWarningMessage('Looks like there is no script tag in this file!');
-    }
-
-    await insertImport(file, fileName);
-    const componentName = (await retrieveComponentName(file)) || fileName;
-    await insertComponent(componentName);
-    await insertSnippet(file, componentName);
-});
-
-const setConfigOption = commands.registerCommand('VueDiscoveryMTM.tests.setConfigOption', (key, value) => {
-    configOverride[key] = value;
-});
-
 export async function activate(context) {
+    // Track currently webview panel
+    let currentPanel = undefined;
+
+    const componentsHoverProvider = languages.registerHoverProvider(patternObject, {
+        async provideHover(document, position) {
+            try {
+                if (isPositionInTemplateSection(position) && isPositionOverAComponentTag(document, position)) {
+                    const component = getComponenteTagPositionIsOver(document, position);
+                    const options = {
+                        catalogue: hoverContentFromCatalogue,
+                        props: hoverContentFromProps,
+                    };
+                    const option = config('hoverComponentInfoType');
+                    if (options[option]) {
+                        return new vscode.Hover(await options[option](component));
+                    }
+                }
+            } catch (error) {
+                outputChannel.append(error);
+            }
+        },
+    });
+
+    const componentsCompletionItemProvider = languages.registerCompletionItemProvider(
+        patternObject,
+        {
+            async provideCompletionItems() {
+                const position = getActiveEditorPosition();
+                if (
+                    isPositionInTemplateSection(position) &&
+                    !isCursorInsideEntryTagComponent() &&
+                    !isPositionInQuotationMarks(position)
+                ) {
+                    return vueFiles?.map(createComponentCompletionItem);
+                }
+            },
+        },
+        ' ',
+        '<'
+    );
+
+    const eventsCompletionItemProvider = languages.registerCompletionItemProvider(
+        patternObject,
+        {
+            async provideCompletionItems(document, position) {
+                if (!isCursorInsideEntryTagComponent() || isPositionInQuotationMarks(position)) {
+                    return;
+                }
+
+                const events = await getEventsForLine(position.line, position.character);
+
+                if (events) {
+                    const charBefore = getCharBefore(document, position);
+                    const charAfter = getCharAfter(document, position);
+
+                    // se filtran los props por los que ya tiene el componente para no repetirlos
+                    const text = document.getText(getTagRangeAtPosition(document, position));
+
+                    return events
+                        .filter(event => !text.includes(`@${kebabCase(event)}="`) && !text.includes(`@${event}="`))
+                        .map(event => createEventCompletionItem(event, charBefore, charAfter));
+                }
+            },
+        },
+        '@',
+        ' ',
+        '.'
+    );
+
+    const propsCompletionItemProvider = languages.registerCompletionItemProvider(
+        patternObject,
+        {
+            async provideCompletionItems(document, position) {
+                if (!isCursorInsideEntryTagComponent() || isPositionInQuotationMarks(position)) {
+                    return;
+                }
+
+                const props = await getPropsForLine(position.line, position.character);
+
+                if (props) {
+                    const charBefore = getCharBefore(document, position);
+                    const charAfter = getCharAfter(document, position);
+
+                    // se filtran los props por los que ya tiene el componente para no repetirlos
+                    const text = document.getText(getTagRangeAtPosition(document, position));
+
+                    return props
+                        .filter(prop => !text.includes(`${prop.name}="`))
+                        .map(prop => createPropCompletionItem(prop, charBefore, charAfter));
+                }
+            },
+        },
+        ':',
+        ' ',
+        '.'
+    );
+
+    const componentsDefinitionProvider = languages.registerDefinitionProvider(patternObject, {
+        async provideDefinition(document, position) {
+            if (!isPositionInTemplateSection(position) || !isPositionOverAComponentTag(document, position)) {
+                return null;
+            }
+            const fileName = getComponenteTagPositionIsOver(document, position);
+            const filepath = vueFiles?.find(item => item.componentName === fileName)?.filePath;
+            const url = `${config('componentCatalogueUrl')}/docs/${pascalCase(fileName)}.html`;
+            try {
+                await commands.executeCommand('vue-discoveryMTM.showComponentHelp', url);
+            } catch (error) {
+                outputChannel.append(error);
+            }
+
+            return new Location(Uri.file(filepath), retrieveRangeFromDocFile(filepath));
+        },
+    });
+
+    const importExisting = commands.registerCommand('VueDiscoveryMTM.importExisting', async () => {
+        if (!hasScriptTagInActiveTextEditor()) {
+            return window.showWarningMessage('Looks like there is no script tag in this file!');
+        }
+
+        const fileName = getComponentAtCursor();
+        const file = vueFiles?.find(item => item.componentName === fileName)?.filePath;
+
+        if (fileName && file) {
+            const componentName = (await retrieveComponentName(file)) || fileName;
+            await insertImport(file, componentName);
+            await insertComponent(componentName);
+        }
+    });
+
+    const importFile = commands.registerCommand('VueDiscoveryMTM.importFile', async (file, fileName) => {
+        if (!hasScriptTagInActiveTextEditor()) {
+            return window.showWarningMessage('Looks like there is no script tag in this file!');
+        }
+
+        await insertImport(file, fileName);
+        const componentName = (await retrieveComponentName(file)) || fileName;
+        await insertComponent(componentName);
+        await insertSnippet(file, componentName);
+    });
+
+    const setConfigOption = commands.registerCommand('VueDiscoveryMTM.tests.setConfigOption', (key, value) => {
+        configOverride[key] = value;
+    });
+
+    const showComponentHelp = vscode.commands.registerCommand(
+        'vue-discoveryMTM.showComponentHelp',
+        async (url, componente) => {
+            //validamos que exista la url
+            let isOk = await new Promise(resolve => {
+                http.request(url, { method: 'HEAD' }, result =>
+                    resolve(result.statusCode >= 200 && result.statusCode < 400)
+                )
+                    .on('error', resolve)
+                    .end();
+            });
+            if (!isOk) {
+                currentPanel?.dispose();
+                return;
+            }
+
+            if (!currentPanel) {
+                // Create and show panel
+                currentPanel = vscode.window.createWebviewPanel(
+                    'showComponentHelp',
+                    'Detalle uso del componente',
+                    {
+                        viewColumn: vscode.ViewColumn.Beside,
+                        preserveFocus: true,
+                    },
+                    {
+                        enableScripts: true,
+                        enableCommandUris: true,
+                    }
+                );
+            }
+
+            // And set its HTML content
+            const text = utils.generateHtml(url, componente);
+            currentPanel.webview.html = text;
+
+            // Reset when the current panel is closed
+            currentPanel.onDidDispose(
+                () => {
+                    currentPanel = undefined;
+                },
+                null,
+                context.subscriptions
+            );
+        }
+    );
     try {
         outputChannel.clear();
         //Inicializamos lista componentes
@@ -1044,7 +1141,8 @@ export async function activate(context) {
             componentsHoverProvider,
             importExisting,
             importFile,
-            setConfigOption
+            setConfigOption,
+            showComponentHelp
         );
 
         outputChannel.appendLine('extensión activada');

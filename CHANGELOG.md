@@ -2,6 +2,12 @@
 
 All notable changes to the "vue-discovery" extension will be documented in this file.
 
+## [0.4.0] 2021-08-28
+
+### Added
+
+-   Se agrega el acceso a aplicacion showCase al pulsar sobre Ctrl con el hover en tag de componente
+
 ## [0.3.0] 2021-08-23
 
 ### Changed
