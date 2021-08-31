@@ -7,7 +7,6 @@ import * as vueParser from '@vuedoc/parser';
 import merge from 'deepmerge';
 // @ts-ignore
 import { toNumber, kebabCase, camelCase, upperFirst } from 'lodash';
-import http from 'http';
 import * as utils from './utils';
 
 const {
@@ -318,29 +317,6 @@ async function retrieveRequirePropsFromFile(file) {
     }
 }
 
-/**
- * Retrieves range that includes the documentation of the component file
- * @param {String} file
- */
-function retrieveRangeFromDocFile(file) {
-    try {
-        const content = fs.readFileSync(file, 'utf8');
-        let { start = 0, end = content.length } = Parser.startAtAndGetPositionOfStartAndEnd(
-            content,
-            'export default',
-            '{',
-            '}'
-        );
-        const offset = Math.max(content.indexOf('export default'), 0);
-        start = start + offset;
-        end = end + offset;
-        const startLine = Math.max((content.substr(0, start).match(/\n/g) || []).length - 1, 0);
-        const endLine = (content.substr(0, end).match(/\n/g) || []).length + 1;
-        return new vscode.Range(startLine, 0, endLine, 0);
-    } catch (error) {
-        outputChannel.append(error);
-    }
-}
 /**
  * Inserts the snippet for the component in the template section
  * @param {String} file
@@ -1017,13 +993,11 @@ export async function activate(context) {
                 try {
                     // Lanzamos la carga del showcase para el componente actual
                     const url = `${urlShowcase}/docs/${pascalCase(fileName)}.html`;
-                    await commands.executeCommand('vue-discoveryMTM.showComponentHelp', url);
+                    commands.executeCommand('vue-discoveryMTM.showComponentHelp', url);
                 } catch (error) {
                     outputChannel.appendLine(`Error al llamar al showCase: ${error.message}`);
                 }
             }
-
-            // return new Location(Uri.file(filepath), retrieveRangeFromDocFile(filepath));
             return new Location(Uri.file(filepath), new vscode.Range(0, 0, 0, 0));
         },
     });
@@ -1062,7 +1036,8 @@ export async function activate(context) {
         'vue-discoveryMTM.showComponentHelp',
         async (url, componente) => {
             //validamos que exista la url
-            const response = await utils.fetchWithTimeout(url, { method: 'HEAD' }, 1000);
+            const timeout = config('componentShowcaseTimeout') || 3000;
+            const response = await utils.fetchWithTimeout(url, { method: 'HEAD' }, timeout);
             const isOk = response ? response?.status === 200 : false;
 
             if (!isOk) {

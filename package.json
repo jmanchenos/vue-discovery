@@ -102,6 +102,11 @@
                     "type": "String",
                     "default": "http://10.12.19.106:32006",
                     "description": "URL for Components Showcase Application to show examples of how to use them. Only used when property useComponentShowcase is set to true"
+                },
+                "VueDiscoveryMTM.componentShowcaseTimeout": {
+                    "type": "integer",
+                    "default": 3000,
+                    "description": "Timeout for connecting to Components Showcase Application"
                 }
             }
         },

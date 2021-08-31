@@ -22,7 +22,7 @@ export const generateHtml = (url, name) => {
  `;
 };
 
-export const fetchWithTimeout = (url, options = {}, ms = 1000) => {
+export const fetchWithTimeout = (url, options = {}, ms = 3000) => {
     const controller = new AbortController();
     const timeout = setTimeout(() => {
         controller.abort();
