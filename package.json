@@ -83,20 +83,25 @@
                 "VueDiscoveryMTM.hoverComponentInfoType": {
                     "type": "String",
                     "enum": [
-                        "catalogue",
-                        "props"
+                        "props",
+                        "none"
                     ],
                     "enumDescriptions": [
-                        "Displays component information obtained from the component catalog url",
-                        "Displays the list of component props"
+                        "Displays the list of component props",
+                        "Dont display info for components hover"
                     ],
                     "default": "props",
-                    "description": "Define if Componente Catalogue Application help must be used to provide info of a component in DefinitionProvider"
+                    "description": "Define what info must be used to provide info of a component in HoverProvider"
                 },
-                "VueDiscoveryMTM.componentCatalogueUrl": {
+                "VueDiscoveryMTM.useComponentShowcase": {
+                    "type": "Boolean",
+                    "default": true,
+                    "description": "Define if Definition Provider over a component must show this componnet info from showCase App. Url of this app is provided in componentShowcaseUrl property"
+                },
+                "VueDiscoveryMTM.componentShowcaseUrl": {
                     "type": "String",
                     "default": "http://10.12.19.106:32006",
-                    "description": "URL for Componente Catalogue Application to show examples of how to use them. Only used when property hoverComponentInfoType is set to 'catalogue'"
+                    "description": "URL for Componente Showcase Application to show examples of how to use them. Only used when property useComponentShowcase is set to true"
                 }
             }
         },
@@ -140,9 +145,10 @@
     },
     "dependencies": {
         "@vuedoc/parser": "^3.3.0",
+        "abort-controller": "^3.0.0",
         "deepmerge": "^4.2.2",
         "glob": "^7.1.7",
         "lodash": "^4.17.21",
-        "url-exists": "^1.0.3"
+        "node-fetch": "^2.6.1"
     }
 }

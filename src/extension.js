@@ -882,27 +882,6 @@ async function hoverContentFromProps(component) {
     }
 }
 
-/**
- *  Return content of component catalogue as a hover content
- * @param {String} component component name
- * @returns  {Promise<any>}
- */
-async function hoverContentFromCatalogue(component) {
-    try {
-        if (component) {
-            const url = `${config('componentCatalogueUrl')}/docs/${pascalCase(component)}.html`;
-            try {
-                await commands.executeCommand('vue-discoveryMTM.showComponentHelp', url);
-            } catch (error) {
-                outputChannel.append(error);
-            }
-            return new MarkdownString('', true).appendMarkdown(`[Detalle del componente ${component}](${url})`);
-        }
-    } catch (error) {
-        outputChannel.append(error);
-    }
-}
-
 function getCharBefore(document = getDocument(), position = getActiveEditorPosition()) {
     return document.lineAt(position.line)?.text?.charAt(position.character - 1);
 }
@@ -937,7 +916,6 @@ export async function activate(context) {
                 if (isPositionInTemplateSection(position) && isPositionOverAComponentTag(document, position)) {
                     const component = getComponenteTagPositionIsOver(document, position);
                     const options = {
-                        catalogue: hoverContentFromCatalogue,
                         props: hoverContentFromProps,
                     };
                     const option = config('hoverComponentInfoType');
@@ -1032,14 +1010,21 @@ export async function activate(context) {
             }
             const fileName = getComponenteTagPositionIsOver(document, position);
             const filepath = vueFiles?.find(item => item.componentName === fileName)?.filePath;
-            const url = `${config('componentCatalogueUrl')}/docs/${pascalCase(fileName)}.html`;
-            try {
-                await commands.executeCommand('vue-discoveryMTM.showComponentHelp', url);
-            } catch (error) {
-                outputChannel.append(error);
+            const urlShowcase = config('componentShowcaseUrl');
+            const useShowcase = config('useComponentShowcase');
+
+            if (useShowcase && urlShowcase) {
+                try {
+                    // Lanzamos la carga del showcase para el componente actual
+                    const url = `${urlShowcase}/docs/${pascalCase(fileName)}.html`;
+                    await commands.executeCommand('vue-discoveryMTM.showComponentHelp', url);
+                } catch (error) {
+                    outputChannel.appendLine(`Error al llamar al showCase: ${error.message}`);
+                }
             }
 
-            return new Location(Uri.file(filepath), retrieveRangeFromDocFile(filepath));
+            // return new Location(Uri.file(filepath), retrieveRangeFromDocFile(filepath));
+            return new Location(Uri.file(filepath), new vscode.Range(0, 0, 0, 0));
         },
     });
 
@@ -1077,13 +1062,9 @@ export async function activate(context) {
         'vue-discoveryMTM.showComponentHelp',
         async (url, componente) => {
             //validamos que exista la url
-            let isOk = await new Promise(resolve => {
-                http.request(url, { method: 'HEAD' }, result =>
-                    resolve(result.statusCode >= 200 && result.statusCode < 400)
-                )
-                    .on('error', resolve)
-                    .end();
-            });
+            const response = await utils.fetchWithTimeout(url, { method: 'HEAD' }, 1000);
+            const isOk = response ? response?.status === 200 : false;
+
             if (!isOk) {
                 currentPanel?.dispose();
                 return;

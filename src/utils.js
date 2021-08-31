@@ -1,3 +1,6 @@
+import fetch from 'node-fetch';
+import AbortController from 'abort-controller';
+
 export const generateHtml = (url, name) => {
     return `
 <!DOCTYPE html>
@@ -17,4 +20,24 @@ export const generateHtml = (url, name) => {
 </body>
 </html>
  `;
+};
+
+export const fetchWithTimeout = (url, options = {}, ms = 1000) => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => {
+        controller.abort();
+    }, ms);
+    return fetch(url, {
+        signal: controller.signal,
+        ...options,
+    })
+        .then(response => response)
+        .catch(err => {
+            if (err.name === 'AbortError') {
+                console.log('Timed out');
+            }
+        })
+        .finally(() => {
+            clearTimeout(timeout);
+        });
 };
