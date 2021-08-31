@@ -5,7 +5,7 @@
         "checkJs": true,
         "lib": ["es6"],
         "baseUrl": "./",
-        "newLine": "lf",
+        "newLine": "crlf",
         "paths": {
             "@/*": ["src/*"]
         }
