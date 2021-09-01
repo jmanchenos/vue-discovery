@@ -993,28 +993,13 @@ export async function activate(context) {
                 try {
                     // Lanzamos la carga del showcase para el componente actual
                     const url = `${urlShowcase}/docs/${pascalCase(fileName)}.html`;
-                    commands.executeCommand('vue-discoveryMTM.showComponentHelp', url);
+                    commands.executeCommand('VueDiscoveryMTM.showComponentHelp', url);
                 } catch (error) {
                     outputChannel.appendLine(`Error al llamar al showCase: ${error.message}`);
                 }
             }
             return new Location(Uri.file(filepath), new vscode.Range(0, 0, 0, 0));
         },
-    });
-
-    const importExisting = commands.registerCommand('VueDiscoveryMTM.importExisting', async () => {
-        if (!hasScriptTagInActiveTextEditor()) {
-            return window.showWarningMessage('Looks like there is no script tag in this file!');
-        }
-
-        const fileName = getComponentAtCursor();
-        const file = vueFiles?.find(item => item.componentName === fileName)?.filePath;
-
-        if (fileName && file) {
-            const componentName = (await retrieveComponentName(file)) || fileName;
-            await insertImport(file, componentName);
-            await insertComponent(componentName);
-        }
     });
 
     const importFile = commands.registerCommand('VueDiscoveryMTM.importFile', async (file, fileName) => {
@@ -1033,15 +1018,18 @@ export async function activate(context) {
     });
 
     const showComponentHelp = vscode.commands.registerCommand(
-        'vue-discoveryMTM.showComponentHelp',
+        'VueDiscoveryMTM.showComponentHelp',
         async (url, componente) => {
             //validamos que exista la url
             const timeout = config('componentShowcaseTimeout') || 3000;
             const response = await utils.fetchWithTimeout(url, { method: 'HEAD' }, timeout);
-            const isOk = response ? response?.status === 200 : false;
+            const isOk = response ? response.status === 200 : false;
 
             if (!isOk) {
                 currentPanel?.dispose();
+                outputChannel.appendLine(
+                    `Llamada al comando showComponentHelp no válida: ${response ? response.status : ''} `
+                );
                 return;
             }
 
@@ -1095,7 +1083,6 @@ export async function activate(context) {
             eventsCompletionItemProvider,
             componentsDefinitionProvider,
             componentsHoverProvider,
-            importExisting,
             importFile,
             setConfigOption,
             showComponentHelp

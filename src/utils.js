@@ -32,11 +32,7 @@ export const fetchWithTimeout = (url, options = {}, ms = 3000) => {
         ...options,
     })
         .then(response => response)
-        .catch(err => {
-            if (err.name === 'AbortError') {
-                console.log('Timed out');
-            }
-        })
+        .catch(err => console.log(`${err.name === 'Abort' ? 'Timeout error' : err.message}`))
         .finally(() => {
             clearTimeout(timeout);
         });

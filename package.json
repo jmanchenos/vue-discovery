@@ -81,7 +81,7 @@
                     "description": "include a 'ref' atribute in the component"
                 },
                 "VueDiscoveryMTM.hoverComponentInfoType": {
-                    "type": "String",
+                    "type": "string",
                     "enum": [
                         "props",
                         "none"
@@ -94,12 +94,12 @@
                     "description": "Define what info must be used to provide info of a component in HoverProvider"
                 },
                 "VueDiscoveryMTM.useComponentShowcase": {
-                    "type": "Boolean",
+                    "type": "boolean",
                     "default": true,
                     "description": "Define if Definition Provider over a component must show this component info from showCase App. Url of this app is provided in componentShowcaseUrl property"
                 },
                 "VueDiscoveryMTM.componentShowcaseUrl": {
-                    "type": "String",
+                    "type": "string",
                     "default": "http://10.12.19.106:32006",
                     "description": "URL for Components Showcase Application to show examples of how to use them. Only used when property useComponentShowcase is set to true"
                 },
@@ -112,16 +112,16 @@
         },
         "keybindings": [
             {
-                "command": "VueDiscoveryMTM.importExisting",
-                "key": "ctrl+i",
-                "mac": "cmd+i",
+                "command": "VueDiscoveryMTM.showComponentHelp",
+                "key": "ctrl+h",
+                "mac": "cmd+h",
                 "when": "editorTextFocus"
             }
         ],
         "commands": [
             {
-                "command": "VueDiscoveryMTM.importExisting",
-                "title": "Vue Discovery MTM: Import a vue component"
+                "command": "VueDiscoveryMTM.showComponentHelp",
+                "title": "Vue Discovery MTM: Show component Showcase"
             }
         ]
     },
@@ -129,7 +129,7 @@
         "lint": "eslint .",
         "pretest": "yarn run lint",
         "test": "node ./test/runTest.js",
-        "vscode:prepublish": "esbuild --bundle --platform=node --external:vscode --sourcemap  --outdir=dist --minify src/extension.js",
+        "vscode:prepublish": "esbuild --bundle --platform=node --external:vscode --sourcemap  --outdir=dist --minify --keep-names . src/extension.js",
         "build": "esbuild --bundle --platform=node --external:vscode --sourcemap --outdir=dist  src/extension.js",
         "build-dev": "esbuild --bundle --platform=node --external:vscode --sourcemap --outdir=dist src/extension.js --watch",
         "test-compile": "tsc -p ./"
