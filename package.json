@@ -113,8 +113,8 @@
         "keybindings": [
             {
                 "command": "VueDiscoveryMTM.showComponentHelp",
-                "key": "ctrl+h",
-                "mac": "cmd+h",
+                "key": "ctrl+shift+i",
+                "mac": "cmd+shift+i",
                 "when": "editorTextFocus"
             }
         ],

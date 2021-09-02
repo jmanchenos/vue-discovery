@@ -986,13 +986,6 @@ export async function activate(context) {
             }
             const component = getComponenteTagPositionIsOver(document, position);
             const filepath = vueFiles?.find(item => item.componentName === component)?.filePath;
-
-            try {
-                commands.executeCommand('VueDiscoveryMTM.showComponentHelp', component);
-            } catch (error) {
-                outputChannel.appendLine(`Error al llamar al showCase: ${error.message}`);
-            }
-
             return new Location(Uri.file(filepath), new vscode.Range(0, 0, 0, 0));
         },
     });
@@ -1014,7 +1007,6 @@ export async function activate(context) {
 
     const showComponentHelp = vscode.commands.registerCommand(
         'VueDiscoveryMTM.showComponentHelp',
-        // async (url, componente) => {
         async componentInput => {
             const urlShowcase = config('componentShowcaseUrl');
             const useShowcase = config('useComponentShowcase');
