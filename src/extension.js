@@ -343,11 +343,11 @@ async function insertSnippet(file, fileName) {
             return `${accumulator} :${propCase(prop)}="$${tabStop++}"`;
         }, '');
 
-        fileName = caseFileName(fileName);
+        const tagName = componentCase(fileName);
         const openTagChar = getCharBefore() === '<' ? '' : '<';
-        const closeTag = hasSlots ? `>$${tabStop}</${fileName}>` : '/>';
+        const closeTag = hasSlots ? `>$${tabStop}</${tagName}>` : '/>';
 
-        const snippetString = `${openTagChar}${fileName}${ref}${requiredPropsSnippetString} ${closeTag}`;
+        const snippetString = `${openTagChar}${tagName}${ref}${requiredPropsSnippetString} ${closeTag}`;
 
         getEditor().insertSnippet(new SnippetString(snippetString));
         outputChannel.appendLine(`insertado snippet en template:  ${snippetString}`);
@@ -365,7 +365,7 @@ function propCase(prop) {
     }
 }
 
-function caseFileName(fileName) {
+function componentCase(fileName) {
     try {
         const casing = config('componentCase');
         return casing === 'kebab' ? kebabCase(fileName) : pascalCase(fileName);
@@ -711,8 +711,7 @@ function getComponentNameForLine(line, character = null) {
 
             lineToCheck--;
         } while (component === false);
-        const casing = config('componentCase');
-        return casing === 'kebab' ? kebabCase(component.toString()) : pascalCase(component.toString());
+        return componentCase(component.toString());
     } catch (error) {
         outputChannel.append(error);
     }
