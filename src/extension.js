@@ -87,8 +87,16 @@ async function getJsFiles() {
     }
 }
 
-function getEol() {
-    return getDocument().eol.toString().replace('1', '\\n').replace('2', '\\r|\\n');
+/**
+ * Devuelvecadena de fin de linea propio para el documento. si forRegExp es true devuelve string de expresion regular
+ * @param {Boolean} forRegExp
+ * @returns {String} return String
+ */
+function getEol(forRegExp = false) {
+    return getDocument()
+        .eol.toString()
+        .replace('1', forRegExp ? '\\n' : '\n')
+        .replace('2', forRegExp ? '\\r|\\n' : '\r\n');
 }
 
 /**
@@ -339,7 +347,7 @@ async function insertSnippet(file, fileName) {
         const openTagChar = getCharBefore() === '<' ? '' : '<';
         const closeTag = hasSlots ? `>$${tabStop}</${fileName}>` : '/>';
 
-        const snippetString = `${openTagChar}${fileName}${ref}${requiredPropsSnippetString}${closeTag}`;
+        const snippetString = `${openTagChar}${fileName}${ref}${requiredPropsSnippetString} ${closeTag}`;
 
         getEditor().insertSnippet(new SnippetString(snippetString));
         outputChannel.appendLine(`insertado snippet en template:  ${snippetString}`);
@@ -470,18 +478,18 @@ function getIndent() {
  * Inserts the component in a new components section
  * @param {String} text
  * @param {String} componentName
+ * @param {String} eol: \n o \r\n
  */
-async function insertComponents(text, componentName) {
+async function insertComponents(text, componentName, eol) {
     try {
         const match = /export[\s]*default[\s]*\{/.exec(text);
 
         if (!match || match.index === -1) {
             return;
         }
-
         const insertIndex = match.index + match[0].length;
         const propIndent = getIndentBase().repeat(1);
-        const component = `\n${propIndent}components: {\n${getIndent()}${componentName}\n${propIndent}},`;
+        const component = `${eol}${propIndent}components: {${eol}${getIndent()}${componentName}${eol}${propIndent}},`;
 
         await getEditor().edit(edit => {
             edit.insert(getDocument().positionAt(insertIndex), component);
@@ -492,17 +500,13 @@ async function insertComponents(text, componentName) {
     }
 }
 
-function componentCase(componentName) {
-    return config('componentCase') === 'kebab'
-        ? `'${kebabCase(componentName)}': ${pascalCase(componentName)}`
-        : componentName;
-}
 /**
  * Inserts the component in an existing components section
  * @param {Object} match
- * @param {String} componentName
+ * @param {String} componentString
+ * @param {String} eol  \n o \r\n
  */
-async function insertInExistingComponents(match, componentName) {
+async function insertInExistingComponents(match, componentString, eol) {
     try {
         let matchInsertIndex = match[0].length;
         let found = false;
@@ -524,7 +528,7 @@ async function insertInExistingComponents(match, componentName) {
             lastCharacter = ',';
         }
 
-        const component = `${lastCharacter}\n${getIndent()}${componentName}`;
+        const component = `${lastCharacter}${eol}${getIndent()}${componentString}`;
 
         await getEditor().edit(edit => {
             edit.insert(getDocument().positionAt(insertIndex), component);
@@ -547,23 +551,23 @@ async function insertComponent(componentName) {
         if (isComponentRegistered(componentName)) {
             return;
         }
-        componentName = addTrailingComma(componentCase(componentName));
+        const componentString = addTrailingComma(pascalCase(componentName));
         const text = getDocumentText();
+        const eol = getEol();
 
-        // Component already registered
-        if (text.indexOf(`\n${getIndent()}${componentName}`) !== -1) {
+        const testYaRegistrado = new RegExp(`components\\s*:\\s*{[^}]*${componentString}\\W`, 'g').test(text);
+        if (testYaRegistrado) {
             return;
         }
-
         const match = /components( )*:( )*{[\s\S]*?(?=})/.exec(text);
 
         // Components not yet defined add section with component
         if (!match || match.index === -1) {
-            return insertComponents(text, componentName);
+            return insertComponents(text, componentString, eol);
+        } else {
+            // Add the component to components
+            insertInExistingComponents(match, componentString, eol);
         }
-
-        // Add the component to components
-        insertInExistingComponents(match, componentName);
     } catch (error) {
         outputChannel.append(error);
     }
@@ -787,7 +791,7 @@ function isCursorInsideEntryTagComponent() {
 }
 
 function getTagRangeAtPosition(document, position, selector = `(\\w|-)*`) {
-    const eol = getEol();
+    const eol = getEol(true);
     const stringRegExp = `<(${selector})(?:.|${eol})*?(?:<\\/\\1>|\\/>){1}`;
     const regExp = new RegExp(stringRegExp, 'g');
     // recuperamos todo el rango que incluye el componente completo aunque esté en varias líneas
