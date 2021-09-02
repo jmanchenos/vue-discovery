@@ -20,25 +20,30 @@ This extension discovers Vue components in your workspace and provides IntelliSe
 
 ## ✨ Features
 
-##### Provide IntelliSense for components in template section
+
+#### Provide IntelliSense for components in template section. Itt automatically import, register and expand required props
 
 <img src="images/show-components.gif" width="680">
 
-##### Automatically import, register and expand required props
 
-<img src="images/auto-import.gif" width="680">
-
-##### Provide IntelliSense for props on components
+#### Provide IntelliSense for props on components
 
 <img src="images/show-available-props.gif" width="680">
 
-##### Show available props on hover
+
+#### Show available props on hover
 
 <img src="images/show-props-on-hover.gif" width="680">
 
-##### Provide IntelliSense for events
+
+#### Provide IntelliSense for events
 
 <img src="images/event-intellisense.gif" width="680">
+
+
+#### Provide Info of Components provided by Showcase Application (Ctrl + Shift + I)
+
+<img src="images/showcase-keybind.gif" width="680">
 
 ## 🔧 Extension Settings
 
