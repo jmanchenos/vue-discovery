@@ -71,7 +71,7 @@ async function getVueFiles() {
         const setVueFiles = new Set([...rootFiles, ...registeredFiles]);
         return { vueFiles: [...setVueFiles], vueRegisteredFiles: registeredFiles };
     } catch (err) {
-        outputChannel.append(err);
+        outputChannel.appendLine(err);
     }
 }
 
@@ -83,7 +83,29 @@ async function getJsFiles() {
     try {
         return getFilesByExtension('js');
     } catch (err) {
-        outputChannel.append(err);
+        outputChannel.appendLine(err);
+    }
+}
+
+/**
+ * Recupera listado ficheros Javascript
+ * @returns {Promise<Array>}
+ */
+async function getCyActions() {
+    try {
+        const files = await getFilesByExtension('js', 'cypressTestsDirectory');
+        const actions = [];
+        const actionRegExp = /(?<=Cypress.Commands.add\(')\w+(?='\s*,.*?(?:\((.*)\)|(\w+))\s*[\{|\=\>])/g;
+
+        files.forEach(file => {
+            const data = fs.readFileSync(file, 'utf8')?.matchAll(actionRegExp);
+            if (data) {
+                actions.push(...data);
+            }
+        });
+        return actions;
+    } catch (err) {
+        outputChannel.appendLine(err);
     }
 }
 
@@ -110,7 +132,7 @@ function retrieveComponentNameFromFile(file) {
 
         return parts[parts.length - 1].split('.')[0];
     } catch (err) {
-        outputChannel.append(err);
+        outputChannel.appendLine(err);
     }
 }
 
@@ -125,7 +147,7 @@ function retrieveWithDirectoryInformationFromFile(file) {
 
         return parts.slice(parts.length - 2, parts.length).join('/');
     } catch (err) {
-        outputChannel.append(err);
+        outputChannel.appendLine(err);
     }
 }
 
@@ -152,7 +174,7 @@ function createComponentCompletionItem(item) {
 
         return snippetCompletion;
     } catch (error) {
-        outputChannel.append(error);
+        outputChannel.appendLine(error);
     }
 }
 
@@ -177,7 +199,7 @@ function createPropCompletionItem(prop, charBefore, charAfter) {
 
         return snippetCompletion;
     } catch (error) {
-        outputChannel.append(error);
+        outputChannel.appendLine(error);
     }
 }
 
@@ -201,7 +223,28 @@ function createEventCompletionItem(event, charBefore, charAfter) {
         snippetCompletion.detail = 'Vue Discovery MTM';
         return snippetCompletion;
     } catch (error) {
-        outputChannel.append(error);
+        outputChannel.appendLine(error);
+    }
+}
+
+/**
+ * @param {String} cyAction
+ * @returns {vscode.CompletionItem}
+ */
+function createCyCompletionItem(cyAction, range) {
+    try {
+        const snippetCompletion = new CompletionItem(cyAction[0], CompletionItemKind.Function);
+        snippetCompletion.detail = 'Vue Discovery MTM';
+        // generamos el texto a pinta en al seleccionar la action
+        const text = new SnippetString(`${cyAction[0]}(`);
+        (cyAction[1]?.trim()?.split(',') || []).forEach((value, index) => {
+            text.appendText(`${index > 0 ? ',' : ''}`).appendPlaceholder(value, index);
+        });
+        text.appendText(');');
+        snippetCompletion.insertText = text;
+        return snippetCompletion;
+    } catch (error) {
+        outputChannel.appendLine(error);
     }
 }
 
@@ -212,7 +255,7 @@ function hasScriptTagInActiveTextEditor() {
 
         return scriptTagMatch && scriptTagMatch.index > -1;
     } catch (error) {
-        outputChannel.append(error);
+        outputChannel.appendLine(error);
     }
 }
 
@@ -220,7 +263,7 @@ function config(key) {
     try {
         return key in configOverride ? configOverride[key] : workspace.getConfiguration().get(`VueDiscoveryMTM.${key}`);
     } catch (error) {
-        outputChannel.append(error);
+        outputChannel.appendLine(error);
     }
 }
 
@@ -240,7 +283,7 @@ async function retrieveComponentName(file) {
             return casing === 'pascal' ? pascalCase(name) : kebabCase(name);
         }
     } catch (error) {
-        outputChannel.append(error);
+        outputChannel.appendLine(error);
     }
 }
 
@@ -268,7 +311,7 @@ async function newRetrievePropsFrom(file) {
     return Promise.all(parsers)
         .then(merge.all)
         .then(result => result?.['props'] || [])
-        .catch(error => outputChannel.append(error));
+        .catch(error => outputChannel.appendLine(error));
 }
 
 /**
@@ -291,7 +334,7 @@ function retrieveEventsFrom(file) {
 
         return [...mixinEvents, ...events];
     } catch (error) {
-        outputChannel.append(error);
+        outputChannel.appendLine(error);
     }
 }
 
@@ -307,7 +350,7 @@ async function retrieveHasSlots(file) {
         const regexp = /<slot name="(\w|-)+".*(\/>|>.*<\/slot>)/;
         return regexp.test(options?.source?.template || '');
     } catch (error) {
-        outputChannel.append(error);
+        outputChannel.appendLine(error);
     }
 }
 
@@ -321,7 +364,7 @@ async function retrieveRequirePropsFromFile(file) {
         const props = await newRetrievePropsFrom(file);
         return props.filter(prop => prop.required).map(prop => prop.name);
     } catch (error) {
-        outputChannel.append(error);
+        outputChannel.appendLine(error);
     }
 }
 
@@ -352,7 +395,7 @@ async function insertSnippet(file, fileName) {
         getEditor().insertSnippet(new SnippetString(snippetString));
         outputChannel.appendLine(`insertado snippet en template:  ${snippetString}`);
     } catch (error) {
-        outputChannel.append(error);
+        outputChannel.appendLine(error);
     }
 }
 
@@ -361,7 +404,7 @@ function propCase(prop) {
         const casing = config('propCase');
         return casing === 'kebab' ? kebabCase(prop) : camelCase(prop);
     } catch (error) {
-        outputChannel.append(error);
+        outputChannel.appendLine(error);
     }
 }
 
@@ -370,7 +413,7 @@ function componentCase(fileName) {
         const casing = config('componentCase');
         return casing === 'kebab' ? kebabCase(fileName) : pascalCase(fileName);
     } catch (error) {
-        outputChannel.append(error);
+        outputChannel.appendLine(error);
     }
 }
 
@@ -401,7 +444,7 @@ function getAlias(fileWithoutRootPath) {
 
         return alias;
     } catch (error) {
-        outputChannel.append(error);
+        outputChannel.appendLine(error);
     }
 }
 
@@ -418,7 +461,7 @@ function getRelativePath(fileWithoutRootPath) {
         }
         return result;
     } catch (error) {
-        outputChannel.append(error);
+        outputChannel.appendLine(error);
     }
 }
 
@@ -431,7 +474,7 @@ function getImportPath(file, fileName) {
             ? fileWithoutRootPath.replace(`${alias.path}`, alias.value)
             : `${getRelativePath(fileWithoutRootPath)}/${fileName}.vue`;
     } catch (error) {
-        outputChannel.append(error);
+        outputChannel.appendLine(error);
     }
 }
 
@@ -460,7 +503,7 @@ async function insertImport(file, fileName) {
             outputChannel.appendLine(`insertado import para ${componentName} desde ${importPath}`);
         }
     } catch (error) {
-        outputChannel.append(error);
+        outputChannel.appendLine(error);
     }
 }
 
@@ -496,7 +539,7 @@ async function insertComponents(text, componentName, eol) {
         });
         outputChannel.appendLine(`insertado componente en lista componentes: ${component}`);
     } catch (error) {
-        outputChannel.append(error);
+        outputChannel.appendLine(error);
     }
 }
 
@@ -535,7 +578,7 @@ async function insertInExistingComponents(match, componentString, eol) {
         });
         outputChannel.appendLine(`insertado componente en lista componentes: ${component}`);
     } catch (error) {
-        outputChannel.append(error);
+        outputChannel.appendLine(error);
     }
 }
 function addTrailingComma(component) {
@@ -569,7 +612,7 @@ async function insertComponent(componentName) {
             insertInExistingComponents(match, componentString, eol);
         }
     } catch (error) {
-        outputChannel.append(error);
+        outputChannel.appendLine(error);
     }
 }
 
@@ -662,7 +705,7 @@ function isPositionInTemplateSection(position) {
             return false;
         }
     } catch (error) {
-        outputChannel.append(error);
+        outputChannel.appendLine(error);
     }
 }
 
@@ -713,7 +756,7 @@ function getComponentNameForLine(line, character = null) {
         } while (component === false);
         return componentCase(component.toString());
     } catch (error) {
-        outputChannel.append(error);
+        outputChannel.appendLine(error);
     }
 }
 /**
@@ -733,7 +776,7 @@ async function getEventsForLine(line, character = null) {
             }
         }
     } catch (error) {
-        outputChannel.append(error);
+        outputChannel.appendLine(error);
     }
 }
 
@@ -754,7 +797,7 @@ async function getPropsForLine(line, character = null) {
             }
         }
     } catch (error) {
-        outputChannel.append(error);
+        outputChannel.appendLine(error);
     }
 }
 
@@ -780,7 +823,7 @@ function getComponentAtCursor() {
         const arrText = arr?.[arr.length - 1];
         return arrText?.split(/\s|>/)?.[0] || '';
     } catch (error) {
-        outputChannel.append(error);
+        outputChannel.appendLine(error);
     }
 }
 
@@ -840,7 +883,7 @@ function markdownProp(prop, isHover = false) {
             return new MarkdownString('', true).appendText(desc).appendCodeblock(text, 'javascript');
         }
     } catch (error) {
-        outputChannel.append(error);
+        outputChannel.appendLine(error);
     }
 }
 
@@ -903,7 +946,7 @@ export async function activate(context) {
                     }
                 }
             } catch (error) {
-                outputChannel.append(error);
+                outputChannel.appendLine(error);
             }
         },
     });
@@ -992,6 +1035,23 @@ export async function activate(context) {
             return new Location(Uri.file(filepath), new vscode.Range(0, 0, 0, 0));
         },
     });
+
+    const cypressCompletionItemProvider = languages.registerCompletionItemProvider(
+        { scheme: 'file', pattern: '**/test/**/*.js' },
+        {
+            async provideCompletionItems(document, position) {
+                const regExpCyMethod = /(?<=\W)cy\.\w*(?:\(.*?\))?/gi;
+                const range = document.getWordRangeAtPosition(position, regExpCyMethod);
+                if (!range) {
+                    return;
+                }
+                const cyActions = await getCyActions();
+                return cyActions.map(cyAction => createCyCompletionItem(cyAction, range));
+            },
+        },
+        ' ',
+        '.'
+    );
 
     const importFile = commands.registerCommand('VueDiscoveryMTM.importFile', async (file, fileName) => {
         if (!hasScriptTagInActiveTextEditor()) {
@@ -1096,12 +1156,13 @@ export async function activate(context) {
             componentsHoverProvider,
             importFile,
             setConfigOption,
-            showComponentHelp
+            showComponentHelp,
+            cypressCompletionItemProvider
         );
 
         outputChannel.appendLine('extensión activada');
     } catch (error) {
-        outputChannel.append(error);
+        outputChannel.appendLine(error);
     }
 }
 

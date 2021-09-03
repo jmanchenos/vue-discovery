@@ -4,7 +4,7 @@
     "description": "This extension discovers Vue components in your workspace and provides IntelliSense for them.",
     "publisher": "jmanchenos",
     "repository": "https://github.com/jmanchenos/vue-discovery",
-    "version": "0.4.0",
+    "version": "0.5.0",
     "private": true,
     "license": "MIT",
     "icon": "images/icon.png",
@@ -32,7 +32,12 @@
                 "VueDiscoveryMTM.registeredDirectory": {
                     "type": "string",
                     "default": "/sgtnj-vue-components/src/components",
-                    "description": "list of root directories in your workspace on whcich search registered components separated by ;"
+                    "description": "list of root directories in your workspace on which search registered components separated by ;"
+                },
+                "VueDiscoveryMTM.cypressTestsDirectory": {
+                    "type": "string",
+                    "default": "/tests/e2e",
+                    "description": "list of root directories in your workspace on which search Cypress configuration test files separated by ;"
                 },
                 "VueDiscoveryMTM.componentCase": {
                     "type": "string",

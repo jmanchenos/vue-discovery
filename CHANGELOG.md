@@ -2,17 +2,24 @@
 
 All notable changes to the "vue-discovery" extension will be documented in this file.
 
+## [0.5.0] 2021-098-03
+
+### Added
+
+-  In test folder, the added methods through the "add" function in cy object (Cypress plugin) are detected.
+-  New property  'cypressTestsDirectory' added
+
 ## [0.4.0] 2021-08-28
 
 ### Added
 
--   Se agrega el acceso a la aplicacion showCase al pulsar sobre Ctrl+Shift+I  con el punsetro sobre el tag del componente
+-  Access to the showCase application is added by clicking on Ctrl+Shift+I with the punch on the component tag
 
 ## [0.3.0] 2021-08-23
 
 ### Changed
 
--   Cambio en las dependencias parseador vue
+-  Vue parser dependency has changed
 
 ## [0.2.0] 2021-08-19
 
@@ -24,7 +31,7 @@ All notable changes to the "vue-discovery" extension will be documented in this 
 
 ### Fixed
 
--   Fix how detect where pointer in in templaate section
+-   Fix how detect where pointer in in template section
 -   Fix lack of events detections in some components
 
 ## [0.1.0] 2021-08-16
