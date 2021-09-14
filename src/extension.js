@@ -103,7 +103,9 @@ async function getCyActions() {
                 actions.push(...data);
             }
         });
-        return actions;
+        return actions.map(x => {
+            return { name: x[0], params: x[1]?.replace(/=|\s|'|"/g, '') };
+        });
     } catch (err) {
         outputChannel.appendLine(err);
     }
@@ -228,20 +230,24 @@ function createEventCompletionItem(event, charBefore, charAfter) {
 }
 
 /**
- * @param {String} cyAction
+ * @param {Object} cyAction
  * @returns {vscode.CompletionItem}
  */
-function createCyCompletionItem(cyAction, range) {
+function createCyCompletionItem(cyAction) {
     try {
-        const snippetCompletion = new CompletionItem(cyAction[0], CompletionItemKind.Function);
-        snippetCompletion.detail = 'Vue Discovery MTM';
+        const name = cyAction['name'];
+        const params = cyAction['params'];
+        const snippetCompletion = new CompletionItem(name, CompletionItemKind.Function);
         // generamos el texto a pinta en al seleccionar la action
-        const text = new SnippetString(`${cyAction[0]}(`);
-        (cyAction[1]?.trim()?.split(',') || []).forEach((value, index) => {
-            text.appendText(`${index > 0 ? ',' : ''}`).appendPlaceholder(value, index);
+        const text = new SnippetString(`${name}(`);
+        (params?.trim()?.split(',') || []).forEach((value, index) => {
+            if (value) {
+                text.appendText(`${index > 0 ? ', ' : ''}`).appendPlaceholder(value, index);
+            }
         });
         text.appendText(');');
         snippetCompletion.insertText = text;
+        snippetCompletion.detail = 'Vue Discovery MTM';
         return snippetCompletion;
     } catch (error) {
         outputChannel.appendLine(error);
@@ -1037,7 +1043,7 @@ export async function activate(context) {
     });
 
     const cypressCompletionItemProvider = languages.registerCompletionItemProvider(
-        { scheme: 'file', pattern: '**/test/**/*.js' },
+        { scheme: 'file', pattern: '**/tests/**/*.js' },
         {
             async provideCompletionItems(document, position) {
                 const regExpCyMethod = /(?<=\W)cy\.\w*(?:\(.*?\))?/gi;
@@ -1046,7 +1052,7 @@ export async function activate(context) {
                     return;
                 }
                 const cyActions = await getCyActions();
-                return cyActions.map(cyAction => createCyCompletionItem(cyAction, range));
+                return cyActions.map(cyAction => createCyCompletionItem(cyAction));
             },
         },
         ' ',
@@ -1141,10 +1147,12 @@ export async function activate(context) {
         const data = await getVueFiles();
 
         await Promise.all(data.vueFiles.map(getComponentTuple)).then(result => {
+            // @ts-ignore
             (vueFiles || []).push(...result);
         });
 
         await Promise.all(data.vueRegisteredFiles.map(getComponentTuple)).then(result => {
+            // @ts-ignore
             (vueRegisteredFiles || []).push(...result);
         });
 
