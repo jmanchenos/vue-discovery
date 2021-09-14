@@ -242,7 +242,7 @@ function createCyCompletionItem(cyAction) {
         const text = new SnippetString(`${name}(`);
         (params?.trim()?.split(',') || []).forEach((value, index) => {
             if (value) {
-                text.appendText(`${index > 0 ? ', ' : ''}`).appendPlaceholder(value, index);
+                text.appendText(`${index > 0 ? ', ' : ''}`).appendPlaceholder(value);
             }
         });
         text.appendText(');');
