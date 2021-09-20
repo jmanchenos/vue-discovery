@@ -188,7 +188,11 @@ function createComponentCompletionItem(item) {
  */
 function createPropCompletionItem(prop, charBefore, charAfter) {
     try {
-        const propIconType = config('propIconType');
+        let propIconType = config('propIconType');
+        if (propIconType === 'Auto') {
+            propIconType =
+                workspace.getConfiguration().get('editor.snippetSuggestions') === 'top' ? 'Snippet' : 'Property';
+        }
         const { name } = prop;
         const snippetCompletion = new CompletionItem(name, CompletionItemKind[`${propIconType}`]);
         const includeSpaceBefore = ![' ', ':'].includes(charBefore);
@@ -198,6 +202,7 @@ function createPropCompletionItem(prop, charBefore, charAfter) {
         );
         snippetCompletion.documentation = markdownProp(prop);
         snippetCompletion.detail = 'Vue Discovery MTM';
+        snippetCompletion.sortText = '\u00000000' + name;
 
         return snippetCompletion;
     } catch (error) {
@@ -223,6 +228,7 @@ function createEventCompletionItem(event, charBefore, charAfter) {
             }`
         );
         snippetCompletion.detail = 'Vue Discovery MTM';
+        snippetCompletion.sortText = '\u00000001' + event;
         return snippetCompletion;
     } catch (error) {
         outputChannel.appendLine(error);
@@ -1074,72 +1080,69 @@ export async function activate(context) {
         configOverride[key] = value;
     });
 
-    const showComponentHelp = vscode.commands.registerCommand(
-        'VueDiscoveryMTM.showComponentHelp',
-        async componentInput => {
-            const urlShowcase = config('componentShowcaseUrl');
-            const useShowcase = config('useComponentShowcase');
+    const showComponentHelp = commands.registerCommand('VueDiscoveryMTM.showComponentHelp', async componentInput => {
+        const urlShowcase = config('componentShowcaseUrl');
+        const useShowcase = config('useComponentShowcase');
 
-            if (!useShowcase || !urlShowcase) {
-                return;
-            }
-            let componente = componentInput;
-            if (!componente) {
-                const document = getDocument();
-                const position = getActiveEditorPosition();
-                if (!isPositionInTemplateSection(position) || !isPositionOverAComponentTag(document, position)) {
-                    currentPanel?.dispose();
-                    return;
-                }
-                componente = getComponenteTagPositionIsOver(document, position);
-            }
-
-            // Lanzamos la carga del showcase para el componente actual
-            const url = `${urlShowcase}/docs/${pascalCase(componente)}.html`;
-
-            //validamos que exista la url
-            const timeout = config('componentShowcaseTimeout') || 3000;
-            const response = await utils.fetchWithTimeout(url, { method: 'HEAD' }, timeout);
-            const isOk = response ? response.status === 200 : false;
-
-            if (!isOk) {
+        if (!useShowcase || !urlShowcase) {
+            return;
+        }
+        let componente = componentInput;
+        if (!componente) {
+            const document = getDocument();
+            const position = getActiveEditorPosition();
+            if (!isPositionInTemplateSection(position) || !isPositionOverAComponentTag(document, position)) {
                 currentPanel?.dispose();
-                outputChannel.appendLine(
-                    `Llamada al comando showComponentHelp no válida: ${response ? response.status : ''} `
-                );
                 return;
             }
+            componente = getComponenteTagPositionIsOver(document, position);
+        }
 
-            if (!currentPanel) {
-                // Create and show panel
-                currentPanel = vscode.window.createWebviewPanel(
-                    'showComponentHelp',
-                    'Detalle uso del componente',
-                    {
-                        viewColumn: vscode.ViewColumn.Beside,
-                        preserveFocus: true,
-                    },
-                    {
-                        enableScripts: true,
-                        enableCommandUris: true,
-                    }
-                );
-            }
+        // Lanzamos la carga del showcase para el componente actual
+        const url = `${urlShowcase}/docs/${pascalCase(componente)}.html`;
 
-            // And set its HTML content
-            const text = utils.generateHtml(url, componente);
-            currentPanel.webview.html = text;
+        //validamos que exista la url
+        const timeout = config('componentShowcaseTimeout') || 3000;
+        const response = await utils.fetchWithTimeout(url, { method: 'HEAD' }, timeout);
+        const isOk = response ? response.status === 200 : false;
 
-            // Reset when the current panel is closed
-            currentPanel.onDidDispose(
-                () => {
-                    currentPanel = undefined;
+        if (!isOk) {
+            currentPanel?.dispose();
+            outputChannel.appendLine(
+                `Llamada al comando showComponentHelp no válida: ${response ? response.status : ''} `
+            );
+            return;
+        }
+
+        if (!currentPanel) {
+            // Create and show panel
+            currentPanel = vscode.window.createWebviewPanel(
+                'showComponentHelp',
+                'Detalle uso del componente',
+                {
+                    viewColumn: vscode.ViewColumn.Beside,
+                    preserveFocus: true,
                 },
-                null,
-                context.subscriptions
+                {
+                    enableScripts: true,
+                    enableCommandUris: true,
+                }
             );
         }
-    );
+
+        // And set its HTML content
+        const text = utils.generateHtml(url, componente);
+        currentPanel.webview.html = text;
+
+        // Reset when the current panel is closed
+        currentPanel.onDidDispose(
+            () => {
+                currentPanel = undefined;
+            },
+            null,
+            context.subscriptions
+        );
+    });
     try {
         outputChannel.clear();
         //Inicializamos lista componentes

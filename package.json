@@ -65,6 +65,7 @@
                 "VueDiscoveryMTM.propIconType": {
                     "type": "string",
                     "enum": [
+                        "Auto",
                         "Constant",
                         "Constructor",
                         "Enum",
@@ -77,8 +78,8 @@
                         "Value",
                         "Variable"
                     ],
-                    "default": "Snippet",
-                    "description": "The type of icon shown for properties of the component (we use Snippet as default to bring them at first positions)"
+                    "default": "Auto",
+                    "description": "The type of icon shown for properties of the component (in Auto mode we  use  Snippet if snippet suggestiuon is on top, Property otherwise)"
                 },
                 "VueDiscoveryMTM.includeRefAtribute": {
                     "type": "boolean",

@@ -55,7 +55,8 @@ This extension can be customized with the following settings:
 -   `VueDiscoveryMTM.componentCase`: The casing for the component, available options are `kebab` for kebab-case and `pascal` for PascalCase (default: `pascal`).
 -   `VueDiscoveryMTM.addTrailingComma`: Add a trailing comma to the registered component (default: `true`).
 -   `VueDiscoveryMTM.propCase`: The casing for the props, available options are `kebab` for kebab-case and `camel` for camelCase (default: `kebab`).
--   `VueDiscoveryMTM.propIconType`: The type of icon shown for properties of the component (default: `Snippet`, cause help to bring them at first positions).
+-   `VueDiscoveryMTM.propIconType`: The type of icon shown for properties of the component (default: `Auto`, menas Snippet when snippetSuggestion='top' cause help to bring them at first positions
+).
 -   `VueDiscoveryMTM.includeRefAtribute`: Boolean to choose if  a 'ref' atribute in the component is generated when creating a tag component ( default: `true`).
 -   `VueDiscoveryMTM.hoverComponentInfoType`: Define what info must be shown in the hover over a tag component. By now only props or none values are possible ( default: `props`).
 -   `VueDiscoveryMTM.useComponentShowcase`: Define if we will show help info for a component when hover is  over that component and we push over `Ctrl` button. This help comes from the showCase application (default: `true`).
