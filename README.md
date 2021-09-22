@@ -40,6 +40,7 @@ This extension discovers Vue components in your workspace and provides IntelliSe
 
 <img src="images/event-intellisense.gif" width="680">
 
+#### Provide IntelliSense for object 'this.' in script
 
 #### Provide Info of Components provided by Showcase Application (Ctrl + Shift + I)
 

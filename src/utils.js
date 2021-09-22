@@ -1,5 +1,6 @@
 import fetch from 'node-fetch';
 import AbortController from 'abort-controller';
+import { MarkdownString } from 'vscode';
 
 export const generateHtml = (url, name) => {
     return `
@@ -36,4 +37,39 @@ export const fetchWithTimeout = (url, options = {}, ms = 3000) => {
         .finally(() => {
             clearTimeout(timeout);
         });
+};
+
+export const getMarkdownData = obj => {
+    const { type, initialValue } = obj;
+    let text = initialValue;
+    if (type === 'object') {
+        try {
+            text =
+                Object.entries(JSON.parse(initialValue)).reduce(
+                    (prev, x) => prev + '\r\n' + x[0] + ': ' + x[1]['value'],
+                    '{'
+                ) + '}';
+        } catch (err) {}
+    }
+    return new MarkdownString('`valor inicial', true).appendCodeblock(`${type} : ${text} `, 'javascript');
+};
+
+export const getMarkdownComputed = obj => {
+    return new MarkdownString('', true).appendCodeblock(`type: ${obj.type}`, 'javascript');
+};
+
+export const getMarkdownProps = obj => {
+    const { name, required, type, default: def } = obj;
+    return new MarkdownString('', true).appendCodeblock(
+        ` ${name}: {
+        \t type: ${type},
+        \t required: ${required}${def ? ',\r\n\t default: ' + def + '\r\n}' : '\r\n}'}
+    `,
+        'javascript'
+    );
+};
+
+export const getMarkdownMethods = obj => {
+    const { description, syntax } = obj;
+    return new MarkdownString(`${description ? description + '\r\n' : ''}`, true).appendCodeblock(syntax, 'javascript');
 };

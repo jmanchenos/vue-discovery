@@ -260,6 +260,48 @@ function createCyCompletionItem(cyAction) {
     }
 }
 
+/**
+ * @param {Object} obj
+ * @returns {vscode.CompletionItem}
+ */
+function createThisCompletionItem(obj) {
+    try {
+        const { name, kind } = obj;
+        const objConfig = {
+            data: {
+                item: 'Field',
+                markdown: utils.getMarkdownData,
+                insert: x => `${x.name}`,
+            },
+            computed: {
+                item: 'Function',
+                markdown: utils.getMarkdownComputed,
+                insert: x => `${x.name}`,
+            },
+            prop: {
+                item: 'Property',
+                markdown: utils.getMarkdownProps,
+                insert: x => `${x.name}`,
+            },
+            method: {
+                item: 'Method',
+                markdown: utils.getMarkdownMethods,
+                insert: x => `${x.name}(${x.params.map(reg => reg.name).join(',')}) `,
+            },
+        };
+
+        const configData = objConfig[kind];
+        const atribCompletion = new CompletionItem(`${name} (${kind})`, CompletionItemKind[`${configData['item']}`]);
+        atribCompletion.insertText = new SnippetString(configData['insert'](obj));
+        atribCompletion.documentation = configData['markdown'](obj);
+        atribCompletion.detail = 'Vue Discovery MTM';
+        atribCompletion.sortText = '\u00000000' + name;
+        return atribCompletion;
+    } catch (error) {
+        outputChannel.appendLine(error);
+    }
+}
+
 function hasScriptTagInActiveTextEditor() {
     try {
         const text = window.activeTextEditor.document.getText();
@@ -1036,6 +1078,26 @@ export async function activate(context) {
         ' ',
         '.'
     );
+    const thisCompletionItemProvider = languages.registerCompletionItemProvider(
+        patternObject,
+        {
+            async provideCompletionItems(document, position) {
+                const range = document.getWordRangeAtPosition(position, /this\.\w*/);
+                if (!range) {
+                    return;
+                }
+                const vuedocOptions = { filename: document.fileName };
+                const { data, computed, props, methods } = await vueParser.parse(vuedocOptions);
+                const array = data?.map(x => createThisCompletionItem(x)) || [];
+                array.push(...(computed?.map(x => createThisCompletionItem(x)) || []));
+                array.push(...(props?.map(x => createThisCompletionItem(x)) || []));
+                array.push(...(methods?.map(x => createThisCompletionItem(x)) || []));
+                return array;
+            },
+        },
+        ' ',
+        '.'
+    );
 
     const componentsDefinitionProvider = languages.registerDefinitionProvider(patternObject, {
         async provideDefinition(document, position) {
@@ -1168,7 +1230,8 @@ export async function activate(context) {
             importFile,
             setConfigOption,
             showComponentHelp,
-            cypressCompletionItemProvider
+            cypressCompletionItemProvider,
+            thisCompletionItemProvider
         );
 
         outputChannel.appendLine('extensión activada');

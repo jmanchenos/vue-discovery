@@ -2,7 +2,12 @@
 
 All notable changes to the "vue-discovery" extension will be documented in this file.
 
-## [0.5.0] 2021-098-03
+
+## [0.6.0] 2021-09-21
+
+### Added
+- In script, when we write this. intelliSense show object froms props, data, computed, and methods,
+## [0.5.0] 2021-09-03
 
 ### Added
 
