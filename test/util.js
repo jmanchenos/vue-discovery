@@ -1,49 +1,36 @@
 const vscode = require('vscode');
 const path = require('path');
 
-function position(line, char) {
-    return new vscode.Position(line, char);
-}
+const position = (line, char) => new vscode.Position(line, char);
 
-function range(startLine, startChar, endLine, endChar) {
-    return new vscode.Range(position(startLine, startChar), position(endLine, endChar));
-}
+const range = (startLine, startChar, endLine, endChar) =>
+    new vscode.Range(position(startLine, startChar), position(endLine, endChar));
 
-function sameLineRange(line, startChar, endChar) {
-    return new vscode.Range(position(line, startChar), position(line, endChar));
-}
+const sameLineRange = (line, startChar, endChar) =>
+    new vscode.Range(position(line, startChar), position(line, endChar));
 
-function location(uri, startLine, startChar, endLine, endChar) {
-    return new vscode.Location(uri, range(startLine, startChar, endLine, endChar));
-}
+const location = (uri, startLine, startChar, endLine, endChar) =>
+    new vscode.Location(uri, range(startLine, startChar, endLine, endChar));
 
-function sameLineLocation(uri, line, startChar, endChar) {
-    return new vscode.Location(uri, sameLineRange(line, startChar, endChar));
-}
+const sameLineLocation = (uri, line, startChar, endChar) =>
+    new vscode.Location(uri, sameLineRange(line, startChar, endChar));
 
 const getDocPath = p => {
     return path.resolve(__dirname, 'fixture/src', p);
 };
 
-const getDocPathWithSlash = p => {
-    const path = getDocUri(p).path.slice(1);
-    return path;
-};
+const getDocPathWithSlash = p => getDocUri(p).path.slice(1);
 
-const getDocUri = p => {
-    return vscode.Uri.file(getDocPath(p));
-};
+const getDocUri = p => vscode.Uri.file(getDocPath(p));
 
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-async function showFile(docUri) {
+const showFile = async docUri => {
     vscode.commands.executeCommand('workbench.action.closeActiveEditor');
     await sleep(50);
     const doc = await vscode.workspace.openTextDocument(docUri);
-    return await vscode.window.showTextDocument(doc);
-}
+    return vscode.window.showTextDocument(doc);
+};
 
 module.exports = {
     position,
