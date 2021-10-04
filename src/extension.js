@@ -9,8 +9,8 @@ import * as commandProvider from './commandProvider';
 const initConfig = async () => {
     try {
         config.outputChannel.clear();
-        config.setJsFiles(await utils.getFilesByExtension('js'));
-
+        const jsFiles = await utils.getFilesByExtension('js');
+        const plugins = await utils.getPluginsList();
         const rootFiles = await utils.getFilesByExtension('vue');
         const registeredFiles = await utils.getFilesByExtension('vue', 'registeredDirectory');
         const preformattedData = {
@@ -20,6 +20,7 @@ const initConfig = async () => {
 
         let vueFiles = [],
             vueRegisteredFiles = [];
+
         //Asignamos a cada fichero un map para recuperar nombre de componente y ruta del fichero
         await Promise.all(preformattedData.vueFiles.map(utils.getComponentTuple)).then(result => {
             (vueFiles || []).push(...result);
@@ -27,6 +28,8 @@ const initConfig = async () => {
         await Promise.all(preformattedData.vueRegisteredFiles.map(utils.getComponentTuple)).then(result => {
             (vueRegisteredFiles || []).push(...result);
         });
+        config.setJsFiles(jsFiles);
+        config.setPlugins(plugins);
         config.setVueFiles(vueFiles);
         config.setVueRegisteredFiles(vueRegisteredFiles);
         config.setCurrentPanel(undefined);
@@ -42,13 +45,14 @@ const initConfig = async () => {
  */
 export async function activate(context) {
     try {
-        //Inicializamos variables
-        initConfig();
+        const initTimestamp = Date.now();
         context.subscriptions.push(
             completionProvider.componentsCompletionItemProvider,
             completionProvider.propsCompletionItemProvider,
             completionProvider.eventsCompletionItemProvider,
             completionProvider.thisCompletionItemProvider,
+            completionProvider.pluginCompletionItemProvider,
+            completionProvider.objectCompletionItemProvider,
             completionProvider.cypressCompletionItemProvider,
             definitionProvider.componentsDefinitionProvider,
             hoverProvider.componentsHoverProvider,
@@ -56,8 +60,11 @@ export async function activate(context) {
             commandProvider.setConfigOption,
             commandProvider.showComponentHelp(context)
         );
-
+        //Inicializamos variables
+        await initConfig();
+        const endTimestamp = Date.now();
         config.outputChannel.appendLine('extensión activada');
+        config.outputChannel.appendLine(`Ha tardado ${endTimestamp - initTimestamp} ms`);
     } catch (error) {
         console.error(error);
     }

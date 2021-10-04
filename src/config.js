@@ -1,9 +1,9 @@
-const { workspace, window } = require('vscode');
-const vscode = require('vscode');
+const { workspace, window, WebviewPanel } = require('vscode');
 const configOverride = {};
 const outputChannel = window.createOutputChannel('Vue Discovery - MTM');
 let cyFiles = [];
 let jsFiles = [];
+let plugins = [];
 let vueFiles = [];
 let vueRegisteredFiles = [];
 let currentPanel = undefined;
@@ -30,6 +30,9 @@ const setJsFiles = files => {
 const setCyFiles = files => {
     cyFiles = files;
 };
+const setPlugins = files => {
+    plugins = files;
+};
 const setCurrentPanel = panel => {
     currentPanel = panel;
 };
@@ -37,7 +40,9 @@ const getVueFiles = () => vueFiles;
 const getVueRegisteredFiles = () => vueRegisteredFiles;
 const getJsFiles = () => jsFiles;
 const getCyFiles = () => cyFiles;
-/**@returns {vscode.WebviewPanel}*/
+const getPlugins = () => plugins;
+
+/**@returns {WebviewPanel}*/
 const getCurrentPanel = () => currentPanel;
 
 module.exports = {
@@ -49,10 +54,12 @@ module.exports = {
     setVueRegisteredFiles,
     setJsFiles,
     setCyFiles,
+    setPlugins,
     getVueFiles,
     getVueRegisteredFiles,
     getJsFiles,
     getCyFiles,
+    getPlugins,
     setCurrentPanel,
     getCurrentPanel,
 };

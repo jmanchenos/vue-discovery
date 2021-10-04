@@ -1,6 +1,6 @@
 const utils = require('./utils');
-const { getConfig, outputChannel, getVueFiles } = require('./config');
-const { SnippetString, languages, CompletionItem, CompletionItemKind, workspace } = require('vscode');
+const { getConfig, getVueFiles, getPlugins } = require('./config');
+const { Range, SnippetString, languages, CompletionItem, CompletionItemKind, workspace } = require('vscode');
 const vueParser = require('@vuedoc/parser');
 const { kebabCase } = require('lodash');
 const patternObject = { scheme: 'file', pattern: '**/src/**/*.vue' };
@@ -28,7 +28,7 @@ function createComponentCompletionItem(item) {
 
         return snippetCompletion;
     } catch (error) {
-        outputChannel.appendLine(error);
+        console.error(error);
     }
 }
 
@@ -58,7 +58,7 @@ function createPropCompletionItem(prop, charBefore, charAfter) {
 
         return snippetCompletion;
     } catch (error) {
-        outputChannel.appendLine(error);
+        console.error(error);
     }
 }
 
@@ -83,15 +83,16 @@ function createEventCompletionItem(event, charBefore, charAfter) {
         snippetCompletion.sortText = '\u00000001' + event;
         return snippetCompletion;
     } catch (error) {
-        outputChannel.appendLine(error);
+        console.error(error);
     }
 }
 
 /**
  * @param {Object} obj
+ * @param {Range|Null} range
  * @returns {CompletionItem}
  */
-function createThisCompletionItem(obj) {
+function createThisCompletionItem(obj, range = null) {
     try {
         const { name, kind } = obj;
         const objConfig = {
@@ -99,33 +100,68 @@ function createThisCompletionItem(obj) {
                 item: 'Field',
                 markdown: utils.getMarkdownData,
                 insert: x => `${x.name}`,
+                sortText: '\u0000',
             },
             computed: {
-                item: 'Function',
+                item: 'Field',
                 markdown: utils.getMarkdownComputed,
                 insert: x => `${x.name}`,
+                sortText: '\u0000',
             },
             prop: {
                 item: 'Property',
                 markdown: utils.getMarkdownProps,
                 insert: x => `${x.name}`,
+                sortText: '\u0000',
             },
             method: {
                 item: 'Method',
                 markdown: utils.getMarkdownMethods,
                 insert: x => `${x.name}(${x.params.map(reg => reg.name).join(',')})`,
+                sortText: '\u0000',
+            },
+            plugin: {
+                item: 'Field',
+                markdown: utils.getMarkdownPlugins,
+                insert: x => `\\${x.name}`,
+                sortText: '\u0000',
+                commitCharacters: ['.'],
+            },
+            object: {
+                label: x => `${x.name} (${x.origen})`,
+                item: 'Field',
+                markdown: utils.getMarkdownObject,
+                insert: getInsertObject,
+                sortText: '\u0000',
             },
         };
-
-        const configData = objConfig[kind];
-        const atribCompletion = new CompletionItem(`${name} (${kind})`, CompletionItemKind[`${configData['item']}`]);
-        atribCompletion.insertText = new SnippetString(configData['insert'](obj));
-        atribCompletion.documentation = configData['markdown'](obj);
+        // Establecemos valores por defecto
+        const { label, item, markdown, insert, sortText, filterText, commitCharacters } = objConfig[kind];
+        const atribCompletion = new CompletionItem(
+            label?.(obj) ?? `${name} (${kind})`,
+            CompletionItemKind[`${item ?? 'Field'}`]
+        );
+        atribCompletion.insertText = new SnippetString(insert?.(obj) ?? name);
+        atribCompletion.documentation = markdown?.(obj) ?? '';
         atribCompletion.detail = 'Vue Discovery MTM';
-        atribCompletion.sortText = '\u00000000' + name;
+        atribCompletion.sortText = `${sortText ?? '\u0000'}${name}`;
+        atribCompletion.filterText = `${filterText ?? atribCompletion.label}()`;
+        atribCompletion.commitCharacters = commitCharacters ?? [];
+        if (range) {
+            atribCompletion.range = { inserting: range, replacing: range };
+        }
         return atribCompletion;
     } catch (error) {
-        outputChannel.appendLine(error);
+        console.error(error);
+    }
+}
+
+function getInsertObject(obj) {
+    if (obj.value?.type === 'ArrowFunctionExpression') {
+        const params = obj.value?.raw?.match(/\(?([\w\,\s]*)\)?\s?=>/)?.[1] ?? [];
+        return `${obj.name}(${params.trim()})`;
+    } else {
+        return obj.name;
     }
 }
 
@@ -150,7 +186,7 @@ function createCyCompletionItem(cyAction) {
         snippetCompletion.detail = 'Vue Discovery MTM';
         return snippetCompletion;
     } catch (error) {
-        outputChannel.appendLine(error);
+        console.error(error);
     }
 }
 const componentsCompletionItemProvider = languages.registerCompletionItemProvider(
@@ -175,17 +211,94 @@ const thisCompletionItemProvider = languages.registerCompletionItemProvider(
     patternObject,
     {
         async provideCompletionItems(document, position) {
-            const range = document.getWordRangeAtPosition(position, /this\.\w*/);
-            if (!range) {
+            const wordRange = document.getWordRangeAtPosition(position, /this\.\$*[\(\)\w]*/);
+            if (!wordRange) {
                 return;
             }
-            const vuedocOptions = { filename: document.fileName };
-            const { data, computed, props, methods } = await vueParser.parse(vuedocOptions);
-            const array = data?.map(x => createThisCompletionItem(x)) || [];
-            array.push(...(computed?.map(x => createThisCompletionItem(x)) || []));
-            array.push(...(props?.map(x => createThisCompletionItem(x)) || []));
-            array.push(...(methods?.map(x => createThisCompletionItem(x)) || []));
+            const array = [];
+            /* Ini Necesario para que el $ lo tenga en cuenta a la hora de sustituir la cadena*/
+            const text = document.getText(wordRange);
+            const range = new Range(
+                wordRange.start.line,
+                wordRange.start.character + text.search(/(?<=this\.)/),
+                wordRange.end.line,
+                wordRange.end.character
+            );
+            /* Fin*/
+            if (!text.includes('$')) {
+                const vuedocOptions = { filename: document.fileName };
+                const { data, computed, props, methods } = await vueParser.parse(vuedocOptions);
+                array.push(...(data?.map(x => createThisCompletionItem(x, range)) || []));
+                array.push(...(computed?.map(x => createThisCompletionItem(x, range)) || []));
+                array.push(...(props?.map(x => createThisCompletionItem(x, range)) || []));
+                array.push(...(methods?.map(x => createThisCompletionItem(x, range)) || []));
+            }
+            array.push(...getPlugins()?.map(x => createThisCompletionItem(x, range) || []));
             return array;
+        },
+    },
+    ' ',
+    '.',
+    '$'
+);
+const pluginCompletionItemProvider = languages.registerCompletionItemProvider(
+    patternObject,
+    {
+        async provideCompletionItems(document, position) {
+            const wordRange = document.getWordRangeAtPosition(position, /this\.\$\w*\.[\(\)\w]*/);
+            if (!wordRange) {
+                return;
+            }
+            /* Ini Necesario para que el $ lo tenga en cuenta a la hora de sustituir la cadena*/
+            const text = document.getText(wordRange);
+            const range = new Range(
+                wordRange.start.line,
+                wordRange.start.character + text.search(/(?<=this\.\$\w*\.)/),
+                wordRange.end.line,
+                wordRange.end.character
+            );
+            /* Fin*/
+            const pluginName = document.getText(wordRange).split('.')?.[1] ?? '';
+            const plugin = getPlugins().find(x => x.name === pluginName);
+            return Object.entries(plugin.objectValue)
+                .map(([key, value]) => {
+                    return { name: key, kind: 'method', params: [], description: null, syntax: value };
+                })
+                .map(x => createThisCompletionItem(x, range));
+        },
+    },
+    ' ',
+    '.'
+);
+
+const objectCompletionItemProvider = languages.registerCompletionItemProvider(
+    patternObject,
+    {
+        async provideCompletionItems(document, position) {
+            const wordRange = document.getWordRangeAtPosition(position, /this\.\w*\.[\(\)\w]*/);
+            if (!wordRange) {
+                return;
+            }
+            /* Ini Necesario para que los () lo tenga en cuenta a la hora de sustituir la cadena*/
+            const text = document.getText(wordRange);
+            const range = new Range(
+                wordRange.start.line,
+                wordRange.start.character + text.search(/(?<=this\.\w*\.)/),
+                wordRange.end.line,
+                wordRange.end.character
+            );
+            /* Fin*/
+            const objectName = document.getText(wordRange).split('.')?.[1] ?? '';
+            const vuedocOptions = { filename: document.fileName };
+            const { data } = await vueParser.parse(vuedocOptions);
+
+            let object = data.find(x => x.name === objectName && x.type === 'object');
+
+            return Object.entries(JSON.parse(object.initialValue))
+                .map(([key, value]) => {
+                    return { name: key, kind: 'object', origen: objectName, value: value };
+                })
+                .map(x => createThisCompletionItem(x, range));
         },
     },
     ' ',
@@ -270,4 +383,6 @@ module.exports = {
     eventsCompletionItemProvider,
     thisCompletionItemProvider,
     cypressCompletionItemProvider,
+    pluginCompletionItemProvider,
+    objectCompletionItemProvider,
 };

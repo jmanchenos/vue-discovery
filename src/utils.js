@@ -133,7 +133,7 @@ const getCyFiles = async () => {
     }
 };
 /**
- * Recupera listado ficheros Javascript
+ * Recupera listado acciones Cypress
  * @returns {Promise<Array>}
  */
 const getCyActions = async () => {
@@ -149,6 +149,52 @@ const getCyActions = async () => {
         return actions.map(x => {
             return { name: x[0], params: x[1]?.replace(/=|\s|'|"/g, '') };
         });
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+/**
+ * Recupera listado plugins
+ * @returns {Promise<Array>}
+ */
+const getPluginsList = async () => {
+    try {
+        let files = await getFilesByExtension('js', 'pluginsDirectory');
+        files = files.filter(x => new RegExp(/.*index.js/).test(x));
+        const regexComentarios = / \/\*[\w\W]*?\*\//g;
+        const regex = /vueLocal\.prototype[^\.]*?\.([\$\w]*?) = ({[\w\W]*});/g;
+        const plugins = [];
+        files.forEach(file => {
+            const data = Array.from(fs.readFileSync(file, 'utf8')?.replace(regexComentarios, '').matchAll(regex)).map(
+                reg => {
+                    let openBrackets = 0,
+                        index = 0;
+                    let text = '';
+                    for (const char of Array.from(reg[2])) {
+                        if (openBrackets > 0 || index === 0) {
+                            if (char === '{') {
+                                openBrackets++;
+                            } else if (char === '}') {
+                                openBrackets--;
+                            }
+                            text = text + char;
+                        }
+                        index++;
+                    }
+                    text = text + '@@';
+                    text.replace(/((\r|\n|\t|\0|\\n)\s*)/g, '');
+                    const textFinal = text.replace(/(\w+):\s*([^]+?)(?=,\s*\w+:|}@@)/g, `"$1": ""`).replace(/@@/g, '');
+                    let objFinal = { texto: textFinal };
+                    try {
+                        objFinal = JSON.parse(textFinal);
+                    } catch (er) {}
+                    return { name: reg[1], kind: 'plugin', textValue: textFinal, objectValue: objFinal };
+                }
+            );
+            plugins.push(...data);
+        });
+        return plugins;
     } catch (error) {
         console.error(error);
     }
@@ -508,6 +554,20 @@ const getMarkdownMethods = obj => {
     return new MarkdownString(`${description ? description + '\r\n' : ''}`, true).appendCodeblock(syntax, 'javascript');
 };
 
+const getMarkdownPlugins = obj => {
+    const { objectValue } = obj;
+    const text = Object.keys(objectValue).reduce((prev, key) => `${prev}\r\n${key}`, '');
+    return new MarkdownString('', true).appendText(text);
+};
+
+const getMarkdownObject = obj => {
+    let text = obj.value?.raw ?? '';
+    if (obj?.value?.type !== 'ArrowFunctionExpression') {
+        text = `Valor inicial \r\n ${text}`;
+    }
+    return text;
+};
+
 const getAlias = fileWithoutRootPath => {
     try {
         const aliases = findAliases();
@@ -635,6 +695,8 @@ export {
     getMarkdownComputed,
     getMarkdownMethods,
     getMarkdownProps,
+    getMarkdownPlugins,
+    getMarkdownObject,
     retrieveRequirePropsFromFile,
     retrieveHasSlots,
     propCase,
@@ -649,5 +711,6 @@ export {
     fetchWithTimeout,
     getFilesByExtension,
     getCyFiles,
+    getPluginsList,
     getComponentTuple,
 };
