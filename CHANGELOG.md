@@ -2,6 +2,10 @@
 
 All notable changes to the "vue-discovery" extension will be documented in this file.
 
+## [0.7.0] 2021-10-04
+
+### Added
+- Add improvement to show plugins from the page, an dproperties on objects from data siuch as i18n properties.
 
 ## [0.6.0] 2021-09-21
 
