@@ -101,7 +101,7 @@ export class Parser {
         if (props) {
             try {
                 //sustituimos lo que haya en default:  por  default: null por si hubiera constantes que no se puedan parsear
-                props = props.replace(/default:([^,])*,/g, 'default: null,');
+                props = props.replace(/default:([^,}])*?(?=[,}])/g, 'default: null');
                 this.parsed.props = [eval][0](`(${props})`);
             } catch (e) {
                 this.parsed.props = null;
