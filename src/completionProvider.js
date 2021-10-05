@@ -124,7 +124,7 @@ function createThisCompletionItem(obj, range = null) {
                 item: 'Field',
                 markdown: utils.getMarkdownPlugins,
                 insert: x => `\\${x.name}`,
-                sortText: '\u0000',
+                sortText: '\u0001',
                 commitCharacters: ['.'],
             },
             object: {
