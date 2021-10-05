@@ -429,7 +429,7 @@ const retrieveEventsFromFile = file => {
         if (mixins) {
             mixinEvents = mixins.reduce((accumulator, mixin) => {
                 const _file = jsFiles()?.find(f => f.includes(mixin));
-                return !_file ? accumulator : [...accumulator, ...retrieveEventsFromFile(file)];
+                return !_file ? accumulator : [...accumulator, ...retrieveEventsFromFile(_file)];
             }, []);
         }
         return [...mixinEvents, ...events];
