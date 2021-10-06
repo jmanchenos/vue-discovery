@@ -147,4 +147,47 @@ export class Parser {
         this.template().script().mixins().props().events();
         return this.parsed;
     }
+
+    /**
+     * Convierte una cadena de texto representando un objeto Javascript en el objeto
+     * @param {String} inputString
+     * @returns {Object}
+     */
+    static parseObjectJS(inputString) {
+        let result = {};
+        try {
+            let openBrackets = 0,
+                index = 0;
+            let text = '';
+            for (const char of Array.from(inputString)) {
+                if (openBrackets > 0 || index === 0) {
+                    if (char === '{') {
+                        openBrackets++;
+                    } else if (char === '}') {
+                        openBrackets--;
+                    }
+                    text = text + char;
+                }
+                index++;
+            }
+            result = [eval][0](`(${text})`);
+        } catch (error) {
+            console.error(error);
+            result = { error, source: inputString };
+        }
+        return result;
+    }
+    /**
+     * Devuelve listado de nombres de parametros de l afuncion dada
+     * @param {Function} fn
+     * @returns {Array}
+     */
+    static getParameterNames(fn) {
+        const COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/gm;
+        const DEFAULT_PARAMS = /=[^,]+/gm;
+        const FAT_ARROWS = /=>[\w\W]*$/gm;
+        const code = fn.toString().replace(COMMENTS, '').replace(FAT_ARROWS, '').replace(DEFAULT_PARAMS, '');
+        const result = code.slice(code.indexOf('(') + 1, code.indexOf(')')).match(/([^\s,]+)/g);
+        return result ?? [];
+    }
 }

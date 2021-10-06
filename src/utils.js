@@ -10,8 +10,13 @@ import * as vueParser from '@vuedoc/parser';
 import fs from 'fs';
 import merge from 'deepmerge';
 
-const PATTERN = {
+const REGEX = {
     tagName: /<([^\s></]+)/,
+    cyActions: /(?<=Cypress.Commands.add\(')\w+(?='\s*,.*?(?:\((.*)\)|(\w+))\s*[\{|\=\>])/g,
+    comments: / \/\*[\w\W]*?\*\//g,
+    imports: /import.*?;/g,
+    plugins: /vueLocal\.prototype[^\.]*?\.([\$\w]*?) = ({[\w\W]*});/g,
+    pluginFiles: /.*index.js/,
 };
 const vueFiles = config.getVueFiles;
 const vueRegisteredFiles = config.getVueRegisteredFiles;
@@ -139,9 +144,8 @@ const getCyFiles = async () => {
 const getCyActions = async () => {
     try {
         const actions = [];
-        const actionRegExp = /(?<=Cypress.Commands.add\(')\w+(?='\s*,.*?(?:\((.*)\)|(\w+))\s*[\{|\=\>])/g;
         cyFiles().forEach(file => {
-            const data = fs.readFileSync(file, 'utf8')?.matchAll(actionRegExp);
+            const data = fs.readFileSync(file, 'utf8')?.matchAll(REGEX.cyActions);
             if (data) {
                 actions.push(...data);
             }
@@ -161,37 +165,14 @@ const getCyActions = async () => {
 const getPluginsList = async () => {
     try {
         let files = await getFilesByExtension('js', 'pluginsDirectory');
-        files = files.filter(x => new RegExp(/.*index.js/).test(x));
-        const regexComentarios = / \/\*[\w\W]*?\*\//g;
-        const regex = /vueLocal\.prototype[^\.]*?\.([\$\w]*?) = ({[\w\W]*});/g;
+        files = files.filter(x => REGEX.pluginFiles.test(x));
         const plugins = [];
-        files.forEach(file => {
-            const data = Array.from(fs.readFileSync(file, 'utf8')?.replace(regexComentarios, '').matchAll(regex)).map(
-                reg => {
-                    let openBrackets = 0,
-                        index = 0;
-                    let text = '';
-                    for (const char of Array.from(reg[2])) {
-                        if (openBrackets > 0 || index === 0) {
-                            if (char === '{') {
-                                openBrackets++;
-                            } else if (char === '}') {
-                                openBrackets--;
-                            }
-                            text = text + char;
-                        }
-                        index++;
-                    }
-                    text = text + '@@';
-                    text.replace(/((\r|\n|\t|\0|\\n)\s*)/g, '');
-                    const textFinal = text.replace(/(\w+):\s*([^]+?)(?=,\s*\w+:|}@@)/g, `"$1": ""`).replace(/@@/g, '');
-                    let objFinal = { texto: textFinal };
-                    try {
-                        objFinal = JSON.parse(textFinal);
-                    } catch (er) {}
-                    return { name: reg[1], kind: 'plugin', textValue: textFinal, objectValue: objFinal };
-                }
-            );
+
+        files.forEach(async file => {
+            let textFile = fs.readFileSync(file, 'utf8')?.replace(REGEX.comments, '').replace(REGEX.imports, '');
+            const data = Array.from(textFile.matchAll(REGEX.plugins)).map(reg => {
+                return { name: reg[1], kind: 'plugin', objectValue: Parser.parseObjectJS(reg[2]) };
+            });
             plugins.push(...data);
         });
         return plugins;
@@ -597,7 +578,7 @@ const getRelativePath = fileWithoutRootPath => {
 };
 
 const matchTagName = markup => {
-    const match = markup.match(PATTERN.tagName);
+    const match = markup.match(REGEX.tagName);
     //TODO modificar
     return match ? match[1] : false;
 };

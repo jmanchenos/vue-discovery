@@ -1,5 +1,6 @@
 const utils = require('./utils');
 const { getConfig, getVueFiles, getPlugins } = require('./config');
+const { Parser } = require('./parser');
 const { Range, SnippetString, languages, CompletionItem, CompletionItemKind, workspace } = require('vscode');
 const vueParser = require('@vuedoc/parser');
 const { kebabCase } = require('lodash');
@@ -262,7 +263,15 @@ const pluginCompletionItemProvider = languages.registerCompletionItemProvider(
             const plugin = getPlugins().find(x => x.name === pluginName);
             return Object.entries(plugin.objectValue)
                 .map(([key, value]) => {
-                    return { name: key, kind: 'method', params: [], description: null, syntax: value };
+                    const params = Parser.getParameterNames(value);
+                    const syntax = `${key}(${params.join(',')})`;
+                    return {
+                        name: key,
+                        kind: 'method',
+                        params: params.map(x => ({ name: x })),
+                        description: null,
+                        syntax,
+                    };
                 })
                 .map(x => createThisCompletionItem(x, range));
         },

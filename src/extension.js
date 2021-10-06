@@ -9,29 +9,27 @@ import * as commandProvider from './commandProvider';
 const initConfig = async () => {
     try {
         config.outputChannel.clear();
-        const jsFiles = await utils.getFilesByExtension('js');
-        const plugins = await utils.getPluginsList();
-        const rootFiles = await utils.getFilesByExtension('vue');
-        const registeredFiles = await utils.getFilesByExtension('vue', 'registeredDirectory');
-        const preformattedData = {
-            vueFiles: [...new Set([...rootFiles, ...registeredFiles])],
-            vueRegisteredFiles: registeredFiles,
-        };
+        utils.getFilesByExtension('js').then(jsFiles => config.setJsFiles(jsFiles));
+        utils.getPluginsList().then(plugins => config.setPlugins(plugins));
 
-        let vueFiles = [],
-            vueRegisteredFiles = [];
+        const preformattedData = {};
+        const rootFiles = [];
+        const registeredFiles = [];
+        await Promise.all([
+            utils.getFilesByExtension('vue').then(res => rootFiles.push(...res)),
+            utils.getFilesByExtension('vue', 'registeredDirectory').then(res => registeredFiles.push(...res)),
+        ]).then(() => {
+            preformattedData.vueFiles = [...new Set([...rootFiles, ...registeredFiles])];
+            preformattedData.vueRegisteredFiles = registeredFiles;
+        });
 
         //Asignamos a cada fichero un map para recuperar nombre de componente y ruta del fichero
-        await Promise.all(preformattedData.vueFiles.map(utils.getComponentTuple)).then(result => {
-            (vueFiles || []).push(...result);
-        });
-        await Promise.all(preformattedData.vueRegisteredFiles.map(utils.getComponentTuple)).then(result => {
-            (vueRegisteredFiles || []).push(...result);
-        });
-        config.setJsFiles(jsFiles);
-        config.setPlugins(plugins);
-        config.setVueFiles(vueFiles);
-        config.setVueRegisteredFiles(vueRegisteredFiles);
+        await Promise.all(preformattedData.vueFiles.map(utils.getComponentTuple)).then(result =>
+            config.setVueFiles(result || [])
+        );
+        await Promise.all(preformattedData.vueRegisteredFiles.map(utils.getComponentTuple)).then(result =>
+            config.setVueRegisteredFiles(result || [])
+        );
         config.setCurrentPanel(undefined);
     } catch (error) {
         console.error(error);
@@ -61,10 +59,14 @@ export async function activate(context) {
             commandProvider.showComponentHelp(context)
         );
         //Inicializamos variables
+        const initConfigTimestamp = Date.now();
         await initConfig();
         const endTimestamp = Date.now();
         config.outputChannel.appendLine('extensión activada');
-        config.outputChannel.appendLine(`Ha tardado ${endTimestamp - initTimestamp} ms`);
+        config.outputChannel.appendLine(`Ha tardado ${endTimestamp - initTimestamp} ms en cargar la extensión`);
+        config.outputChannel.appendLine(
+            `Ha tardado ${endTimestamp - initConfigTimestamp} ms en inicializar la extensión`
+        );
     } catch (error) {
         console.error(error);
     }
