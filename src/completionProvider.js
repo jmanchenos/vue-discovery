@@ -3,7 +3,7 @@ const { getConfig, getVueFiles, getPlugins } = require('./config');
 const { Parser } = require('./parser');
 const { Range, SnippetString, languages, CompletionItem, CompletionItemKind, workspace } = require('vscode');
 const vueParser = require('@vuedoc/parser');
-const { kebabCase } = require('lodash');
+const { kebabCase, camelCase } = require('lodash');
 const patternObject = { scheme: 'file', pattern: '**/src/**/*.vue' };
 
 /**
@@ -111,8 +111,9 @@ function createThisCompletionItem(obj, range = null) {
             },
             prop: {
                 item: 'Property',
+                label: x => `${camelCase(x.name)} (${x.kind})`,
                 markdown: utils.getMarkdownProps,
-                insert: x => `${x.name}`,
+                insert: x => `${camelCase(x.name)}`,
                 sortText: '\u0000',
             },
             method: {
@@ -129,8 +130,8 @@ function createThisCompletionItem(obj, range = null) {
                 commitCharacters: ['.'],
             },
             object: {
-                label: x => `${x.name} (${x.origen})`,
                 item: 'Field',
+                label: x => `${x.name} (${x.origen})`,
                 markdown: utils.getMarkdownObject,
                 insert: getInsertObject,
                 sortText: '\u0000',
