@@ -1,6 +1,11 @@
-const { commands, window, Position, SnippetString, ViewColumn, ExtensionContext, Disposable } = require('vscode');
+const { commands, window, Position, SnippetString, ViewColumn } = require('vscode');
 const utils = require('./utils');
 const { outputChannel, getConfig, setConfig, getCurrentPanel, setCurrentPanel } = require('./config');
+
+/**
+ * @typedef {import ('vscode').ExtensionContext} ExtensionContext;
+ * @typedef {import ('vscode').Disposable} Disposable
+ */
 
 function getImportPath(file, fileName) {
     try {

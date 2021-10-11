@@ -1,4 +1,4 @@
-import { Position, TextDocument, window, workspace, MarkdownString, Range } from 'vscode';
+import { window, workspace, MarkdownString, Range } from 'vscode';
 import fetch from 'node-fetch';
 import AbortController from 'abort-controller';
 import { upperFirst, camelCase, kebabCase, toNumber } from 'lodash';
@@ -8,14 +8,19 @@ import config, { getConfig } from './config';
 import { Parser } from './parser';
 import * as vueParser from '@vuedoc/parser';
 import fs from 'fs';
-import merge from 'deepmerge';
+import * as merge from 'deepmerge';
+
+/**
+ * @typedef {import ('vscode').Position} Position;
+ * @typedef {import ('vscode').TextDocument} TextDocument
+ */
 
 const REGEX = {
     tagName: /<([^\s></]+)/,
     cyActions: /(?<=Cypress.Commands.add\(')\w+(?='\s*,.*?(?:\((.*)\)|(\w+))\s*[\{|\=\>])/g,
-    comments: / \/\*[\w\W]*?\*\//g,
+    comments: / \/\*.*?\*\//gs, //la s final indica que el . incluye el caracter de nueva linea
     imports: /import.*?;/g,
-    plugins: /vueLocal\.prototype[^\.]*?\.([\$\w]*?) = ({[\w\W]*});/g,
+    plugins: /vueLocal\.prototype[^\.]*?\.([\$\w]*?) = ({.*});/gs,
     pluginFiles: /.*index.js/,
 };
 const vueFiles = config.getVueFiles;
@@ -242,9 +247,9 @@ const getComponentAtCursor = () => {
 };
 
 /** Return if position is over the template section of Vue file
- * @param {Position} position position
+ * @param {Position} position
  * @returns {Boolean} true if position is over
- **/
+ */
 const isPositionInTemplateSection = position => {
     try {
         const regexp = /(?<=<template>)(.|\n|\r)+(?=<\/template>)/g;
@@ -287,7 +292,7 @@ const hasScriptTagInActiveTextEditor = () => {
  * Find if the position of document passed by params is over a component tag
  * @param {TextDocument} document
  * @returns {boolean} true if position over a component tag
- **/
+ */
 const isPositionOverAComponentTag = (document, position) => {
     if (!isPositionInTemplateSection(position)) {
         return false;

@@ -1,13 +1,13 @@
 {
     "env": {
         "browser": false,
-        "commonjs": true,
+        "commonjs": false,
         "es6": true,
         "node": true,
         "mocha": true
     },
     "parserOptions": {
-        "ecmaVersion": 2020,
+        "ecmaVersion": "latest",
         "ecmaFeatures": {
             "jsx": true
         },

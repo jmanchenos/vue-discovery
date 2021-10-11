@@ -4,7 +4,7 @@
     "description": "This extension discovers Vue components in your workspace and provides IntelliSense for them.",
     "publisher": "jmanchenos",
     "repository": "https://github.com/jmanchenos/vue-discovery",
-    "version": "0.7.0",
+    "version": "0.7.1",
     "private": true,
     "license": "MIT",
     "icon": "images/icon.png",
@@ -141,7 +141,7 @@
         "pretest": "yarn run lint",
         "test": "node ./test/runTest.js",
         "vscode:prepublish": "esbuild --bundle --platform=node --external:vscode --sourcemap  --outdir=dist --minify --keep-names . src/extension.js",
-        "build": "esbuild --bundle --platform=node --external:vscode --sourcemap --outdir=dist  src/extension.js",
+        "build": "esbuild --bundle --platform=node --external:vscode --sourcemap --outdir=dist src/extension.js ",
         "build-dev": "esbuild --bundle --platform=node --external:vscode --sourcemap --outdir=dist src/extension.js --watch",
         "test-compile": "tsc -p ./"
     },

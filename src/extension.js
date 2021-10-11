@@ -1,10 +1,13 @@
-import { ExtensionContext } from 'vscode';
 import * as utils from './utils';
 import * as config from './config';
 import * as completionProvider from './completionProvider';
 import * as hoverProvider from './hoverProvider';
 import * as definitionProvider from './definitionProvider';
 import * as commandProvider from './commandProvider';
+
+/**
+ * @typedef {import ('vscode').ExtensionContext} ExtensionContext;
+ */
 
 const initConfig = async () => {
     try {

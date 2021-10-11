@@ -178,14 +178,14 @@ export class Parser {
         return result;
     }
     /**
-     * Devuelve listado de nombres de parametros de l afuncion dada
+     * Devuelve listado de nombres de parametros de la función dada
      * @param {Function} fn
      * @returns {Array}
      */
     static getParameterNames(fn) {
         const COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/gm;
         const DEFAULT_PARAMS = /=[^,]+/gm;
-        const FAT_ARROWS = /=>[\w\W]*$/gm;
+        const FAT_ARROWS = /=>.*$/gms;
         const code = fn.toString().replace(COMMENTS, '').replace(FAT_ARROWS, '').replace(DEFAULT_PARAMS, '');
         const result = code.slice(code.indexOf('(') + 1, code.indexOf(')')).match(/([^\s,]+)/g);
         return result ?? [];

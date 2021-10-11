@@ -8,7 +8,10 @@ const patternObject = { scheme: 'file', pattern: '**/src/**/*.vue' };
 
 /**
  * Creates a completion item for a components from a tuple {filePath, componentName}
- * @param {Object} item
+ *
+ * @param {Object} item item
+ *
+ * @returns {CompletionItem} completion item
  */
 function createComponentCompletionItem(item) {
     try {
@@ -90,8 +93,7 @@ function createEventCompletionItem(event, charBefore, charAfter) {
 
 /**
  * @param {Object} obj
- * @param {Range|Null} range
- * @returns {CompletionItem}
+ * @param {Range} range
  */
 function createThisCompletionItem(obj, range = null) {
     try {

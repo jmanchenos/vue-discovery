@@ -1,4 +1,8 @@
-const { workspace, window, WebviewPanel } = require('vscode');
+const { workspace, window } = require('vscode');
+/**
+ * @typedef {import ('vscode').WebviewPanel} WebviewPanel;
+ */
+
 const configOverride = {};
 const outputChannel = window.createOutputChannel('Vue Discovery - MTM');
 let cyFiles = [];
@@ -42,7 +46,7 @@ const getJsFiles = () => jsFiles;
 const getCyFiles = () => cyFiles;
 const getPlugins = () => plugins;
 
-/**@returns {WebviewPanel}*/
+/** @returns {WebviewPanel}*/
 const getCurrentPanel = () => currentPanel;
 
 module.exports = {
