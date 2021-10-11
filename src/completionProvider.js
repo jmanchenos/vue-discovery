@@ -267,7 +267,7 @@ const pluginCompletionItemProvider = languages.registerCompletionItemProvider(
             return Object.entries(plugin.objectValue)
                 .map(([key, value]) => {
                     const params = Parser.getParameterNames(value);
-                    const syntax = `${key}(${params.join(',')})`;
+                    const syntax = `${key}(${params.join(', ')})`;
                     return {
                         name: key,
                         kind: 'method',

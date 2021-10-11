@@ -184,10 +184,17 @@ export class Parser {
      */
     static getParameterNames(fn) {
         const COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/gm;
-        const DEFAULT_PARAMS = /=[^,]+/gm;
-        const FAT_ARROWS = /=>.*$/gms;
-        const code = fn.toString().replace(COMMENTS, '').replace(FAT_ARROWS, '').replace(DEFAULT_PARAMS, '');
-        const result = code.slice(code.indexOf('(') + 1, code.indexOf(')')).match(/([^\s,]+)/g);
-        return result ?? [];
+        const FAT_ARROWS = /\s*(?<=\w*)\s*=>.*$/gms;
+        const FUNC_PREDICATE = /(?<=\(.*\))\s*\{.*/gs;
+        const code = fn.toString().replace(COMMENTS, '').replace(FAT_ARROWS, '').replace(FUNC_PREDICATE, '');
+        // .replace(DEFAULT_PARAMS, '');
+        let result = '';
+        if (code.indexOf('(') >= 0) {
+            result = code.slice(code.indexOf('(') + 1, code.lastIndexOf(')'));
+        } else {
+            result = code.match(/(?<=async )\w.*/gs)?.[0] ?? '';
+        }
+
+        return result.split(',').map(x => x.trim()) ?? [];
     }
 }
