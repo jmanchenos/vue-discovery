@@ -1,7 +1,6 @@
-const { getVueFiles } = require('./config');
-const utils = require('./utils');
-const { languages, Hover } = require('vscode');
-const { getConfig } = require('./config');
+import { getVueFiles, getConfig } from './config';
+import * as utils from './utils';
+import { languages, Hover } from 'vscode';
 
 const patternObject = { scheme: 'file', pattern: '**/src/**/*.vue' };
 
@@ -41,4 +40,4 @@ const componentsHoverProvider = languages.registerHoverProvider(patternObject, {
     },
 });
 
-module.exports = { componentsHoverProvider };
+export { componentsHoverProvider };

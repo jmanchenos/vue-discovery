@@ -4,12 +4,12 @@ import AbortController from 'abort-controller';
 import { upperFirst, camelCase, kebabCase, toNumber } from 'lodash';
 import { glob } from 'glob';
 import path from 'path';
-import config, { getConfig } from './config';
+import * as config from './config';
 import { Parser } from './parser';
 import * as vueParser from '@vuedoc/parser';
 import fs from 'fs';
 import * as merge from 'deepmerge';
-
+const { getConfig } = config;
 /**
  * @typedef {import ('vscode').Position} Position;
  * @typedef {import ('vscode').TextDocument} TextDocument

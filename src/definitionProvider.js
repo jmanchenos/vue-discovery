@@ -1,6 +1,7 @@
-const utils = require('./utils');
-const { languages, Location, Range, Uri } = require('vscode');
-const { getVueFiles } = require('./config');
+import * as utils from './utils';
+import { languages, Location, Range, Uri } from 'vscode';
+import { getVueFiles } from './config';
+
 const patternObject = { scheme: 'file', pattern: '**/src/**/*.vue' };
 
 const componentsDefinitionProvider = languages.registerDefinitionProvider(patternObject, {
@@ -14,4 +15,4 @@ const componentsDefinitionProvider = languages.registerDefinitionProvider(patter
     },
 });
 
-module.exports = { componentsDefinitionProvider };
+export { componentsDefinitionProvider };

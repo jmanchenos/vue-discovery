@@ -1,4 +1,4 @@
-const { workspace, window } = require('vscode');
+import { workspace, window } from 'vscode';
 /**
  * @typedef {import ('vscode').WebviewPanel} WebviewPanel;
  */
@@ -49,7 +49,7 @@ const getPlugins = () => plugins;
 /** @returns {WebviewPanel}*/
 const getCurrentPanel = () => currentPanel;
 
-module.exports = {
+export {
     outputChannel,
     setConfig,
     getConfig,

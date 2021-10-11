@@ -1,6 +1,6 @@
-const { commands, window, Position, SnippetString, ViewColumn } = require('vscode');
-const utils = require('./utils');
-const { outputChannel, getConfig, setConfig, getCurrentPanel, setCurrentPanel } = require('./config');
+import { commands, window, Position, SnippetString, ViewColumn } from 'vscode';
+import * as utils from './utils';
+import { outputChannel, getConfig, setConfig, getCurrentPanel, setCurrentPanel } from './config';
 
 /**
  * @typedef {import ('vscode').ExtensionContext} ExtensionContext;
@@ -278,4 +278,4 @@ const showComponentHelp = context =>
         );
     });
 
-module.exports = { importFile, setConfigOption, showComponentHelp };
+export { importFile, setConfigOption, showComponentHelp };

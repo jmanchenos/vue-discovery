@@ -1,9 +1,10 @@
-const utils = require('./utils');
-const { getConfig, getVueFiles, getPlugins } = require('./config');
-const { Parser } = require('./parser');
-const { Range, SnippetString, languages, CompletionItem, CompletionItemKind, workspace } = require('vscode');
-const vueParser = require('@vuedoc/parser');
-const { kebabCase, camelCase } = require('lodash');
+import * as utils from './utils';
+import { getConfig, getVueFiles, getPlugins } from './config';
+import { Parser } from './parser';
+import { Range, SnippetString, languages, CompletionItem, CompletionItemKind, workspace } from 'vscode';
+import * as vueParser from '@vuedoc/parser';
+import { kebabCase, camelCase } from 'lodash';
+
 const patternObject = { scheme: 'file', pattern: '**/src/**/*.vue' };
 
 /**
@@ -389,7 +390,7 @@ const cypressCompletionItemProvider = languages.registerCompletionItemProvider(
     ' ',
     '.'
 );
-module.exports = {
+export {
     componentsCompletionItemProvider,
     propsCompletionItemProvider,
     eventsCompletionItemProvider,
