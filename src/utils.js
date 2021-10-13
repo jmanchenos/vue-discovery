@@ -176,8 +176,7 @@ const getPluginsList = async () => {
         files.forEach(async file => {
             let textFile = fs.readFileSync(file, 'utf8')?.replace(REGEX.comments, ''); //.replace(REGEX.imports, '');
             const data = Array.from(textFile.matchAll(REGEX.plugins)).map(reg => {
-                // const obj = Parser.parseObjectJS(reg[2]) || Parser.parseVariable(reg[2], textFile) || {};
-                const obj = Parser.parseObjectJS(reg[2]) || {};
+                const obj = Parser.parseObjectJS(reg[2]) || Parser.parseVariable(reg[2], textFile) || {};
                 return { name: reg[1], kind: 'plugin', objectValue: obj };
             });
             plugins.push(...data);
