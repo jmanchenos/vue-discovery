@@ -20,8 +20,8 @@ const REGEX = {
     cyActions: /(?<=Cypress.Commands.add\(')\w+(?='\s*,.*?(?:\((.*)\)|(\w+))\s*[\{|\=\>])/g,
     comments: / \/\*.*?\*\//gs, //la s final indica que el . incluye el caracter de nueva linea
     imports: /import.*?;/g,
-    plugins: /vueLocal\.prototype[^\.]*?\.([\$\w]*?) = ({.*});/gs,
-    pluginFiles: /.*index.js/,
+    plugins: /\.prototype[^\.]*?\.([\$\w]*?) = ({.*}|\w+);/gs,
+    pluginFiles: /.*index|main.js/,
 };
 const vueFiles = config.getVueFiles;
 const vueRegisteredFiles = config.getVueRegisteredFiles;
@@ -117,14 +117,15 @@ const getFilesByExtension = async (extension, configAtrib = 'rootDirectory') => 
     let fileList = [];
     const listaPromesas = listaRoot.map(
         element =>
-            new Promise((resolve, reject) =>
-                glob(`${getRootPath()}${element}/**/*.${extension}`, (err, res) => {
+            new Promise((resolve, reject) => {
+                const sufix = element.endsWith('/') ? '*' : '/**/*';
+                return glob(`${getRootPath()}${element}${sufix}.${extension}`, (err, res) => {
                     if (err) {
                         return reject(err);
                     }
                     resolve(res);
-                })
-            )
+                });
+            })
     );
 
     await Promise.all(listaPromesas).then(result => result.forEach(x => fileList.push(...x)));
@@ -172,11 +173,12 @@ const getPluginsList = async () => {
         let files = await getFilesByExtension('js', 'pluginsDirectory');
         files = files.filter(x => REGEX.pluginFiles.test(x));
         const plugins = [];
-
         files.forEach(async file => {
-            let textFile = fs.readFileSync(file, 'utf8')?.replace(REGEX.comments, '').replace(REGEX.imports, '');
+            let textFile = fs.readFileSync(file, 'utf8')?.replace(REGEX.comments, ''); //.replace(REGEX.imports, '');
             const data = Array.from(textFile.matchAll(REGEX.plugins)).map(reg => {
-                return { name: reg[1], kind: 'plugin', objectValue: Parser.parseObjectJS(reg[2]) };
+                // const obj = Parser.parseObjectJS(reg[2]) || Parser.parseVariable(reg[2], textFile) || {};
+                const obj = Parser.parseObjectJS(reg[2]) || {};
+                return { name: reg[1], kind: 'plugin', objectValue: obj };
             });
             plugins.push(...data);
         });

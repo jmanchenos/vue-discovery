@@ -1,3 +1,5 @@
+import vscode from 'vscode';
+
 export class Parser {
     constructor(content) {
         this.content = content;
@@ -154,26 +156,28 @@ export class Parser {
      * @returns {Object}
      */
     static parseObjectJS(inputString) {
-        let result = {};
-        try {
-            let openBrackets = 0,
-                index = 0;
-            let text = '';
-            for (const char of Array.from(inputString)) {
-                if (openBrackets > 0 || index === 0) {
-                    if (char === '{') {
-                        openBrackets++;
-                    } else if (char === '}') {
-                        openBrackets--;
+        let result = null;
+        if (inputString.startsWith(`{`)) {
+            try {
+                let openBrackets = 0,
+                    index = 0;
+                let text = '';
+                for (const char of Array.from(inputString)) {
+                    if (openBrackets > 0 || index === 0) {
+                        if (char === '{') {
+                            openBrackets++;
+                        } else if (char === '}') {
+                            openBrackets--;
+                        }
+                        text = text + char;
                     }
-                    text = text + char;
+                    index++;
                 }
-                index++;
+                result = [eval][0](`(${text})`);
+            } catch (error) {
+                console.error(error);
+                result = null;
             }
-            result = [eval][0](`(${text})`);
-        } catch (error) {
-            console.error(error);
-            result = { error, source: inputString };
         }
         return result;
     }
@@ -196,5 +200,31 @@ export class Parser {
         }
 
         return result.split(',').map(x => x.trim()) ?? [];
+    }
+
+    /**
+     *
+     * @param {String} variable
+     * @param {String} textFile
+     * @returns {Object}
+     */
+    static parseVariable(variable, textFile) {
+        const REGEX_VARIABLE = new RegExp(`const ${variable}\\s*=\\s*(.*);`, 'gs');
+        const REGEX_IMPORT = new RegExp(`(import (?:{.*${variable}.*}) from '.*?');`, 'g');
+
+        let result;
+        try {
+            if (REGEX_VARIABLE.test(textFile)) {
+                result = REGEX_VARIABLE.exec(textFile)?.[1] || null;
+            } else if (REGEX_IMPORT.test(textFile)) {
+                const rootPath = vscode.workspace.workspaceFolders[0].uri.path.slice(1);
+                result = REGEX_IMPORT.exec(textFile)?.[1]?.replace('@', rootPath) || null;
+            }
+
+            return [eval][0](`(${result})`);
+        } catch (err) {
+            console.error(err);
+            return null;
+        }
     }
 }

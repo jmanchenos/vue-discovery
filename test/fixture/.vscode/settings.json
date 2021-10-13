@@ -1,5 +1,6 @@
 {
     "VueDiscoveryMTM.registeredDirectory": "/src/registeredComponents; /../../../MTM/mtm-vue/sgtnj-vue-components/src",
     // "VueDiscoveryMTM.registeredDirectory": "/src/registeredComponents",
-    "VueDiscoveryMTM.rootDirectory": "/src/components;/src/mixins;/src/plugins"
+    "VueDiscoveryMTM.rootDirectory": "/src/components;/src/mixins",
+    "VueDiscoveryMTM.pluginsDirectory": "/src/plugins;/src/"
 }

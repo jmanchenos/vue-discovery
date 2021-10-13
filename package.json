@@ -41,7 +41,7 @@
                 },
                 "VueDiscoveryMTM.pluginsDirectory": {
                     "type": "string",
-                    "default": "/src/plugins",
+                    "default": "/src/plugins;/scr/",
                     "description": "list of plugins directories in your workspace on which search js files with plugins definitions separated by ;"
                 },
                 "VueDiscoveryMTM.componentCase": {

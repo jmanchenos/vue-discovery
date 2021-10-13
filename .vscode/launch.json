@@ -14,7 +14,16 @@
                 "${workspaceFolder}/test/fixture",
                 "--disable-extensions",
                 "--extensionDevelopmentPath=${workspaceFolder}"
-            ]
+            ],
+            "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+            "webRoot": "${workspaceFolder}/src",
+            "sourceMapPathOverrides": {
+                "dist:/src/*": "${webRoot}/*",
+                "dist:///./*": "${webRoot}/*",
+                "dist:///src/*": "${webRoot}/*",
+                "dist:///*": "*",
+                "dist:///./~/*": "${webRoot}/node_modules/*"
+            }
         },
         {
             "name": "Extension Tests",
