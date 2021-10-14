@@ -4,7 +4,7 @@
     "description": "This extension discovers Vue components in your workspace and provides IntelliSense for them.",
     "publisher": "jmanchenos",
     "repository": "https://github.com/jmanchenos/vue-discovery",
-    "version": "0.7.1",
+    "version": "0.7.2",
     "private": true,
     "license": "MIT",
     "icon": "images/icon.png",
@@ -160,11 +160,13 @@
         "vscode-test": "^1.6.1"
     },
     "dependencies": {
+        "@babel/parser": "^7.15.8",
         "@vuedoc/parser": "^3.4.0",
         "abort-controller": "^3.0.0",
         "deepmerge": "^4.2.2",
         "glob": "^7.2.0",
         "lodash": "^4.17.21",
-        "node-fetch": "^2.6.5"
+        "node-fetch": "^2.6.5",
+        "scrumpy": "^0.1.1"
     }
 }

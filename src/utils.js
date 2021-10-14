@@ -9,6 +9,8 @@ import { Parser } from './parser';
 import * as vueParser from '@vuedoc/parser';
 import fs from 'fs';
 import * as merge from 'deepmerge';
+import * as babelParser from '@babel/parser';
+const scrumpy = require('scrumpy');
 const { getConfig } = config;
 /**
  * @typedef {import ('vscode').Position} Position;
@@ -175,9 +177,30 @@ const getPluginsList = async () => {
         const plugins = [];
         files.forEach(async file => {
             let textFile = fs.readFileSync(file, 'utf8')?.replace(REGEX.comments, ''); //.replace(REGEX.imports, '');
-            const data = Array.from(textFile.matchAll(REGEX.plugins)).map(reg => {
-                const obj = Parser.parseObjectJS(reg[2]) || Parser.parseVariable(reg[2], textFile) || {};
-                return { name: reg[1], kind: 'plugin', objectValue: obj };
+
+            //TODO quitra o actualizar
+            // const parsed = espree.parse(textFile, { ecmaVersion: 'latest', sourceType: 'module', range: true });
+            const parsed = babelParser.parse(textFile, { sourceType: 'module', ranges: true });
+            const batch = scrumpy(parsed, {
+                type: 'ExpressionStatement',
+                expression: {
+                    type: 'AssignmentExpression',
+                    operator: '=',
+                    left: {
+                        object: {
+                            property: {
+                                name: 'prototype',
+                            },
+                        },
+                    },
+                },
+            });
+            // FIN TODO
+            const data = batch.map(reg => {
+                const name = reg.expression.left.property.name;
+                const objectAst = reg.expression.right;
+                const objectText = textFile.slice(objectAst.start, objectAst.end);
+                return { name, kind: 'plugin', objectAst, objectText };
             });
             plugins.push(...data);
         });
@@ -538,19 +561,23 @@ const getMarkdownProps = obj => {
 
 const getMarkdownMethods = obj => {
     const { description, syntax } = obj;
-    return new MarkdownString(`${description ? description + '\r\n' : ''}`, true).appendCodeblock(syntax, 'javascript');
+    return new MarkdownString(`${description ? description + getEol() : ''}`, true).appendCodeblock(
+        syntax,
+        'javascript'
+    );
 };
 
 const getMarkdownPlugins = obj => {
-    const { objectValue } = obj;
-    const text = Object.keys(objectValue).reduce((prev, key) => `${prev}\r\n${key}`, '');
+    const { objectAst } = obj;
+    const keys = objectAst.properties?.map(prop => prop.key.name) || [];
+    const text = keys.join(getEol());
     return new MarkdownString('', true).appendText(text);
 };
 
 const getMarkdownObject = obj => {
     let text = obj.value?.raw ?? '';
     if (obj?.value?.type !== 'ArrowFunctionExpression') {
-        text = `Valor inicial \r\n ${text}`;
+        text = `Valor inicial ${getEol()} ${text}`;
     }
     return text;
 };
