@@ -1,5 +1,3 @@
-import vscode from 'vscode';
-
 export class Parser {
     constructor(content) {
         this.content = content;
@@ -180,51 +178,5 @@ export class Parser {
             }
         }
         return result;
-    }
-    /**
-     * Devuelve listado de nombres de parametros de la función dada
-     * @param {Function} fn
-     * @returns {Array}
-     */
-    static getParameterNames(fn) {
-        const COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/gm;
-        const FAT_ARROWS = /\s*(?<=\w*)\s*=>.*$/gms;
-        const FUNC_PREDICATE = /(?<=\(.*\))\s*\{.*/gs;
-        const code = fn.toString().replace(COMMENTS, '').replace(FAT_ARROWS, '').replace(FUNC_PREDICATE, '');
-        // .replace(DEFAULT_PARAMS, '');
-        let result = '';
-        if (code.indexOf('(') >= 0) {
-            result = code.slice(code.indexOf('(') + 1, code.lastIndexOf(')'));
-        } else {
-            result = code.match(/(?<=async )\w.*/gs)?.[0] ?? '';
-        }
-
-        return result.split(',').map(x => x.trim()) ?? [];
-    }
-
-    /**
-     *
-     * @param {String} variable
-     * @param {String} textFile
-     * @returns {Object}
-     */
-    static parseVariable(variable, textFile) {
-        const REGEX_VARIABLE = new RegExp(`const ${variable}\\s*=\\s*(.*);`, 'gs');
-        const REGEX_IMPORT = new RegExp(`(import (?:{.*${variable}.*}) from '.*?');`, 'g');
-
-        let result;
-        try {
-            if (REGEX_VARIABLE.test(textFile)) {
-                result = REGEX_VARIABLE.exec(textFile)?.[1] || null;
-            } else if (REGEX_IMPORT.test(textFile)) {
-                const rootPath = vscode.workspace.workspaceFolders[0].uri.path.slice(1);
-                result = REGEX_IMPORT.exec(textFile)?.[1]?.replace('@', rootPath) || null;
-            }
-
-            return [eval][0](`(${result})`);
-        } catch (err) {
-            console.error(err);
-            return null;
-        }
     }
 }
