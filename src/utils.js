@@ -149,15 +149,18 @@ const getCyFiles = async () => {
  * Recupera listado acciones Cypress
  * @returns {Promise<Array>}
  */
-const getCyActions = async () => {
+const getCyActions = async (noSubject) => {
     try {
-        const actions = [];
+        let actions = [];
         cyFiles().forEach(file => {
             const data = fs.readFileSync(file, 'utf8')?.matchAll(REGEX.cyActions);
             if (data) {
                 actions.push(...data);
             }
         });
+        if (noSubject) {
+            actions = actions.filter(x => !x[1]?.includes('subject'));
+        }
         return actions.map(x => {
             return { name: x[0], params: x[1]?.replace(/=|\s|'|"/g, '') };
         });
@@ -539,7 +542,7 @@ const getMarkdownData = obj => {
                     (prev, x) => prev + '\r\n' + x[0] + ': ' + x[1]['value'],
                     '{'
                 ) + '}';
-        } catch (err) {}
+        } catch (err) { }
     }
     return new MarkdownString('`valor inicial', true).appendCodeblock(`${type} : ${text} `, 'javascript');
 };

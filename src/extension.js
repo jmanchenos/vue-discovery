@@ -4,6 +4,7 @@ import * as completionProvider from './completionProvider';
 import * as hoverProvider from './hoverProvider';
 import * as definitionProvider from './definitionProvider';
 import * as commandProvider from './commandProvider';
+import * as actionProvider from './actionProvider';
 
 /**
  * @typedef {import ('vscode').ExtensionContext} ExtensionContext;
@@ -13,6 +14,7 @@ const initConfig = async () => {
     try {
         config.outputChannel.clear();
         utils.getFilesByExtension('js').then(jsFiles => config.setJsFiles(jsFiles));
+        utils.getCyFiles().then(cyFiles => config.setCyFiles(cyFiles));
         utils.getPluginsList().then(plugins => config.setPlugins(plugins));
 
         const preformattedData = {};
@@ -44,7 +46,7 @@ const initConfig = async () => {
  * @param {ExtensionContext} context
  * @returns {Promise<void>}
  */
-export async function activate(context) {
+export async function activate(context = null) {
     try {
         const initTimestamp = Date.now();
         context.subscriptions.push(
@@ -59,7 +61,8 @@ export async function activate(context) {
             hoverProvider.componentsHoverProvider,
             commandProvider.importFile,
             commandProvider.setConfigOption,
-            commandProvider.showComponentHelp(context)
+            commandProvider.showComponentHelp(context),
+            actionProvider.exampleActionProvider
         );
         //Inicializamos variables
         const initConfigTimestamp = Date.now();

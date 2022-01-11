@@ -1,6 +1,5 @@
 import * as utils from './utils';
 import { getConfig, getVueFiles, getPlugins } from './config';
-import { Parser } from './parser';
 import { Range, SnippetString, languages, CompletionItem, CompletionItemKind, workspace } from 'vscode';
 import * as vueParser from '@vuedoc/parser';
 import { kebabCase, camelCase } from 'lodash';
@@ -80,8 +79,7 @@ function createEventCompletionItem(event, charBefore, charAfter) {
         const includeSpaceAfter = ![' '].includes(charAfter);
         const hasArroba = charBefore === '@';
         snippetCompletion.insertText = new SnippetString(
-            `${includeSpaceBefore ? ' ' : ''}${hasArroba ? '' : '@'}${kebabCase(event)}="$0"${
-                includeSpaceAfter ? ' ' : ''
+            `${includeSpaceBefore ? ' ' : ''}${hasArroba ? '' : '@'}${kebabCase(event)}="$0"${includeSpaceAfter ? ' ' : ''
             }`
         );
         snippetCompletion.detail = 'Vue Discovery MTM';
@@ -181,7 +179,7 @@ function createCyCompletionItem(cyAction) {
         const snippetCompletion = new CompletionItem(name, CompletionItemKind.Function);
         // generamos el texto a pinta en al seleccionar la action
         const text = new SnippetString(`${name}(`);
-        (params?.trim()?.split(',') || []).forEach((value, index) => {
+        (params?.trim()?.split(',') || []).filter(x => x !== 'subject').forEach((value, index) => {
             if (value) {
                 text.appendText(`${index > 0 ? ', ' : ''}`).appendPlaceholder(value);
             }
@@ -265,17 +263,25 @@ const pluginCompletionItemProvider = languages.registerCompletionItemProvider(
             /* Fin*/
             const pluginName = document.getText(wordRange).split('.')?.[1] ?? '';
             const plugin = getPlugins().find(x => x.name === pluginName);
-            return Object.entries(plugin.objectValue)
-                .map(([key, value]) => {
-                    const params = Parser.getParameterNames(value);
-                    const syntax = `${key}(${params.join(', ')})`;
-                    return {
-                        name: key,
-                        kind: 'method',
-                        params: params.map(x => ({ name: x })),
-                        description: null,
-                        syntax,
-                    };
+            return plugin.objectAst.properties
+                .map(method => {
+                    const name = method.key?.name || '';
+                    const params =
+                        method.value?.params?.map(p => {
+                            let nombre, defaultValue;
+                            switch (p.type) {
+                                case 'Identifier':
+                                    nombre = p.name;
+                                    defaultValue = null;
+                                    break;
+                                case 'AssignmentPattern':
+                                    nombre = p.left?.name || '';
+                                    defaultValue = Object.assign({}, ...(p.right?.properties || []));
+                            }
+                            return { name: nombre, defaultValue };
+                        }) || [];
+                    const syntax = `${name}(${params.map(p => p.name)?.join(', ')})`;
+                    return { name, kind: 'method', params, description: null, syntax };
                 })
                 .map(x => createThisCompletionItem(x, range));
         },
@@ -378,12 +384,13 @@ const cypressCompletionItemProvider = languages.registerCompletionItemProvider(
     { scheme: 'file', pattern: '**/tests/**/*.js' },
     {
         async provideCompletionItems(document, position) {
-            const regExpCyMethod = /(?<=\W)cy\.\w*(?:\(.*?\))?/gi;
+            const regExpCyMethod = /(?<=\W)cy\.(?:\w+\([\w\W]*\)\n?.)*(\w*(?:\([\w\W]*\)(?:\n?.)?)?)/gi;
             const range = document.getWordRangeAtPosition(position, regExpCyMethod);
             if (!range) {
                 return;
             }
-            const cyActions = await utils.getCyActions();
+            const endsWithCy = document.getText(range).endsWith('cy.');
+            const cyActions = await utils.getCyActions(endsWithCy);
             return cyActions.map(cyAction => createCyCompletionItem(cyAction));
         },
     },
