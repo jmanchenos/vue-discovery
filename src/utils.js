@@ -161,7 +161,7 @@ const getCyActions = async (noSubject) => {
         if (noSubject) {
             actions = actions.filter(x => !x[1]?.includes('subject'));
         }
-        return actions.map(x => {
+        return [...new Set(actions)].sort().map(x => {
             return { name: x[0], params: x[1]?.replace(/=|\s|'|"/g, '') };
         });
     } catch (error) {
