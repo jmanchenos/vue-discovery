@@ -152,7 +152,7 @@ const getCyFiles = async () => {
 const getCyActions = async (noSubject) => {
     try {
         let actions = [];
-        cyFiles().forEach(file => {
+        cyFiles().filter(file => file.includes('/support/')).forEach(file => {
             const data = fs.readFileSync(file, 'utf8')?.matchAll(REGEX.cyActions);
             if (data) {
                 actions.push(...data);

@@ -391,7 +391,7 @@ const cypressCompletionItemProvider = languages.registerCompletionItemProvider(
             }
             const endsWithCy = document.getText(range).endsWith('cy.');
             const cyActions = await utils.getCyActions(endsWithCy);
-            return cyActions.map(cyAction => createCyCompletionItem(cyAction));
+            return cyActions?.map(cyAction => createCyCompletionItem(cyAction)) || [];
         },
     },
     ' ',
