@@ -4,7 +4,6 @@ import * as completionProvider from './completionProvider';
 import * as hoverProvider from './hoverProvider';
 import * as definitionProvider from './definitionProvider';
 import * as commandProvider from './commandProvider';
-import * as actionProvider from './actionProvider';
 
 /**
  * @typedef {import ('vscode').ExtensionContext} ExtensionContext;
@@ -62,7 +61,6 @@ export async function activate(context = null) {
             commandProvider.importFile,
             commandProvider.setConfigOption,
             commandProvider.showComponentHelp(context),
-            actionProvider.exampleActionProvider
         );
         //Inicializamos variables
         const initConfigTimestamp = Date.now();
