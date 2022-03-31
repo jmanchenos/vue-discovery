@@ -2,6 +2,10 @@
 
 All notable changes to the "vue-discovery" extension will be documented in this file.
 
+## [0.7.2] 2022-03-31
+
+-   Update default value for property 'componentShowcaseUrl'
+
 ## [0.7.1] 2022-01-11
 
 -   Add improvements for Cypress test files

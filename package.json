@@ -4,9 +4,7 @@
     "description": "This extension discovers Vue components in your workspace and provides IntelliSense for them.",
     "publisher": "jmanchenos",
     "repository": "https://github.com/jmanchenos/vue-discovery",
-    "version": "0.7.1",
-    "private": true,
-    "license": "MIT",
+    "version": "0.7.2",
     "icon": "images/icon.png",
     "engines": {
         "vscode": "^1.53.0",
@@ -111,7 +109,7 @@
                 },
                 "VueDiscoveryMTM.componentShowcaseUrl": {
                     "type": "string",
-                    "default": "http://10.12.19.106:32006",
+                    "default": "http://10.12.19.59:32006",
                     "description": "URL for Components Showcase Application to show examples of how to use them. Only used when property useComponentShowcase is set to true"
                 },
                 "VueDiscoveryMTM.componentShowcaseTimeout": {
@@ -143,7 +141,8 @@
         "vscode:prepublish": "esbuild --bundle --platform=node --external:vscode --sourcemap  --outdir=dist --minify --keep-names src/extension.js",
         "build": "esbuild --bundle --platform=node --external:vscode --sourcemap --outdir=dist src/extension.js ",
         "build-dev": "esbuild --bundle --platform=node --external:vscode --sourcemap --outdir=dist src/extension.js --watch",
-        "test-compile": "tsc -p ./"
+        "test-compile": "tsc -p ./",
+        "vsix": "vsce package --allow-star-activation "
     },
     "devDependencies": {
         "@types/glob": "^7.1.4",
