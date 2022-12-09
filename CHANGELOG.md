@@ -2,6 +2,11 @@
 
 All notable changes to the "vue-discovery" extension will be documented in this file.
 
+## [0.7.3] 2022-12-02
+
+-   Improved the way the extension discover plugins.
+-   Changes in AST finder dependencies
+
 ## [0.7.2] 2022-03-31
 
 -   Update default value for property 'componentShowcaseUrl'

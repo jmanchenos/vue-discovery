@@ -105,7 +105,7 @@ export class Parser {
                 this.parsed.props = [eval][0](`(${props})`);
             } catch (e) {
                 this.parsed.props = null;
-                console.log(e);
+                console.error(e);
             }
 
             return this;

@@ -4,10 +4,10 @@
     "description": "This extension discovers Vue components in your workspace and provides IntelliSense for them.",
     "publisher": "jmanchenos",
     "repository": "https://github.com/jmanchenos/vue-discovery",
-    "version": "0.7.2",
+    "version": "0.7.3",
     "icon": "images/icon.png",
     "engines": {
-        "vscode": "^1.53.0",
+        "vscode": "^1.73.1",
         "node": ">= 14.0.0"
     },
     "categories": [
@@ -138,34 +138,35 @@
         "lint": "eslint .",
         "pretest": "yarn run lint",
         "test": "node ./test/runTest.js",
-        "vscode:prepublish": "esbuild --bundle --platform=node --external:vscode --sourcemap  --outdir=dist --minify --keep-names src/extension.js",
+        "esbuild-base": "esbuild --bundle --platform=node --external:vscode --sourcemap --outdir=dist src/extension.js",
+        "vscode:prepublish": "esbuild --bundle --platform=node --external:vscode --sourcemap --outdir=dist src/extension.js --minify --keep-names",
         "build": "esbuild --bundle --platform=node --external:vscode --sourcemap --outdir=dist src/extension.js ",
         "build-dev": "esbuild --bundle --platform=node --external:vscode --sourcemap --outdir=dist src/extension.js --watch",
         "test-compile": "tsc -p ./",
         "vsix": "vsce package --allow-star-activation "
     },
     "devDependencies": {
-        "@types/glob": "^7.1.4",
-        "@types/mocha": "^9.0.0",
-        "@types/node": "^16.7.2",
-        "@types/vscode": "^1.53.0",
-        "esbuild": "^0.12.23",
-        "eslint": "^7.32.0",
-        "eslint-config-prettier": "^8.3.0",
-        "eslint-plugin-prettier": "^3.4.1",
-        "mocha": "^9.1.2",
-        "prettier": "^2.4.1",
-        "typescript": "^4.4.3",
-        "vscode-test": "^1.6.1"
+        "@types/glob": "^8.0.0",
+        "@types/mocha": "^10.0.1",
+        "@types/node": "^18.11.10",
+        "@types/vscode": "^1.73.1",
+        "@vscode/test-electron": "^2.2.0",
+        "esbuild": "^0.15.16",
+        "eslint": "^8.28.0",
+        "eslint-config-prettier": "^8.5.0",
+        "eslint-plugin-prettier": "^4.2.1",
+        "mocha": "^10.1.0",
+        "prettier": "^2.8.0",
+        "typescript": "^4.9.3"
     },
     "dependencies": {
-        "@babel/parser": "^7.15.8",
         "@vuedoc/parser": "^3.4.0",
         "abort-controller": "^3.0.0",
         "deepmerge": "^4.2.2",
-        "glob": "^7.2.0",
+        "glob": "^8.0.3",
         "lodash": "^4.17.21",
-        "node-fetch": "^2.6.5",
-        "scrumpy": "^0.1.1"
+        "node-fetch": "^3.3.0",
+        "esquery": "^1.4.0",
+        "esprima-next": "^5.8.4"
     }
 }

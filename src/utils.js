@@ -1,5 +1,6 @@
 import { window, workspace, MarkdownString, Range } from 'vscode';
 import fetch from 'node-fetch';
+// @ts-ignore
 import AbortController from 'abort-controller';
 import { upperFirst, camelCase, kebabCase, toNumber } from 'lodash';
 import { glob } from 'glob';
@@ -8,9 +9,9 @@ import * as config from './config';
 import { Parser } from './parser';
 import * as vueParser from '@vuedoc/parser';
 import fs from 'fs';
-import * as merge from 'deepmerge';
-import * as babelParser from '@babel/parser';
-const scrumpy = require('scrumpy');
+import { all } from 'deepmerge';
+import { parseModule } from 'esprima-next';
+import esQuery from 'esquery';
 const { getConfig } = config;
 /**
  * @typedef {import ('vscode').Position} Position;
@@ -149,15 +150,17 @@ const getCyFiles = async () => {
  * Recupera listado acciones Cypress
  * @returns {Promise<Array>}
  */
-const getCyActions = async (noSubject) => {
+const getCyActions = async noSubject => {
     try {
         let actions = [];
-        cyFiles().filter(file => file.includes('/support/')).forEach(file => {
-            const data = fs.readFileSync(file, 'utf8')?.matchAll(REGEX.cyActions);
-            if (data) {
-                actions.push(...data);
-            }
-        });
+        cyFiles()
+            .filter(file => file.includes('/support/'))
+            .forEach(file => {
+                const data = fs.readFileSync(file, 'utf8')?.matchAll(REGEX.cyActions);
+                if (data) {
+                    actions.push(...data);
+                }
+            });
         if (noSubject) {
             actions = actions.filter(x => !x[1]?.includes('subject'));
         }
@@ -175,38 +178,32 @@ const getCyActions = async (noSubject) => {
  */
 const getPluginsList = async () => {
     try {
-        let files = await getFilesByExtension('js', 'pluginsDirectory');
-        files = files.filter(x => REGEX.pluginFiles.test(x));
+        const files = (await getFilesByExtension('js', 'pluginsDirectory')).filter(x => REGEX.pluginFiles.test(x));
         const plugins = [];
         files.forEach(async file => {
-            let textFile = fs.readFileSync(file, 'utf8')?.replace(REGEX.comments, ''); //.replace(REGEX.imports, '');
-
-            //TODO quitra o actualizar
-            // const parsed = espree.parse(textFile, { ecmaVersion: 'latest', sourceType: 'module', range: true });
-            const parsed = babelParser.parse(textFile, { sourceType: 'module', ranges: true });
-            const batch = scrumpy(parsed, {
-                type: 'ExpressionStatement',
-                expression: {
-                    type: 'AssignmentExpression',
-                    operator: '=',
-                    left: {
-                        object: {
-                            property: {
-                                name: 'prototype',
-                            },
-                        },
-                    },
-                },
-            });
-            // FIN TODO
-            const data = batch.map(reg => {
-                const name = reg.expression.left.property.name;
-                const objectAst = reg.expression.right;
-                const objectText = textFile.slice(objectAst.start, objectAst.end);
-                return { name, kind: 'plugin', objectAst, objectText };
-            });
-            plugins.push(...data);
+            let textFile = fs.readFileSync(file, 'utf8');
+            const ast = parseModule(textFile, { tokens: true, comment: true });
+            const installBlockStatement = esQuery.query(
+                ast,
+                'AssignmentExpression[left.property.name = "install"] BlockStatement,' +
+                    '*[method=true][key.name="install"] > * > BlockStatement'
+            );
+            if (installBlockStatement) {
+                const batch = esQuery.query(
+                    installBlockStatement[0],
+                    'AssignmentExpression[left.property.name = /\\$.+/]'
+                );
+                const data = batch.map(reg => {
+                    const name = reg.left.property.name;
+                    const objectAst = reg.right;
+                    const objectText = textFile.slice(objectAst.start, objectAst.end);
+                    return { name, kind: 'plugin', objectAst, objectText };
+                });
+                plugins.push(...data);
+                console.log(data);
+            }
         });
+        config.outputChannel.appendLine(`Plugins cargados:\n${plugins.map(x => x.name).join('\n')}`);
         return plugins;
     } catch (error) {
         console.error(error);
@@ -411,7 +408,7 @@ const retrievePropsFromFile = async file => {
     parsers.push(vueParser.parse({ filename: file, features: ['props'] }));
     retrieveParsersMixin(jsFiles(), file, parsers);
     return Promise.all(parsers)
-        .then(merge.all)
+        .then(all)
         .then(result => result?.['props'] || [])
         .catch(error => console.error(error));
 };
@@ -526,7 +523,7 @@ const fetchWithTimeout = (url, options = {}, ms = 3000) => {
         ...options,
     })
         .then(response => response)
-        .catch(err => console.log(`${err.name === 'Abort' ? 'Timeout error' : err.message}`))
+        .catch(err => console.error(`${err.name === 'Abort' ? 'Timeout error' : err.message}`))
         .finally(() => {
             clearTimeout(timeout);
         });
@@ -542,7 +539,7 @@ const getMarkdownData = obj => {
                     (prev, x) => prev + '\r\n' + x[0] + ': ' + x[1]['value'],
                     '{'
                 ) + '}';
-        } catch (err) { }
+        } catch (err) {}
     }
     return new MarkdownString('`valor inicial', true).appendCodeblock(`${type} : ${text} `, 'javascript');
 };

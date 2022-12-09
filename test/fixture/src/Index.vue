@@ -1225,7 +1225,7 @@ export default {
         this.stompClient.subscribe('/topic/pdf/notify', this.onPdf);
       };
       const error = error => {
-        console.log(error);
+        console.error(error);
         this.connected = false;
       };
       this.stompClient.connect({}, subscribe, error);
