@@ -20,7 +20,6 @@ const { getConfig } = config;
 
 const REGEX = {
     tagName: /<([^\s></]+)/,
-    cyActions: /(?<=Cypress.Commands.add\(')\w+(?='\s*,.*?(?:\((.*)\)|(\w+))\s*[\{|\=\>])/g,
     comments: / \/\*.*?\*\//gs, //la s final indica que el . incluye el caracter de nueva linea
     imports: /import.*?;/g,
     plugins: /\.prototype[^\.]*?\.([\$\w]*?) = ({.*}|\w+);/gs,
@@ -156,17 +155,33 @@ const getCyActions = async noSubject => {
         cyFiles()
             .filter(file => file.includes('/support/'))
             .forEach(file => {
-                const data = fs.readFileSync(file, 'utf8')?.matchAll(REGEX.cyActions);
-                if (data) {
+                const textFile = fs.readFileSync(file, 'utf8');
+                const ast = parseModule(textFile, { comment: true, range: true });
+                // const data = esQuery.query(ast, 'CallExpression[callee.object.property.name="Commands"]');
+                const data = ast.body
+                    .filter(
+                        x =>
+                            x['expression']?.type === 'CallExpression' &&
+                            x['expression']?.callee?.object?.property?.name === 'Commands'
+                    )
+                    .map(x => [
+                        x['expression'].arguments[0].value,
+                        x['expression'].arguments[x['expression'].arguments.length - 1].params.map(
+                            param => param.name || textFile.substring(...param.range)
+                        ),
+                        file,
+                        x['expression'].range,
+                    ]);
+                if (data.length) {
                     actions.push(...data);
                 }
             });
         if (noSubject) {
-            actions = actions.filter(x => !x[1]?.includes('subject'));
+            actions = actions.filter(x => !x[1].includes('subject'));
         }
-        return [...new Set(actions)].sort().map(x => {
-            return { name: x[0], params: x[1]?.replace(/=|\s|'|"/g, '') };
-        });
+        return [...new Set(actions)]
+            .sort((a, b) => a[0].localeCompare(b[0]))
+            .map(x => ({ name: x[0], params: x[1].join(', '), file: x[2], range: x[3] }));
     } catch (error) {
         console.error(error);
     }
@@ -194,13 +209,12 @@ const getPluginsList = async () => {
                     'AssignmentExpression[left.property.name = /\\$.+/]'
                 );
                 const data = batch.map(reg => {
-                    const name = reg.left.property.name;
-                    const objectAst = reg.right;
+                    const name = reg['left'].property.name;
+                    const objectAst = reg['right'];
                     const objectText = textFile.slice(objectAst.start, objectAst.end);
                     return { name, kind: 'plugin', objectAst, objectText };
                 });
                 plugins.push(...data);
-                console.log(data);
             }
         });
         config.outputChannel.appendLine(`Plugins cargados:\n${plugins.map(x => x.name).join('\n')}`);

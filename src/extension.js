@@ -60,7 +60,7 @@ export async function activate(context = null) {
             hoverProvider.componentsHoverProvider,
             commandProvider.importFile,
             commandProvider.setConfigOption,
-            commandProvider.showComponentHelp(context),
+            commandProvider.showComponentHelp(context)
         );
         //Inicializamos variables
         const initConfigTimestamp = Date.now();
