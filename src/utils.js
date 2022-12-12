@@ -1,4 +1,4 @@
-import { window, workspace, MarkdownString, Range } from 'vscode';
+import { window, workspace, MarkdownString, Range, Uri } from 'vscode';
 import fetch from 'node-fetch';
 // @ts-ignore
 import AbortController from 'abort-controller';
@@ -10,8 +10,8 @@ import { Parser } from './parser';
 import * as vueParser from '@vuedoc/parser';
 import fs from 'fs';
 import { all } from 'deepmerge';
-import { parseModule } from 'esprima-next';
-import esQuery from 'esquery';
+import { parseModule, parse } from 'esprima-next';
+import { query } from 'esquery';
 const { getConfig } = config;
 /**
  * @typedef {import ('vscode').Position} Position;
@@ -147,33 +147,30 @@ const getCyFiles = async () => {
 };
 /**
  * Recupera listado acciones Cypress
- * @returns {Promise<Array>}
+ * @returns {Array}
  */
-const getCyActions = async noSubject => {
+const getCyActions = noSubject => {
     try {
         let actions = [];
         cyFiles()
             .filter(file => file.includes('/support/'))
             .forEach(file => {
-                const textFile = fs.readFileSync(file, 'utf8');
-                const ast = parseModule(textFile, { comment: true, range: true });
-                // const data = esQuery.query(ast, 'CallExpression[callee.object.property.name="Commands"]');
-                const data = ast.body
-                    .filter(
-                        x =>
-                            x['expression']?.type === 'CallExpression' &&
-                            x['expression']?.callee?.object?.property?.name === 'Commands'
-                    )
-                    .map(x => [
-                        x['expression'].arguments[0].value,
-                        x['expression'].arguments[x['expression'].arguments.length - 1].params.map(
-                            param => param.name || textFile.substring(...param.range)
+                try {
+                    const textFile = fs.readFileSync(file, 'utf8');
+                    const ast = parse(textFile, { comment: true, range: true });
+                    const data = query(ast, 'CallExpression[callee.object.property.name="Commands"]').map(x => [
+                        x['arguments'][0].value,
+                        x['arguments'][x['arguments'].length - 1].params.map(
+                            ({ name, range }) => name || textFile.substring(range[0], range[1])
                         ),
                         file,
-                        x['expression'].range,
+                        x.range,
                     ]);
-                if (data.length) {
-                    actions.push(...data);
+                    if (data.length) {
+                        actions.push(...data);
+                    }
+                } catch (error) {
+                    console.error(error);
                 }
             });
         if (noSubject) {
@@ -198,16 +195,13 @@ const getPluginsList = async () => {
         files.forEach(async file => {
             let textFile = fs.readFileSync(file, 'utf8');
             const ast = parseModule(textFile, { tokens: true, comment: true });
-            const installBlockStatement = esQuery.query(
+            const installBlockStatement = query(
                 ast,
                 'AssignmentExpression[left.property.name = "install"] BlockStatement,' +
                     '*[method=true][key.name="install"] > * > BlockStatement'
             );
             if (installBlockStatement) {
-                const batch = esQuery.query(
-                    installBlockStatement[0],
-                    'AssignmentExpression[left.property.name = /\\$.+/]'
-                );
+                const batch = query(installBlockStatement[0], 'AssignmentExpression[left.property.name = /\\$.+/]');
                 const data = batch.map(reg => {
                     const name = reg['left'].property.name;
                     const objectAst = reg['right'];
@@ -337,6 +331,17 @@ const isPositionOverAComponentTag = (document, position) => {
     }
     const word = document.getText(document.getWordRangeAtPosition(position, /\w[-\w\.]*/g));
     return vueFiles()?.some(item => kebabCase(item.componentName) === kebabCase(word));
+};
+/**
+ * Find the Cypress action over which the position of document passed by params is over
+ * @param {TextDocument} document
+ * @param {Position} position
+ * @returns {Object} object with name, range and file of a cypress action
+ */
+const getCypressActionOverPosition = (document, position) => {
+    const word = document.getText(document.getWordRangeAtPosition(position, /\w+/g));
+    const cypressActions = getCyActions();
+    return cypressActions?.find(item => item.name === word) || null;
 };
 
 /**
@@ -695,6 +700,20 @@ const getComponentTuple = async filePath => {
     return { filePath, componentName };
 };
 
+/**translate a AST node range to a VSCode range object
+ * @param {Array} range
+ * @param {String} filePath
+ * @returns {Promise<Range>}
+ */
+const translateRange = async (range, filePath) => {
+    try {
+        // recuperar objeto Document de vscode a partir del filepath del archivo
+        const document = await workspace.openTextDocument(Uri.file(filePath));
+        return document ? new Range(document.positionAt(range[0]), document.positionAt(range[1])) : null;
+    } catch (err) {
+        console.error(err);
+    }
+};
 export {
     getRootPath,
     getAlias,
@@ -736,9 +755,11 @@ export {
     isPositionInTemplateSection,
     isPositionOverAComponentTag,
     getComponenteTagPositionIsOver,
+    getCypressActionOverPosition,
     fetchWithTimeout,
     getFilesByExtension,
     getCyFiles,
     getPluginsList,
     getComponentTuple,
+    translateRange,
 };

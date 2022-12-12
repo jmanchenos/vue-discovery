@@ -2,11 +2,12 @@
 
 All notable changes to the "vue-discovery" extension will be documented in this file.
 
-## [0.7.3] 2022-12-09
+## [0.7.3] 2022-12-12
 
 -   Dependencies are updated
 -   Improved the way the extension discover plugins.
 -   Changes in AST finder dependencies
+-   Now, we can navigate to Cypress Commands definitions
 
 ## [0.7.2] 2022-03-31
 

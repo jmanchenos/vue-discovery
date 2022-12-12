@@ -15,4 +15,24 @@ const componentsDefinitionProvider = languages.registerDefinitionProvider(patter
     },
 });
 
-export { componentsDefinitionProvider };
+// definir un provider llamada cypressActionProvider para que cuando nos posicionemos en un fichero en la ruta /tests/**/*.js
+// y nos posicionemos sobre un elemento que tenga la clase cypress-action, nos lleve a la definición de la acción de cypress
+const cypressDefinitionProvider = languages.registerDefinitionProvider(
+    { scheme: 'file', pattern: '**/tests/**/*.js' },
+    {
+        async provideDefinition(document, position) {
+            try {
+                const { file, range } = utils.getCypressActionOverPosition(document, position) || {};
+                if (!file) {
+                    return null;
+                }
+                const location = new Location(Uri.file(file), await utils.translateRange(range, file));
+                return location;
+            } catch (e) {
+                console.error(e);
+            }
+        },
+    }
+);
+
+export { componentsDefinitionProvider, cypressDefinitionProvider };
