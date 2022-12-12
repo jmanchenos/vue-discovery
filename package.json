@@ -163,10 +163,11 @@
         "@vuedoc/parser": "^3.4.0",
         "abort-controller": "^3.0.0",
         "deepmerge": "^4.2.2",
+        "esprima-next": "^5.8.4",
+        "esquery": "^1.4.0",
         "glob": "^8.0.3",
         "lodash": "^4.17.21",
         "node-fetch": "^3.3.0",
-        "esquery": "^1.4.0",
-        "esprima-next": "^5.8.4"
+        "vue-template-compiler": "^2.7.14"
     }
 }

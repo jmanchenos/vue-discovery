@@ -138,6 +138,13 @@ function createThisCompletionItem(obj, range = null) {
                 insert: getInsertObject,
                 sortText: '\u0000',
             },
+            ref: {
+                item: 'Field',
+                label: x => `${x.name}`,
+                markdown: utils.getMarkdownRef,
+                insert: getInsertObject,
+                sortText: '\u0000',
+            },
         };
         // Establecemos valores por defecto
         const { label, item, markdown, insert, sortText, filterText, commitCharacters } = objConfig[kind];
@@ -292,6 +299,33 @@ const pluginCompletionItemProvider = languages.registerCompletionItemProvider(
     ' ',
     '.'
 );
+const refsCompletionItemProvider = languages.registerCompletionItemProvider(
+    patternObject,
+    {
+        async provideCompletionItems(document, position) {
+            const wordRange = document.getWordRangeAtPosition(position, /this\.\$refs\.[\(\)\w]*/);
+            if (!wordRange) {
+                return;
+            }
+            /* Ini Necesario para que el $ lo tenga en cuenta a la hora de sustituir la cadena*/
+            const text = document.getText(wordRange);
+            const range = new Range(
+                wordRange.start.line,
+                wordRange.start.character + text.search(/(?<=this\.\$\w*\.)/),
+                wordRange.end.line,
+                wordRange.end.character
+            );
+            /* Fin*/
+            const refs = utils.getRefs(document);
+            return refs.map(({ name, tag }) => {
+                const obj = { name, kind: 'ref', params: tag, description: null, syntax: '${ref.name}' };
+                return createThisCompletionItem(obj, range);
+            });
+        },
+    },
+    ' ',
+    '.'
+);
 
 const objectCompletionItemProvider = languages.registerCompletionItemProvider(
     patternObject,
@@ -408,4 +442,5 @@ export {
     cypressCompletionItemProvider,
     pluginCompletionItemProvider,
     objectCompletionItemProvider,
+    refsCompletionItemProvider,
 };

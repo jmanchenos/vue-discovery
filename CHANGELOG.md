@@ -8,6 +8,7 @@ All notable changes to the "vue-discovery" extension will be documented in this 
 -   Improved the way the extension discover plugins.
 -   Changes in AST finder dependencies
 -   Now, we can navigate to Cypress Commands definitions
+-   Add improvements to detect and navigate to $refs in a vue page
 
 ## [0.7.2] 2022-03-31
 

@@ -8,6 +8,7 @@ import path from 'path';
 import * as config from './config';
 import { Parser } from './parser';
 import * as vueParser from '@vuedoc/parser';
+import * as vueCompiler from 'vue-template-compiler';
 import fs from 'fs';
 import { all } from 'deepmerge';
 import { parseModule } from 'esprima-next';
@@ -150,7 +151,7 @@ const getCyFiles = async () => {
  * @param {boolean} noSubject si es true no incluye acciones que tienen subject
  * @returns {Array}
  */
-const getCyActions = noSubject => {
+const getCyActions = (noSubject = false) => {
     try {
         let actions = [];
         cyFiles()
@@ -195,7 +196,7 @@ const getPluginsList = async () => {
         const plugins = [];
         files.forEach(async file => {
             let textFile = fs.readFileSync(file, 'utf8');
-            const ast = parseModule(textFile, { tokens: true, comment: true, tolerant: true });
+            const ast = parseModule(textFile, { comment: true, tolerant: true, range: true });
             const installBlockStatement = query(
                 ast,
                 'AssignmentExpression[left.property.name = "install"] BlockStatement,' +
@@ -207,7 +208,8 @@ const getPluginsList = async () => {
                     const name = reg['left'].property.name;
                     const objectAst = reg['right'];
                     const objectText = textFile.slice(objectAst.start, objectAst.end);
-                    return { name, kind: 'plugin', objectAst, objectText };
+                    const range = reg.range;
+                    return { name, kind: 'plugin', objectAst, objectText, file, range };
                 });
                 plugins.push(...data);
             }
@@ -343,6 +345,30 @@ const getCypressActionOverPosition = (document, position) => {
     const word = document.getText(document.getWordRangeAtPosition(position, /\w+/g));
     const cypressActions = getCyActions();
     return cypressActions?.find(item => item.name === word) || null;
+};
+
+/**
+ * Find the plugin name over which the position of document passed by params is over
+ * @param {TextDocument} document
+ * @param {Position} position
+ * @returns {Object} object with name, range and file of a cypress action
+ */
+const getPluginOverPosition = (document, position) => {
+    const word = document.getText(document.getWordRangeAtPosition(position, /\$\w+/g));
+    const plugins = config.getPlugins();
+    return plugins?.find(item => item.name === word) || null;
+};
+
+/**
+ * Find the ref name over which the position of document passed by params is over
+ * @param {TextDocument} document
+ * @param {Position} position
+ * @returns {Object} object with name, and vscode range of a ref
+ */
+const getRefOverPosition = (document, position) => {
+    const word = document.getText(document.getWordRangeAtPosition(position, /\w+/g));
+    const refs = getRefs(document);
+    return refs?.find(item => item.name === word) || null;
 };
 
 /**
@@ -602,6 +628,11 @@ const getMarkdownObject = obj => {
     return text;
 };
 
+const getMarkdownRef = obj => {
+    const { name, params } = obj;
+    return `ref: ${name}, componente: ${params}`;
+};
+
 const getAlias = fileWithoutRootPath => {
     try {
         const aliases = findAliases();
@@ -715,6 +746,31 @@ const translateRange = async (range, filePath) => {
         console.error(err);
     }
 };
+
+/**
+ * Get the list aof refs with ref attribute value and range of element containing that ref attribute
+ * @param {TextDocument} document
+ * @returns {Array}
+ */
+const getRefs = document => {
+    const text = document.getText();
+    const ast = vueCompiler.compile(text).ast;
+    //find elements in ast with attribute ref and get his value
+    let refs = [];
+    const traverseTemplate = ast => {
+        ast.children?.forEach(child => {
+            const ref = child.attrsMap?.ref;
+            if (ref) {
+                const range = document.getWordRangeAtPosition(document.positionAt(text.indexOf(`ref="${ref}"`)));
+                refs.push({ name: ref, range, tag: child.tag });
+            }
+            traverseTemplate(child);
+        });
+    };
+    traverseTemplate(ast);
+    return refs;
+};
+
 export {
     getRootPath,
     getAlias,
@@ -745,6 +801,7 @@ export {
     getMarkdownProps,
     getMarkdownPlugins,
     getMarkdownObject,
+    getMarkdownRef,
     retrieveRequirePropsFromFile,
     retrieveHasSlots,
     propCase,
@@ -757,10 +814,13 @@ export {
     isPositionOverAComponentTag,
     getComponenteTagPositionIsOver,
     getCypressActionOverPosition,
+    getPluginOverPosition,
+    getRefOverPosition,
     fetchWithTimeout,
     getFilesByExtension,
     getCyFiles,
     getPluginsList,
     getComponentTuple,
     translateRange,
+    getRefs,
 };
