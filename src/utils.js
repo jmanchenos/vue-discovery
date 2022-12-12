@@ -10,7 +10,7 @@ import { Parser } from './parser';
 import * as vueParser from '@vuedoc/parser';
 import fs from 'fs';
 import { all } from 'deepmerge';
-import { parseModule, parse } from 'esprima-next';
+import { parseModule } from 'esprima-next';
 import { query } from 'esquery';
 const { getConfig } = config;
 /**
@@ -147,6 +147,7 @@ const getCyFiles = async () => {
 };
 /**
  * Recupera listado acciones Cypress
+ * @param {boolean} noSubject si es true no incluye acciones que tienen subject
  * @returns {Array}
  */
 const getCyActions = noSubject => {
@@ -157,7 +158,7 @@ const getCyActions = noSubject => {
             .forEach(file => {
                 try {
                     const textFile = fs.readFileSync(file, 'utf8');
-                    const ast = parse(textFile, { comment: true, range: true });
+                    const ast = parseModule(textFile, { comment: true, range: true, tolerant: true });
                     const data = query(ast, 'CallExpression[callee.object.property.name="Commands"]').map(x => [
                         x['arguments'][0].value,
                         x['arguments'][x['arguments'].length - 1].params.map(
@@ -194,7 +195,7 @@ const getPluginsList = async () => {
         const plugins = [];
         files.forEach(async file => {
             let textFile = fs.readFileSync(file, 'utf8');
-            const ast = parseModule(textFile, { tokens: true, comment: true });
+            const ast = parseModule(textFile, { tokens: true, comment: true, tolerant: true });
             const installBlockStatement = query(
                 ast,
                 'AssignmentExpression[left.property.name = "install"] BlockStatement,' +
