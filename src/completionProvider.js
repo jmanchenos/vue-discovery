@@ -274,7 +274,7 @@ const pluginCompletionItemProvider = languages.registerCompletionItemProvider(
             const pluginName = document.getText(wordRange).split('.')?.[1] ?? '';
             const plugin = getPlugins().find(x => x.name === pluginName);
             return plugin?.objectAst?.properties
-                .map(method => {
+                ?.map(method => {
                     const name = method.key?.name || '';
                     const params =
                         method.value?.params?.map(p => {

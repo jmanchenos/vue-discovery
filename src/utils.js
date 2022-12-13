@@ -200,7 +200,7 @@ const getPluginsList = async () => {
             const installBlockStatement = query(
                 ast,
                 'AssignmentExpression[left.property.name = "install"] BlockStatement,' +
-                    '*[method=true][key.name="install"] > * > BlockStatement'
+                    '*[key.name="install"]>.value>BlockStatement'
             );
             if (installBlockStatement) {
                 const batch = query(installBlockStatement[0], 'AssignmentExpression[left.property.name = /\\$.+/]');
