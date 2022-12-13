@@ -37,6 +37,7 @@ import { ALIAS } from '@/utils/alias';
 import { STATE_NAMES } from '@/utils/stateNames';
 import { UtilsShortkeys } from '@/utils/shortkeys';
 import { MUTATIONS } from '@/utils/constants';
+import { ICONS } from '@/utils/icons';
 
 const { SET_CONFIGURACION_APP } = MUTATIONS;
 
@@ -53,6 +54,7 @@ Vue.prototype.$ROUTER_NAMES = ROUTER_NAMES;
 Vue.prototype.$ALIAS = ALIAS;
 Vue.prototype.$STATE_NAMES = STATE_NAMES;
 Vue.prototype.$UTILS_SHORTKEYS = UtilsShortkeys;
+Vue.prototype.$ICONS = ICONS;
 
 Object.keys(sgntj).forEach(name => {
   Vue.component(name, sgntj[name]);
@@ -80,6 +82,7 @@ Vue.use(Shortkey);
 Vue.use(UtilsGeneric);
 Vue.use(Helpers, { store });
 Vue.use(Plugin);
+
 
 Vue.config.productionTip = false;
 Vue.prototype.$electron = window.Cypress ? electronCypress : electron;
