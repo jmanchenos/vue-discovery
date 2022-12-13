@@ -8,6 +8,7 @@ const outputChannel = window.createOutputChannel('Vue Discovery - MTM');
 let cyFiles = [];
 let jsFiles = [];
 let plugins = [];
+let constants = [];
 let vueFiles = [];
 let vueRegisteredFiles = [];
 let currentPanel = undefined;
@@ -37,6 +38,9 @@ const setCyFiles = files => {
 const setPlugins = files => {
     plugins = files;
 };
+const setConstants = files => {
+    constants = files;
+};
 const setCurrentPanel = panel => {
     currentPanel = panel;
 };
@@ -45,6 +49,7 @@ const getVueRegisteredFiles = () => vueRegisteredFiles;
 const getJsFiles = () => jsFiles;
 const getCyFiles = () => cyFiles;
 const getPlugins = () => plugins;
+const getConstants = () => constants;
 
 /** @returns {WebviewPanel}*/
 const getCurrentPanel = () => currentPanel;
@@ -66,4 +71,6 @@ export {
     getPlugins,
     setCurrentPanel,
     getCurrentPanel,
+    getConstants,
+    setConstants,
 };

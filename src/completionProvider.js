@@ -1,5 +1,5 @@
 import * as utils from './utils';
-import { getConfig, getVueFiles, getPlugins } from './config';
+import { getConfig, getVueFiles, getPlugins, getConstants } from './config';
 import { Range, SnippetString, languages, CompletionItem, CompletionItemKind, workspace } from 'vscode';
 import * as vueParser from '@vuedoc/parser';
 import { kebabCase, camelCase } from 'lodash';
@@ -121,11 +121,19 @@ function createThisCompletionItem(obj, range = null) {
             method: {
                 item: 'Method',
                 markdown: utils.getMarkdownMethods,
-                insert: x => `${x.name}(${x.params.map(reg => reg.name).join(',')})`,
+                insert: x => `${x.name}(${x.params?.map(reg => reg.name).join(',') || ''})`,
                 sortText: '\u0000',
             },
             plugin: {
                 item: 'Field',
+                markdown: utils.getMarkdownPlugins,
+                insert: x => `\\${x.name}`,
+                sortText: '\u0001',
+                commitCharacters: ['.'],
+            },
+            library: {
+                item: 'Field',
+                label: x => `${x.name}`,
                 markdown: utils.getMarkdownPlugins,
                 insert: x => `\\${x.name}`,
                 sortText: '\u0001',
@@ -140,9 +148,14 @@ function createThisCompletionItem(obj, range = null) {
             },
             ref: {
                 item: 'Field',
-                label: x => `${x.name}`,
                 markdown: utils.getMarkdownRef,
-                insert: getInsertObject,
+                insert: x => `${x.name}`,
+                sortText: '\u0000',
+            },
+            constant: {
+                item: 'Property',
+                markdown: utils.getMarkdownConstants,
+                insert: x => `${x.name}`,
                 sortText: '\u0000',
             },
         };
@@ -247,6 +260,7 @@ const thisCompletionItemProvider = languages.registerCompletionItemProvider(
                 array.push(...(methods?.map(x => createThisCompletionItem(x, range)) || []));
             }
             array.push(...getPlugins()?.map(x => createThisCompletionItem(x, range) || []));
+            array.push(...getConstants()?.map(x => createThisCompletionItem(x, range) || []));
             return array;
         },
     },
@@ -434,6 +448,49 @@ const cypressCompletionItemProvider = languages.registerCompletionItemProvider(
     ' ',
     '.'
 );
+const constantsCompletionItemProvider = languages.registerCompletionItemProvider(
+    patternObject,
+    {
+        async provideCompletionItems(document, position) {
+            const wordRange = document.getWordRangeAtPosition(position, /this\.\$\w*\.[\(\)\w]*/);
+            if (!wordRange) {
+                return;
+            }
+            /* Ini Necesario para que el $ lo tenga en cuenta a la hora de sustituir la cadena*/
+            const text = document.getText(wordRange);
+            const range = new Range(
+                wordRange.start.line,
+                wordRange.start.character + text.search(/(?<=this\.\$\w*\.)/),
+                wordRange.end.line,
+                wordRange.end.character
+            );
+            /* Fin*/
+            const repoName = document.getText(wordRange).split('.')?.[1] ?? '';
+            const repo = getConstants().find(x => x.name === repoName);
+            const kindObject = {
+                ObjectExpression: 'object',
+                ArrowFunctionExpression: 'method',
+                Literal: 'constant',
+                Identifier: 'constant',
+            };
+            return repo?.objectAst.properties?.map(prop => {
+                const obj = {
+                    name: prop.key.name,
+                    kind: kindObject[prop.value.type] || 'constant',
+                    params: null,
+                    description:
+                        prop.value.type === 'Identifier'
+                            ? new RegExp(`export const ${prop.value.name} = '(.+?)';`).exec(repo.objectText)?.[1] || ''
+                            : prop.value?.value || '',
+                    syntax: prop.key.name,
+                };
+                return createThisCompletionItem(obj, range);
+            });
+        },
+    },
+    ' ',
+    '.'
+);
 export {
     componentsCompletionItemProvider,
     propsCompletionItemProvider,
@@ -443,4 +500,5 @@ export {
     pluginCompletionItemProvider,
     objectCompletionItemProvider,
     refsCompletionItemProvider,
+    constantsCompletionItemProvider,
 };

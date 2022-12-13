@@ -42,6 +42,11 @@
                     "default": "/src/plugins;/scr/",
                     "description": "list of plugins directories in your workspace on which search js files with plugins definitions separated by ;"
                 },
+                "VueDiscoveryMTM.utilsDirectory": {
+                    "type": "string",
+                    "default": "/src/utils",
+                    "description": "list of utilities directories in your workspace on which search js files with constants an others definitions separated by ;"
+                },
                 "VueDiscoveryMTM.componentCase": {
                     "type": "string",
                     "enum": [

@@ -12,9 +12,18 @@ import * as commandProvider from './commandProvider';
 const initConfig = async () => {
     try {
         config.outputChannel.clear();
-        utils.getFilesByExtension('js').then(jsFiles => config.setJsFiles(jsFiles));
-        utils.getCyFiles().then(cyFiles => config.setCyFiles(cyFiles));
-        utils.getPluginsList().then(plugins => config.setPlugins(plugins));
+        await Promise.all([
+            utils.getFilesByExtension('js').then(jsFiles => config.setJsFiles(jsFiles)),
+            utils.getCyFiles().then(cyFiles => config.setCyFiles(cyFiles)),
+            utils.getPluginsList().then(plugins => {
+                config.setPlugins(plugins);
+                config.outputChannel.appendLine(`Plugins cargados:\n${plugins.map(x => x.name).join('\n')}`);
+            }),
+            utils.getConstantsList().then(constants => {
+                config.setConstants(constants);
+                config.outputChannel.appendLine(`Constantes cargadas:\n${constants.map(x => x.name).join('\n')}`);
+            }),
+        ]);
 
         const preformattedData = {};
         const rootFiles = [];

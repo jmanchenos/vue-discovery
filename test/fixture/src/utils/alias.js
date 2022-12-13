@@ -626,7 +626,7 @@ export const validarNigUt = 'validar-nig-ut';
 export const wasminAgendaActualizarProcedimiento = 'wasmin-agenda-actualizar-procedimiento';
 
 export const ALIAS = {
-  aceptarAsunto,
+  aceptarAsunto:  'aceptar-asunto',
   aceptarEscrito,
   aceptarEscritoMultiple,
   aceptarEscritos,

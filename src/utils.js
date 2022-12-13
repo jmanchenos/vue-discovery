@@ -214,8 +214,68 @@ const getPluginsList = async () => {
                 plugins.push(...data);
             }
         });
-        config.outputChannel.appendLine(`Plugins cargados:\n${plugins.map(x => x.name).join('\n')}`);
         return plugins;
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+/**
+ * Recupera el objeto que define la lista de constantes en funcion dle nombre del alias de onstantes
+ * @param {String} alias
+ * @param {Array}  files
+ * @returns {Object}
+ */
+const getUtilsObject = (alias, files) => {
+    try {
+        let resultado = null;
+        files.find(file => {
+            const textFile = fs.readFileSync(file, 'utf8');
+            const ast = parseModule(textFile, { comment: true, tolerant: true, range: true });
+            const data = query(ast, `*[id.name="${alias}"][init]`).map(x => ({
+                name: x['id'].name,
+                objectAst: x['init'],
+                objectText: textFile.slice(x['init'].start, x['init'].end),
+                file,
+                range: x.range,
+            }));
+            if (data.length) {
+                resultado = data[0];
+            }
+            return !!data.length;
+        });
+        return resultado;
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+/**
+ * Recupera listado constantes
+ * @returns {Promise<Array>}
+ */
+const getConstantsList = async () => {
+    try {
+        //recuperar fichero del workspace situado en la ruta  **/src/main.js
+        const mainFile = await workspace.findFiles('**/src/main.js', '**/node_modules/**', 1);
+        let mainText = fs.readFileSync(mainFile[0].fsPath, 'utf8');
+        const ast = parseModule(mainText, { comment: true, tolerant: true, range: true });
+        const repos = query(
+            ast,
+            'AssignmentExpression[operator="="][left.object.object.name="Vue"][left.object.property.name="prototype"]'
+        );
+        const constantes = [];
+        if (repos) {
+            const utilsFiles = await getFilesByExtension('js', 'utilsDirectory');
+            repos.forEach(x => {
+                const name = x['left'].property.name;
+                const { objectAst, objectText, file, range } = getUtilsObject(x['right'].name, utilsFiles) || {};
+                if (file) {
+                    constantes.push({ name, kind: 'library', objectAst, objectText, file, range });
+                }
+            });
+        }
+        return constantes;
     } catch (error) {
         console.error(error);
     }
@@ -620,6 +680,11 @@ const getMarkdownPlugins = obj => {
     return new MarkdownString('', true).appendText(text);
 };
 
+const getMarkdownConstants = obj => {
+    const { name, description } = obj;
+    return `nombre: ${name},\nvalor: ${description}`;
+};
+
 const getMarkdownObject = obj => {
     let text = obj.value?.raw ?? '';
     if (obj?.value?.type !== 'ArrowFunctionExpression') {
@@ -802,6 +867,7 @@ export {
     getMarkdownPlugins,
     getMarkdownObject,
     getMarkdownRef,
+    getMarkdownConstants,
     retrieveRequirePropsFromFile,
     retrieveHasSlots,
     propCase,
@@ -820,6 +886,7 @@ export {
     getFilesByExtension,
     getCyFiles,
     getPluginsList,
+    getConstantsList,
     getComponentTuple,
     translateRange,
     getRefs,
