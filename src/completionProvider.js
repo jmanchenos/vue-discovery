@@ -237,7 +237,14 @@ const thisCompletionItemProvider = languages.registerCompletionItemProvider(
     patternObject,
     {
         async provideCompletionItems(document, position) {
-            const wordRange = document.getWordRangeAtPosition(position, /this\.\$*[\(\)\w]*/);
+            let wordRange = document.getWordRangeAtPosition(position, /this\.[\$\(\)\w]*/);
+            if (
+                !wordRange &&
+                utils.isPositionInTemplateSection(position) &&
+                utils.isPositionInQuotationMarks(position)
+            ) {
+                wordRange = document.getWordRangeAtPosition(position, /(?<=\")[\$\(\)\w]*/);
+            }
             if (!wordRange) {
                 return;
             }
@@ -246,7 +253,7 @@ const thisCompletionItemProvider = languages.registerCompletionItemProvider(
             const text = document.getText(wordRange);
             const range = new Range(
                 wordRange.start.line,
-                wordRange.start.character + text.search(/(?<=this\.)/),
+                wordRange.start.character + Math.max(0, text.search(/(?<=this\.)/)),
                 wordRange.end.line,
                 wordRange.end.character
             );
@@ -272,7 +279,14 @@ const pluginCompletionItemProvider = languages.registerCompletionItemProvider(
     patternObject,
     {
         async provideCompletionItems(document, position) {
-            const wordRange = document.getWordRangeAtPosition(position, /this\.\$\w*\.[\(\)\w]*/);
+            let wordRange = document.getWordRangeAtPosition(position, /this\.\$\w*\.[\(\)\w]*/);
+            if (
+                !wordRange &&
+                utils.isPositionInTemplateSection(position) &&
+                utils.isPositionInQuotationMarks(position)
+            ) {
+                wordRange = document.getWordRangeAtPosition(position, /\$\w*\.[\(\)\w]*/);
+            }
             if (!wordRange) {
                 return;
             }
@@ -280,12 +294,12 @@ const pluginCompletionItemProvider = languages.registerCompletionItemProvider(
             const text = document.getText(wordRange);
             const range = new Range(
                 wordRange.start.line,
-                wordRange.start.character + text.search(/(?<=this\.\$\w*\.)/),
+                wordRange.start.character + Math.max(0, text.search(/(?<=this\.\$\w*\.)/)),
                 wordRange.end.line,
                 wordRange.end.character
             );
             /* Fin*/
-            const pluginName = document.getText(wordRange).split('.')?.[1] ?? '';
+            const pluginName = document.getText(wordRange).split('.')?.at(-2) ?? '';
             const plugin = getPlugins().find(x => x.name === pluginName);
             return plugin?.objectAst?.properties
                 ?.map(method => {
@@ -325,7 +339,7 @@ const refsCompletionItemProvider = languages.registerCompletionItemProvider(
             const text = document.getText(wordRange);
             const range = new Range(
                 wordRange.start.line,
-                wordRange.start.character + text.search(/(?<=this\.\$\w*\.)/),
+                wordRange.start.character + Math.max(0, text.search(/(?<=this\.\$\w*\.)/)),
                 wordRange.end.line,
                 wordRange.end.character
             );
@@ -345,7 +359,14 @@ const objectCompletionItemProvider = languages.registerCompletionItemProvider(
     patternObject,
     {
         async provideCompletionItems(document, position) {
-            const wordRange = document.getWordRangeAtPosition(position, /this\.\w*\.[\(\)\w]*/);
+            let wordRange = document.getWordRangeAtPosition(position, /this\.\w+\.[\(\)\w]*/);
+            if (
+                !wordRange &&
+                utils.isPositionInTemplateSection(position) &&
+                utils.isPositionInQuotationMarks(position)
+            ) {
+                wordRange = document.getWordRangeAtPosition(position, /\w+\.[\(\)\w]*/);
+            }
             if (!wordRange) {
                 return;
             }
@@ -353,17 +374,19 @@ const objectCompletionItemProvider = languages.registerCompletionItemProvider(
             const text = document.getText(wordRange);
             const range = new Range(
                 wordRange.start.line,
-                wordRange.start.character + text.search(/(?<=this\.\w*\.)/),
+                wordRange.start.character + text.search(/(?<=\w*\.)/),
                 wordRange.end.line,
                 wordRange.end.character
             );
             /* Fin*/
-            const objectName = document.getText(wordRange).split('.')?.[1] ?? '';
+            const objectName = document.getText(wordRange).split('.')?.at(-2) ?? '';
             const vuedocOptions = { filename: document.fileName };
             const { data } = await vueParser.parse(vuedocOptions);
 
             let object = data.find(x => x.name === objectName && x.type === 'object');
-
+            if (!object) {
+                return;
+            }
             return Object.entries(JSON.parse(object?.initialValue))
                 .map(([key, value]) => {
                     return { name: key, kind: 'object', origen: objectName, value: value };
@@ -452,7 +475,14 @@ const constantsCompletionItemProvider = languages.registerCompletionItemProvider
     patternObject,
     {
         async provideCompletionItems(document, position) {
-            const wordRange = document.getWordRangeAtPosition(position, /this\.\$\w*\.[\(\)\w]*/);
+            let wordRange = document.getWordRangeAtPosition(position, /this\.\$\w*\.[\(\)\w]*/);
+            if (
+                !wordRange &&
+                utils.isPositionInTemplateSection(position) &&
+                utils.isPositionInQuotationMarks(position)
+            ) {
+                wordRange = document.getWordRangeAtPosition(position, /\$\w*\.[\(\)\w]*/);
+            }
             if (!wordRange) {
                 return;
             }
@@ -460,12 +490,12 @@ const constantsCompletionItemProvider = languages.registerCompletionItemProvider
             const text = document.getText(wordRange);
             const range = new Range(
                 wordRange.start.line,
-                wordRange.start.character + text.search(/(?<=this\.\$\w*\.)/),
+                wordRange.start.character + Math.max(0, text.search(/(?<=\$\w*\.)/)),
                 wordRange.end.line,
                 wordRange.end.character
             );
             /* Fin*/
-            const repoName = document.getText(wordRange).split('.')?.[1] ?? '';
+            const repoName = document.getText(wordRange).split('.')?.at(-2) ?? '';
             const repo = getConstants().find(x => x.name === repoName);
             const kindObject = {
                 ObjectExpression: 'object',
