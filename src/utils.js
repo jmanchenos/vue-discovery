@@ -1,12 +1,12 @@
 import { window, workspace, MarkdownString, Range, Uri } from 'vscode';
 import fetch from 'node-fetch';
-// @ts-ignore
 import AbortController from 'abort-controller';
 import { upperFirst, camelCase, kebabCase, toNumber } from 'lodash';
 import { glob } from 'glob';
 import path from 'path';
 import * as config from './config';
 import { Parser } from './parser';
+// @ts-ignore
 import * as vueParser from '@vuedoc/parser';
 import * as vueCompiler from 'vue-template-compiler';
 import fs from 'fs';
@@ -40,7 +40,7 @@ const getIndentBase = () => {
     return editor.options.insertSpaces ? ' '.repeat(toNumber(editor.options.tabSize)) : '\t';
 };
 const getIndent = () => getIndentBase().repeat(2);
-const getRootPath = () => workspace.workspaceFolders[0].uri.path.slice(1);
+const getRootPath = () => config.getCurrentWorkspaceFolder().uri.path.slice(1);
 const getCharBefore = (document = getDocument(), position = getActiveEditorPosition()) =>
     document.lineAt(position.line)?.text?.charAt(position.character - 1);
 const getCharAfter = (document = getDocument(), position = getActiveEditorPosition()) =>
@@ -141,7 +141,7 @@ const getFilesByExtension = async (extension, configAtrib = 'rootDirectory') => 
  */
 const getCyFiles = async () => {
     try {
-        return getFilesByExtension('js', 'cypressTestsDirectory');
+        return await getFilesByExtension('js', 'cypressTestsDirectory');
     } catch (err) {
         console.error(err);
     }
@@ -160,6 +160,7 @@ const getCyActions = (noSubject = false) => {
                 try {
                     const textFile = fs.readFileSync(file, 'utf8');
                     const ast = parseModule(textFile, { comment: true, range: true, tolerant: true });
+                    // @ts-ignore
                     const data = query(ast, 'CallExpression[callee.object.property.name="Commands"]').map(x => [
                         x['arguments'][0].value,
                         x['arguments'][x['arguments'].length - 1].params.map(
@@ -198,6 +199,7 @@ const getPluginsList = async () => {
             let textFile = fs.readFileSync(file, 'utf8');
             const ast = parseModule(textFile, { comment: true, tolerant: true, range: true });
             const installBlockStatement = query(
+                // @ts-ignore
                 ast,
                 'AssignmentExpression[left.property.name = "install"] BlockStatement,' +
                     '*[key.name="install"]>.value>BlockStatement'
@@ -221,28 +223,37 @@ const getPluginsList = async () => {
 };
 
 /**
- * Recupera el objeto que define la lista de constantes en funcion dle nombre del alias de onstantes
- * @param {String} alias
+ * Recuperala lista de objetos de librerias de constantes con datos de su AST y nimbre
+ * @param {Array} repos
  * @param {Array}  files
- * @returns {Object}
+ * @returns {Array}
  */
-const getUtilsObject = (alias, files) => {
+const getUtilsList = (repos, files) => {
     try {
-        let resultado = null;
-        files.find(file => {
+        let resultado = [];
+        files.forEach(file => {
             const textFile = fs.readFileSync(file, 'utf8');
             const ast = parseModule(textFile, { comment: true, tolerant: true, range: true });
-            const data = query(ast, `*[id.name="${alias}"][init]`).map(x => ({
-                name: x['id'].name,
-                objectAst: x['init'],
-                objectText: textFile.slice(x['init'].start, x['init'].end),
-                file,
-                range: x.range,
-            }));
-            if (data.length) {
-                resultado = data[0];
-            }
-            return !!data.length;
+            //bucle sobre los repos
+            repos.some(repo => {
+                let salida = false;
+                const name = repo['left'].property.name;
+                const alias = repo['right'].name;
+                // @ts-ignore
+                const data = query(ast, `*[id.name="${alias}"][init]`).map(x => ({
+                    name,
+                    kind: 'library',
+                    objectAst: x['init'],
+                    objectText: textFile.slice(x['init'].start, x['init'].end),
+                    file,
+                    range: x.range,
+                }));
+                if (data.length) {
+                    resultado.push(data[0]);
+                    salida = true;
+                }
+                return salida;
+            });
         });
         return resultado;
     } catch (error) {
@@ -256,24 +267,21 @@ const getUtilsObject = (alias, files) => {
  */
 const getConstantsList = async () => {
     try {
-        //recuperar fichero del workspace situado en la ruta  **/src/main.js
-        const mainFile = await workspace.findFiles('**/src/main.js', '**/node_modules/**', 1);
-        let mainText = fs.readFileSync(mainFile[0].fsPath, 'utf8');
-        const ast = parseModule(mainText, { comment: true, tolerant: true, range: true });
-        const repos = query(
-            ast,
-            'AssignmentExpression[operator="="][left.object.object.name="Vue"][left.object.property.name="prototype"]'
-        );
-        const constantes = [];
-        if (repos) {
-            const utilsFiles = await getFilesByExtension('js', 'utilsDirectory');
-            repos.forEach(x => {
-                const name = x['left'].property.name;
-                const { objectAst, objectText, file, range } = getUtilsObject(x['right'].name, utilsFiles) || {};
-                if (file) {
-                    constantes.push({ name, kind: 'library', objectAst, objectText, file, range });
-                }
-            });
+        let constantes = [];
+        const mainFile = path.join(config.getCurrentWorkspaceFolder()?.uri.fsPath, 'src/main.js');
+        if (mainFile) {
+            config.outputChannel.appendLine(`Se está utilizando como fichero main.js el fichero ${mainFile}`);
+            let mainText = fs.readFileSync(mainFile, 'utf8');
+            const ast = parseModule(mainText, { comment: true, tolerant: true, range: true });
+            const repos = query(
+                // @ts-ignore
+                ast,
+                'AssignmentExpression[operator="="][left.object.object.name="Vue"][left.object.property.name="prototype"]'
+            );
+            if (repos) {
+                const utilsFiles = await getFilesByExtension('js', 'utilsDirectory');
+                constantes = getUtilsList(repos, utilsFiles);
+            }
         }
         return constantes;
     } catch (error) {
@@ -326,7 +334,7 @@ const getComponentAtCursor = () => {
             return undefined;
         }
         const document = getDocument();
-        const regExp = /<((\w|-)+)(?:[^<])+?(?:<\/\1>|\/>){1}/g;
+        const regExp = /<((\w|-)+)(?:[^<])+?(?:<\/\1>|\/>)/g;
         //filtramos todo lo que encontremos en ese regExp (tab abiertos y cerrados)
         let text = document.getText().substring(0, document.offsetAt(position));
         while (text !== text.replace(regExp, '')) {
@@ -813,7 +821,7 @@ const translateRange = async (range, filePath) => {
 };
 
 /**
- * Get the list aof refs with ref attribute value and range of element containing that ref attribute
+ * Get the list of refs with ref attribute value and range of element containing that ref attribute
  * @param {TextDocument} document
  * @returns {Array}
  */

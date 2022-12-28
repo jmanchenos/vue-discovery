@@ -64,4 +64,5 @@ This extension can be customized with the following settings:
 
 ## 🔖 Release Notes
 
-### 0.7.0
+inlude file md from same folder
+extension.ts:[]: # Path: CHANGELOG.md

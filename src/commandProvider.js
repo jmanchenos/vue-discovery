@@ -56,7 +56,7 @@ async function insertImport(file, fileName) {
  */
 async function insertComponents(text, componentName, eol) {
     try {
-        const match = /export[\s]*default[\s]*\{/.exec(text);
+        const match = /export\s*default\s*\{/.exec(text);
 
         if (!match || match.index === -1) {
             return;
@@ -88,7 +88,7 @@ async function insertInExistingComponents(match, componentString, eol) {
         while (!found) {
             matchInsertIndex--;
 
-            if (/[\S]/.test(match[0].charAt(matchInsertIndex))) {
+            if (/\S/.test(match[0].charAt(matchInsertIndex))) {
                 found = true;
             }
         }

@@ -15,14 +15,16 @@
                 "--disable-extensions",
                 "--extensionDevelopmentPath=${workspaceFolder}"
             ],
-            "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
-            "webRoot": "${workspaceFolder}/src",
+            "skipFiles": [
+                "<node_internals>/**",
+                "**/node_modules/**"
+            ],
             "sourceMapPathOverrides": {
-                "dist:/src/*": "${webRoot}/*",
-                "dist:///./*": "${webRoot}/*",
-                "dist:///src/*": "${webRoot}/*",
+                "dist:/src/*": "${workspaceFolder}/src/*",
+                "dist:///./*": "${workspaceFolder}/src/*",
+                "dist:///src/*": "${workspaceFolder}/src/*",
                 "dist:///*": "*",
-                "dist:///./~/*": "${webRoot}/node_modules/*"
+                "dist:///./~/*": "${workspaceFolder}/src/node_modules/*"
             }
         },
         {

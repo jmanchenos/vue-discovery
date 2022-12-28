@@ -1,17 +1,33 @@
 import * as utils from './utils';
-import { getConfig, getVueFiles, getPlugins, getConstants } from './config';
+import { getConfig, getVueFiles, getPlugins, getConstants, getVueObjects } from './config';
 import { Range, SnippetString, languages, CompletionItem, CompletionItemKind, workspace } from 'vscode';
-import * as vueParser from '@vuedoc/parser';
 import { kebabCase, camelCase } from 'lodash';
 
-const patternObject = { scheme: 'file', pattern: '**/src/**/*.vue' };
+const vueFilePattern = { scheme: 'file', pattern: '**/src/**/*.vue' };
+const cypressFilePattern = { scheme: 'file', pattern: '**/tests/**/*.js' };
 
 /**
- * Creates a completion item for a components from a tuple {filePath, componentName}
- *
- * @param {Object} item item
- *
- * @returns {CompletionItem} completion item
+ * @description Return intertion etxt for an oject or function woth its params
+ * @param {Object} obj
+ * @returns {String}
+ */
+function getInsertObject(obj) {
+    try {
+        if (obj.value?.type === 'ArrowFunctionExpression') {
+            const params = obj.value?.raw?.match(/\(?([\w\,\s]*)\)?\s?=>/)?.[1] ?? [];
+            return `${obj.name}(${params.trim()})`;
+        } else {
+            return obj.name;
+        }
+    } catch (err) {
+        console.error('Error en getInsertObject: ', err);
+    }
+}
+
+/**
+ * @description Creates a completion item for a component
+ * @param {Object} item
+ * @returns {CompletionItem}
  */
 function createComponentCompletionItem(item) {
     try {
@@ -37,6 +53,7 @@ function createComponentCompletionItem(item) {
 }
 
 /**
+ * @description Creates a completion item for a property
  * @param {Object} prop
  * @param {String} charBefore
  * @param {String} charAfter
@@ -67,6 +84,7 @@ function createPropCompletionItem(prop, charBefore, charAfter) {
 }
 
 /**
+ * @description Creates a completion item for a event
  * @param {String} event
  * @param {String} charBefore
  * @param {String} charAfter
@@ -92,8 +110,10 @@ function createEventCompletionItem(event, charBefore, charAfter) {
 }
 
 /**
+ * @description Creates a completion item for a this attribute
  * @param {Object} obj
  * @param {Range} range
+ * @returns {CompletionItem}
  */
 function createThisCompletionItem(obj, range = null) {
     try {
@@ -180,16 +200,8 @@ function createThisCompletionItem(obj, range = null) {
     }
 }
 
-function getInsertObject(obj) {
-    if (obj.value?.type === 'ArrowFunctionExpression') {
-        const params = obj.value?.raw?.match(/\(?([\w\,\s]*)\)?\s?=>/)?.[1] ?? [];
-        return `${obj.name}(${params.trim()})`;
-    } else {
-        return obj.name;
-    }
-}
-
 /**
+ * @description Creates a completion item for a Cypress action
  * @param {Object} cyAction
  * @returns {CompletionItem}
  */
@@ -215,17 +227,22 @@ function createCyCompletionItem(cyAction) {
         console.error(error);
     }
 }
+
 const componentsCompletionItemProvider = languages.registerCompletionItemProvider(
-    patternObject,
+    vueFilePattern,
     {
         async provideCompletionItems() {
-            const position = utils.getActiveEditorPosition();
-            if (
-                utils.isPositionInTemplateSection(position) &&
-                !utils.isCursorInsideEntryTagComponent() &&
-                !utils.isPositionInQuotationMarks(position)
-            ) {
-                return getVueFiles()?.map(createComponentCompletionItem);
+            try {
+                const position = utils.getActiveEditorPosition();
+                if (
+                    utils.isPositionInTemplateSection(position) &&
+                    !utils.isCursorInsideEntryTagComponent() &&
+                    !utils.isPositionInQuotationMarks(position)
+                ) {
+                    return getVueFiles()?.map(createComponentCompletionItem);
+                }
+            } catch (err) {
+                console.error(err);
             }
         },
     },
@@ -233,191 +250,29 @@ const componentsCompletionItemProvider = languages.registerCompletionItemProvide
     '<'
 );
 
-const thisCompletionItemProvider = languages.registerCompletionItemProvider(
-    patternObject,
-    {
-        async provideCompletionItems(document, position) {
-            let wordRange = document.getWordRangeAtPosition(position, /this\.[\$\(\)\w]*/);
-            if (
-                !wordRange &&
-                utils.isPositionInTemplateSection(position) &&
-                utils.isPositionInQuotationMarks(position)
-            ) {
-                wordRange = document.getWordRangeAtPosition(position, /(?<=\")[\$\(\)\w]*/);
-            }
-            if (!wordRange) {
-                return;
-            }
-            const array = [];
-            /* Ini Necesario para que el $ lo tenga en cuenta a la hora de sustituir la cadena*/
-            const text = document.getText(wordRange);
-            const range = new Range(
-                wordRange.start.line,
-                wordRange.start.character + Math.max(0, text.search(/(?<=this\.)/)),
-                wordRange.end.line,
-                wordRange.end.character
-            );
-            /* Fin*/
-            if (!text.includes('$')) {
-                const vuedocOptions = { filename: document.fileName };
-                const { data, computed, props, methods } = await vueParser.parse(vuedocOptions);
-                array.push(...(data?.map(x => createThisCompletionItem(x, range)) || []));
-                array.push(...(computed?.map(x => createThisCompletionItem(x, range)) || []));
-                array.push(...(props?.map(x => createThisCompletionItem(x, range)) || []));
-                array.push(...(methods?.map(x => createThisCompletionItem(x, range)) || []));
-            }
-            array.push(...getPlugins()?.map(x => createThisCompletionItem(x, range) || []));
-            array.push(...getConstants()?.map(x => createThisCompletionItem(x, range) || []));
-            return array;
-        },
-    },
-    ' ',
-    '.',
-    '$'
-);
-const pluginCompletionItemProvider = languages.registerCompletionItemProvider(
-    patternObject,
-    {
-        async provideCompletionItems(document, position) {
-            let wordRange = document.getWordRangeAtPosition(position, /this\.\$\w*\.[\(\)\w]*/);
-            if (
-                !wordRange &&
-                utils.isPositionInTemplateSection(position) &&
-                utils.isPositionInQuotationMarks(position)
-            ) {
-                wordRange = document.getWordRangeAtPosition(position, /\$\w*\.[\(\)\w]*/);
-            }
-            if (!wordRange) {
-                return;
-            }
-            /* Ini Necesario para que el $ lo tenga en cuenta a la hora de sustituir la cadena*/
-            const text = document.getText(wordRange);
-            const range = new Range(
-                wordRange.start.line,
-                wordRange.start.character + Math.max(0, text.search(/(?<=this\.\$\w*\.)/)),
-                wordRange.end.line,
-                wordRange.end.character
-            );
-            /* Fin*/
-            const pluginName = document.getText(wordRange).split('.')?.at(-2) ?? '';
-            const plugin = getPlugins().find(x => x.name === pluginName);
-            return plugin?.objectAst?.properties
-                ?.map(method => {
-                    const name = method.key?.name || '';
-                    const params =
-                        method.value?.params?.map(p => {
-                            let nombre, defaultValue;
-                            switch (p.type) {
-                                case 'Identifier':
-                                    nombre = p.name;
-                                    defaultValue = null;
-                                    break;
-                                case 'AssignmentPattern':
-                                    nombre = p.left?.name || '';
-                                    defaultValue = Object.assign({}, ...(p.right?.properties || []));
-                            }
-                            return { name: nombre, defaultValue };
-                        }) || [];
-                    const syntax = `${name}(${params.map(p => p.name)?.join(', ')})`;
-                    return { name, kind: 'method', params, description: null, syntax };
-                })
-                .map(x => createThisCompletionItem(x, range));
-        },
-    },
-    ' ',
-    '.'
-);
-const refsCompletionItemProvider = languages.registerCompletionItemProvider(
-    patternObject,
-    {
-        async provideCompletionItems(document, position) {
-            const wordRange = document.getWordRangeAtPosition(position, /this\.\$refs\.[\(\)\w]*/);
-            if (!wordRange) {
-                return;
-            }
-            /* Ini Necesario para que el $ lo tenga en cuenta a la hora de sustituir la cadena*/
-            const text = document.getText(wordRange);
-            const range = new Range(
-                wordRange.start.line,
-                wordRange.start.character + Math.max(0, text.search(/(?<=this\.\$\w*\.)/)),
-                wordRange.end.line,
-                wordRange.end.character
-            );
-            /* Fin*/
-            const refs = utils.getRefs(document);
-            return refs.map(({ name, tag }) => {
-                const obj = { name, kind: 'ref', params: tag, description: null, syntax: '${ref.name}' };
-                return createThisCompletionItem(obj, range);
-            });
-        },
-    },
-    ' ',
-    '.'
-);
-
-const objectCompletionItemProvider = languages.registerCompletionItemProvider(
-    patternObject,
-    {
-        async provideCompletionItems(document, position) {
-            let wordRange = document.getWordRangeAtPosition(position, /this\.\w+\.[\(\)\w]*/);
-            if (
-                !wordRange &&
-                utils.isPositionInTemplateSection(position) &&
-                utils.isPositionInQuotationMarks(position)
-            ) {
-                wordRange = document.getWordRangeAtPosition(position, /\w+\.[\(\)\w]*/);
-            }
-            if (!wordRange) {
-                return;
-            }
-            /* Ini Necesario para que los () lo tenga en cuenta a la hora de sustituir la cadena*/
-            const text = document.getText(wordRange);
-            const range = new Range(
-                wordRange.start.line,
-                wordRange.start.character + text.search(/(?<=\w*\.)/),
-                wordRange.end.line,
-                wordRange.end.character
-            );
-            /* Fin*/
-            const objectName = document.getText(wordRange).split('.')?.at(-2) ?? '';
-            const vuedocOptions = { filename: document.fileName };
-            const { data } = await vueParser.parse(vuedocOptions);
-
-            let object = data.find(x => x.name === objectName && x.type === 'object');
-            if (!object) {
-                return;
-            }
-            return Object.entries(JSON.parse(object?.initialValue))
-                .map(([key, value]) => {
-                    return { name: key, kind: 'object', origen: objectName, value: value };
-                })
-                .map(x => createThisCompletionItem(x, range));
-        },
-    },
-    ' ',
-    '.'
-);
-
 const propsCompletionItemProvider = languages.registerCompletionItemProvider(
-    patternObject,
+    vueFilePattern,
     {
         async provideCompletionItems(document, position) {
-            if (!utils.isCursorInsideEntryTagComponent() || utils.isPositionInQuotationMarks(position)) {
-                return;
-            }
+            try {
+                if (!utils.isCursorInsideEntryTagComponent() || utils.isPositionInQuotationMarks(position)) {
+                    return;
+                }
+                const props = await utils.getPropsForLine(position.line, position.character);
 
-            const props = await utils.getPropsForLine(position.line, position.character);
+                if (props) {
+                    const charBefore = utils.getCharBefore(document, position);
+                    const charAfter = utils.getCharAfter(document, position);
 
-            if (props) {
-                const charBefore = utils.getCharBefore(document, position);
-                const charAfter = utils.getCharAfter(document, position);
+                    // se filtran los props por los que ya tiene el componente para no repetirlos
+                    const text = document.getText(utils.getTagRangeAtPosition(document, position));
 
-                // se filtran los props por los que ya tiene el componente para no repetirlos
-                const text = document.getText(utils.getTagRangeAtPosition(document, position));
-
-                return props
-                    .filter(prop => !text.includes(`${prop.name}="`))
-                    .map(prop => createPropCompletionItem(prop, charBefore, charAfter));
+                    return props
+                        .filter(prop => !text.includes(`${prop.name}="`))
+                        .map(prop => createPropCompletionItem(prop, charBefore, charAfter));
+                }
+            } catch (err) {
+                console.error(err);
             }
         },
     },
@@ -427,25 +282,28 @@ const propsCompletionItemProvider = languages.registerCompletionItemProvider(
 );
 
 const eventsCompletionItemProvider = languages.registerCompletionItemProvider(
-    patternObject,
+    vueFilePattern,
     {
         async provideCompletionItems(document, position) {
-            if (!utils.isCursorInsideEntryTagComponent() || utils.isPositionInQuotationMarks(position)) {
-                return;
-            }
+            try {
+                if (!utils.isCursorInsideEntryTagComponent() || utils.isPositionInQuotationMarks(position)) {
+                    return;
+                }
+                const events = await utils.getEventsForLine(position.line, position.character);
 
-            const events = await utils.getEventsForLine(position.line, position.character);
+                if (events) {
+                    const charBefore = utils.getCharBefore(document, position);
+                    const charAfter = utils.getCharAfter(document, position);
 
-            if (events) {
-                const charBefore = utils.getCharBefore(document, position);
-                const charAfter = utils.getCharAfter(document, position);
+                    // se filtran los props por los que ya tiene el componente para no repetirlos
+                    const text = document.getText(utils.getTagRangeAtPosition(document, position));
 
-                // se filtran los props por los que ya tiene el componente para no repetirlos
-                const text = document.getText(utils.getTagRangeAtPosition(document, position));
-
-                return events
-                    .filter(event => !text.includes(`@${kebabCase(event)}="`) && !text.includes(`@${event}="`))
-                    .map(event => createEventCompletionItem(event, charBefore, charAfter));
+                    return events
+                        .filter(event => !text.includes(`@${kebabCase(event)}="`) && !text.includes(`@${event}="`))
+                        .map(event => createEventCompletionItem(event, charBefore, charAfter));
+                }
+            } catch (err) {
+                console.error(err);
             }
         },
     },
@@ -454,81 +312,272 @@ const eventsCompletionItemProvider = languages.registerCompletionItemProvider(
     '.'
 );
 
-const cypressCompletionItemProvider = languages.registerCompletionItemProvider(
-    { scheme: 'file', pattern: '**/tests/**/*.js' },
+const refsCompletionItemProvider = languages.registerCompletionItemProvider(
+    vueFilePattern,
     {
         async provideCompletionItems(document, position) {
-            const regExpCyMethod = /(?<=\W)cy\.(?:\w+\([\w\W]*\)\n?.)*(\w*(?:\([\w\W]*\)(?:\n?.)?)?)/gi;
-            const range = document.getWordRangeAtPosition(position, regExpCyMethod);
-            if (!range) {
-                return;
+            try {
+                const wordRange = document.getWordRangeAtPosition(position, /this\.\$refs\.[\(\)\w]*/);
+                if (!wordRange) {
+                    return;
+                }
+                /* Ini Necesario para que el $ lo tenga en cuenta a la hora de sustituir la cadena*/
+                const text = document.getText(wordRange);
+                const range = new Range(
+                    wordRange.start.line,
+                    wordRange.start.character + Math.max(0, text.search(/(?<=this\.\$\w*\.)/)),
+                    wordRange.end.line,
+                    wordRange.end.character
+                );
+                /* Fin*/
+                const refs = utils.getRefs(document);
+                return refs.map(({ name, tag }) => {
+                    const obj = { name, kind: 'ref', params: tag, description: null, syntax: '${ref.name}' };
+                    return createThisCompletionItem(obj, range);
+                });
+            } catch (err) {
+                console.error(err);
             }
-            const endsWithCy = document.getText(range).endsWith('cy.');
-            const cyActions = await utils.getCyActions(endsWithCy);
-            return cyActions?.map(cyAction => createCyCompletionItem(cyAction)) || [];
         },
     },
     ' ',
     '.'
 );
+
+const thisCompletionItemProvider = languages.registerCompletionItemProvider(
+    vueFilePattern,
+    {
+        async provideCompletionItems(document, position) {
+            try {
+                let wordRange = document.getWordRangeAtPosition(position, /this\.[\$\(\)\w]*/);
+                if (
+                    !wordRange &&
+                    utils.isPositionInTemplateSection(position) &&
+                    utils.isPositionInQuotationMarks(position)
+                ) {
+                    wordRange = document.getWordRangeAtPosition(position, /(?<=\")[\$\(\)\w\.]*(?=\")/);
+                }
+                if (!wordRange) {
+                    return;
+                }
+                const array = [];
+                /* Ini Necesario para que el $ lo tenga en cuenta a la hora de sustituir la cadena*/
+                const text = document.getText(wordRange);
+                const range = new Range(
+                    wordRange.start.line,
+                    wordRange.start.character + Math.max(0, text.search(/(?<=this\.)/)),
+                    wordRange.end.line,
+                    wordRange.end.character
+                );
+                /* Fin*/
+                if (!text.includes('$')) {
+                    const { data, computed, props, methods } = getVueObjects(document) || {};
+                    array.push(...(data?.map(x => createThisCompletionItem(x, range)) || []));
+                    array.push(...(computed?.map(x => createThisCompletionItem(x, range)) || []));
+                    array.push(...(props?.map(x => createThisCompletionItem(x, range)) || []));
+                    array.push(...(methods?.map(x => createThisCompletionItem(x, range)) || []));
+                }
+                array.push(...getPlugins()?.map(x => createThisCompletionItem(x, range) || []));
+                array.push(...getConstants()?.map(x => createThisCompletionItem(x, range) || []));
+                return array;
+            } catch (err) {
+                console.error(err);
+            }
+        },
+    },
+    ' ',
+    '$',
+    '.'
+);
+
+const pluginCompletionItemProvider = languages.registerCompletionItemProvider(
+    vueFilePattern,
+    {
+        async provideCompletionItems(document, position) {
+            try {
+                let wordRange = document.getWordRangeAtPosition(position, /this\.\$\w*\.[\(\)\w]*/);
+                if (
+                    !wordRange &&
+                    utils.isPositionInTemplateSection(position) &&
+                    utils.isPositionInQuotationMarks(position)
+                ) {
+                    wordRange = document.getWordRangeAtPosition(position, /\$\w*\.[\(\)\w]*/);
+                }
+                if (!wordRange) {
+                    return;
+                }
+                /* Ini Necesario para que el $ lo tenga en cuenta a la hora de sustituir la cadena*/
+                const text = document.getText(wordRange);
+                const range = new Range(
+                    wordRange.start.line,
+                    // wordRange.start.character + Math.max(0, text.search(/(?<=this\.\$\w*\.)/)),
+                    wordRange.start.character + Math.max(0, text.search(/(?<=\$\w*\.)/)),
+                    wordRange.end.line,
+                    wordRange.end.character
+                );
+                /* Fin*/
+                const pluginName = document.getText(wordRange).split('.')?.at(-2) ?? '';
+                const plugin = getPlugins().find(x => x.name === pluginName);
+                return plugin?.objectAst?.properties
+                    ?.map(method => {
+                        const name = method.key?.name || '';
+                        const params =
+                            method.value?.params?.map(p => {
+                                let nombre, defaultValue;
+                                switch (p.type) {
+                                    case 'Identifier':
+                                        nombre = p.name;
+                                        defaultValue = null;
+                                        break;
+                                    case 'AssignmentPattern':
+                                        nombre = p.left?.name || '';
+                                        defaultValue = Object.assign({}, ...(p.right?.properties || []));
+                                }
+                                return { name: nombre, defaultValue };
+                            }) || [];
+                        const syntax = `${name}(${params.map(p => p.name)?.join(', ')})`;
+                        return { name, kind: 'method', params, description: null, syntax };
+                    })
+                    ?.map(x => createThisCompletionItem(x, range));
+            } catch (err) {
+                console.error(err);
+            }
+        },
+    },
+    ' ',
+    '.'
+);
+
 const constantsCompletionItemProvider = languages.registerCompletionItemProvider(
-    patternObject,
+    vueFilePattern,
     {
         async provideCompletionItems(document, position) {
-            let wordRange = document.getWordRangeAtPosition(position, /this\.\$\w*\.[\(\)\w]*/);
-            if (
-                !wordRange &&
-                utils.isPositionInTemplateSection(position) &&
-                utils.isPositionInQuotationMarks(position)
-            ) {
-                wordRange = document.getWordRangeAtPosition(position, /\$\w*\.[\(\)\w]*/);
-            }
-            if (!wordRange) {
-                return;
-            }
-            /* Ini Necesario para que el $ lo tenga en cuenta a la hora de sustituir la cadena*/
-            const text = document.getText(wordRange);
-            const range = new Range(
-                wordRange.start.line,
-                wordRange.start.character + Math.max(0, text.search(/(?<=\$\w*\.)/)),
-                wordRange.end.line,
-                wordRange.end.character
-            );
-            /* Fin*/
-            const repoName = document.getText(wordRange).split('.')?.at(-2) ?? '';
-            const repo = getConstants().find(x => x.name === repoName);
-            const kindObject = {
-                ObjectExpression: 'object',
-                ArrowFunctionExpression: 'method',
-                Literal: 'constant',
-                Identifier: 'constant',
-            };
-            return repo?.objectAst.properties?.map(prop => {
-                const obj = {
-                    name: prop.key.name,
-                    kind: kindObject[prop.value.type] || 'constant',
-                    params: null,
-                    description:
-                        prop.value.type === 'Identifier'
-                            ? new RegExp(`export const ${prop.value.name} = '(.+?)';`).exec(repo.objectText)?.[1] || ''
-                            : prop.value?.value || '',
-                    syntax: prop.key.name,
+            try {
+                let wordRange = document.getWordRangeAtPosition(position, /this\.\$\w+\.\w*/);
+                if (
+                    !wordRange &&
+                    utils.isPositionInTemplateSection(position) &&
+                    utils.isPositionInQuotationMarks(position)
+                ) {
+                    wordRange = document.getWordRangeAtPosition(position, /\$\w+\.\w*/);
+                }
+                if (!wordRange) {
+                    return;
+                }
+                console.log('constantCompletion');
+                /* Ini Necesario para que el $ lo tenga en cuenta a la hora de sustituir la cadena*/
+                const text = document.getText(wordRange);
+                const range = new Range(
+                    wordRange.start.line,
+                    wordRange.start.character + Math.max(0, text.search(/(?<=\$\w*\.)/)),
+                    wordRange.end.line,
+                    wordRange.end.character
+                );
+                /* Fin*/
+                const repoName = document.getText(wordRange).split('.')?.at(-2) ?? '';
+                const repo = getConstants().find(x => x.name === repoName);
+                const kindObject = {
+                    ObjectExpression: 'object',
+                    ArrowFunctionExpression: 'method',
+                    Literal: 'constant',
+                    Identifier: 'constant',
                 };
-                return createThisCompletionItem(obj, range);
-            });
+                return repo?.objectAst.properties?.map(prop => {
+                    const obj = {
+                        name: prop.key.name,
+                        kind: kindObject[prop.value.type] || 'constant',
+                        params: null,
+                        description:
+                            prop.value.type === 'Identifier'
+                                ? new RegExp(`export const ${prop.value.name} = '(.+?)';`).exec(repo.objectText)?.[1] ||
+                                  ''
+                                : prop.value?.value || '',
+                        syntax: prop.key.name,
+                    };
+                    return createThisCompletionItem(obj, range);
+                });
+            } catch (err) {
+                console.error(err);
+            }
         },
     },
     ' ',
     '.'
 );
+
+const objectCompletionItemProvider = languages.registerCompletionItemProvider(
+    vueFilePattern,
+    {
+        async provideCompletionItems(document, position) {
+            try {
+                let wordRange = document.getWordRangeAtPosition(position, /this\.\w+\.[\(\)\w]*/);
+                if (
+                    !wordRange &&
+                    utils.isPositionInTemplateSection(position) &&
+                    utils.isPositionInQuotationMarks(position)
+                ) {
+                    wordRange = document.getWordRangeAtPosition(position, /^\$\w+\.[\(\)\w]*/);
+                }
+                if (!wordRange) {
+                    return;
+                }
+                /* Ini Necesario para que los () lo tenga en cuenta a la hora de sustituir la cadena*/
+                const text = document.getText(wordRange);
+                const range = new Range(
+                    wordRange.start.line,
+                    wordRange.start.character + Math.max(0, text.search(/(?<=\w*\.)/)),
+                    wordRange.end.line,
+                    wordRange.end.character
+                );
+                /* Fin*/
+                const objectName = document.getText(wordRange).split('.')?.at(-2) ?? '';
+                const { data } = getVueObjects(document) || {};
+                let object = data?.find(x => x.name === objectName && x.type === 'object');
+                if (!object) {
+                    return;
+                }
+                return Object.entries(JSON.parse(object?.initialValue))
+                    .map(([key, value]) => ({ name: key, kind: 'object', origen: objectName, value: value }))
+                    .map(x => createThisCompletionItem(x, range));
+            } catch (err) {
+                console.error(err);
+            }
+        },
+    },
+    ' ',
+    '.'
+);
+
+const cypressCompletionItemProvider = languages.registerCompletionItemProvider(
+    cypressFilePattern,
+    {
+        async provideCompletionItems(document, position) {
+            try {
+                const regExpCyMethod = /(?<=\W)cy\.(?:\w+\([\w\W]*\)\n?.)*(\w*(?:\([\w\W]*\)(?:\n?.)?)?)/gi;
+                const range = document.getWordRangeAtPosition(position, regExpCyMethod);
+                if (!range) {
+                    return;
+                }
+                const endsWithCy = document.getText(range).endsWith('cy.');
+                const cyActions = utils.getCyActions(endsWithCy);
+                return cyActions?.map(cyAction => createCyCompletionItem(cyAction)) || [];
+            } catch (err) {
+                console.error(err);
+            }
+        },
+    },
+    ' ',
+    '.'
+);
+
 export {
     componentsCompletionItemProvider,
     propsCompletionItemProvider,
     eventsCompletionItemProvider,
-    thisCompletionItemProvider,
-    cypressCompletionItemProvider,
-    pluginCompletionItemProvider,
-    objectCompletionItemProvider,
     refsCompletionItemProvider,
+    thisCompletionItemProvider,
+    pluginCompletionItemProvider,
     constantsCompletionItemProvider,
+    objectCompletionItemProvider,
+    cypressCompletionItemProvider,
 };

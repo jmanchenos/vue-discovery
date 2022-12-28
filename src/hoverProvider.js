@@ -2,7 +2,7 @@ import { getVueFiles, getConfig } from './config';
 import * as utils from './utils';
 import { languages, Hover } from 'vscode';
 
-const patternObject = { scheme: 'file', pattern: '**/src/**/*.vue' };
+const vueFilePattern = { scheme: 'file', pattern: '**/src/**/*.vue' };
 
 /**
  *  Return content of props as a hover content
@@ -21,7 +21,7 @@ async function hoverContentFromProps(component) {
     }
 }
 
-const componentsHoverProvider = languages.registerHoverProvider(patternObject, {
+const componentsHoverProvider = languages.registerHoverProvider(vueFilePattern, {
     async provideHover(document, position) {
         try {
             if (utils.isPositionInTemplateSection(position) && utils.isPositionOverAComponentTag(document, position)) {

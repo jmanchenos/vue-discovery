@@ -2,10 +2,10 @@ import * as utils from './utils';
 import { languages, Location, Range, Uri } from 'vscode';
 import { getVueFiles } from './config';
 
-const patternVue = { scheme: 'file', pattern: '**/src/**/*.vue' };
-const patternTest = { scheme: 'file', pattern: '**/tests/**/*.js' };
+const vueFilePattern = { scheme: 'file', pattern: '**/src/**/*.vue' };
+const cypressFilePattern = { scheme: 'file', pattern: '**/tests/**/*.js' };
 
-const componentsDefinitionProvider = languages.registerDefinitionProvider(patternVue, {
+const componentsDefinitionProvider = languages.registerDefinitionProvider(vueFilePattern, {
     async provideDefinition(document, position) {
         if (!utils.isPositionInTemplateSection(position) || !utils.isPositionOverAComponentTag(document, position)) {
             return null;
@@ -16,7 +16,7 @@ const componentsDefinitionProvider = languages.registerDefinitionProvider(patter
     },
 });
 
-const cypressDefinitionProvider = languages.registerDefinitionProvider(patternTest, {
+const cypressDefinitionProvider = languages.registerDefinitionProvider(cypressFilePattern, {
     async provideDefinition(document, position) {
         try {
             const { file, range } = utils.getCypressActionOverPosition(document, position) || {};
@@ -27,7 +27,7 @@ const cypressDefinitionProvider = languages.registerDefinitionProvider(patternTe
     },
 });
 
-const pluginDefinitionProvider = languages.registerDefinitionProvider(patternVue, {
+const pluginDefinitionProvider = languages.registerDefinitionProvider(vueFilePattern, {
     async provideDefinition(document, position) {
         try {
             const { file, range } = utils.getPluginOverPosition(document, position) || {};
@@ -38,7 +38,7 @@ const pluginDefinitionProvider = languages.registerDefinitionProvider(patternVue
     },
 });
 
-const refsDefinitionProvider = languages.registerDefinitionProvider(patternVue, {
+const refsDefinitionProvider = languages.registerDefinitionProvider(vueFilePattern, {
     async provideDefinition(document, position) {
         try {
             const { range } = utils.getRefOverPosition(document, position) || {};

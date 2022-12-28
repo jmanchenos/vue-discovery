@@ -1,4 +1,6 @@
 import { workspace, window } from 'vscode';
+import * as vueParser from '@vuedoc/parser';
+
 /**
  * @typedef {import ('vscode').WebviewPanel} WebviewPanel;
  */
@@ -12,6 +14,11 @@ let constants = [];
 let vueFiles = [];
 let vueRegisteredFiles = [];
 let currentPanel = undefined;
+let currentWorkspaceFolder;
+
+//indicar que la variable que vamos a definir parsedVudeMap es del tipo Map
+/** @type {Map<string, any>} */
+const parsedVueMap = new Map();
 
 const setConfig = (key, value) => {
     configOverride[key] = value;
@@ -23,23 +30,26 @@ const getConfig = key => {
         console.error(error);
     }
 };
-const setVueFiles = files => {
+const setVueFiles = (files = []) => {
     vueFiles = files;
 };
-const setVueRegisteredFiles = files => {
+const setVueRegisteredFiles = (files = []) => {
     vueRegisteredFiles = files;
 };
-const setJsFiles = files => {
+const setJsFiles = (files = []) => {
     jsFiles = files;
 };
-const setCyFiles = files => {
+const setCyFiles = (files = []) => {
     cyFiles = files;
 };
-const setPlugins = files => {
+const setPlugins = (files = []) => {
     plugins = files;
 };
-const setConstants = files => {
+const setConstants = (files = []) => {
     constants = files;
+};
+const setCurrentWorkspaceFolder = folder => {
+    currentWorkspaceFolder = folder;
 };
 const setCurrentPanel = panel => {
     currentPanel = panel;
@@ -50,9 +60,23 @@ const getJsFiles = () => jsFiles;
 const getCyFiles = () => cyFiles;
 const getPlugins = () => plugins;
 const getConstants = () => constants;
+const getCurrentWorkspaceFolder = () => currentWorkspaceFolder;
 
 /** @returns {WebviewPanel}*/
 const getCurrentPanel = () => currentPanel;
+
+/* guardar parseado del fichero vue actual */
+const getVueObjects = document => parsedVueMap.get(document.uri.toString());
+const setVueObjects = async document => {
+    // si el documento tiene la extension Vue
+    if (document.fileName.endsWith('.vue')) {
+        const vuedocOptions = { filename: document.fileName };
+        const { data, computed, props, methods } = await vueParser.parse(vuedocOptions);
+        parsedVueMap.set(document.uri.toString(), { data, props, methods, computed });
+        outputChannel.appendLine(`Se ha cargado la configuración para el documento vue ${document.fileName}`);
+    }
+};
+const removeVueObjects = document => parsedVueMap.delete(document.uri.toString());
 
 export {
     outputChannel,
@@ -73,4 +97,9 @@ export {
     getCurrentPanel,
     getConstants,
     setConstants,
+    getCurrentWorkspaceFolder,
+    setCurrentWorkspaceFolder,
+    getVueObjects,
+    setVueObjects,
+    removeVueObjects,
 };
