@@ -177,6 +177,7 @@
         "@types/node": "^20.14.8",
         "@types/vscode": "^1.90.0",
         "@vscode/test-electron": "^2.4.0",
+        "@vscode/vsce": "2.29.0",
         "esbuild": "^0.21.5",
         "eslint": "^9.5.0",
         "eslint-config-prettier": "^9.1.0",
