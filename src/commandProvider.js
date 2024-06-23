@@ -1,4 +1,4 @@
-import { commands, window, Position, SnippetString, ViewColumn } from 'vscode';
+import vscode, { commands, window, Position, SnippetString, ViewColumn } from 'vscode';
 import * as utils from './utils';
 import { outputChannel, getConfig, setConfig, getCurrentPanel, setCurrentPanel } from './config';
 import fs from 'fs';
@@ -171,6 +171,13 @@ async function addComponentSnippet(file, fileName) {
     }
 }
 
+/**
+ * Generates an HTML string with an embedded iframe.
+ *
+ * @param {string} url - The URL to be embedded in the iframe.
+ * @param {string} name - The name of the component.
+ * @returns {string} The generated HTML string.
+ */
 const generateHtml = (url, name) => {
     return `
 <!DOCTYPE html>
@@ -192,6 +199,13 @@ const generateHtml = (url, name) => {
  `;
 };
 
+/**
+ * Registers the 'VueDiscoveryMTM.importFile' command and imports a file into a Vue component.
+ *
+ * @param {string} file - The file to import.
+ * @param {string} fileName - The name of the file.
+ * @returns {Promise<void>} - A promise that resolves when the import process is complete.
+ */
 const importFile = commands.registerCommand('VueDiscoveryMTM.importFile', async (file, fileName) => {
     if (!utils.hasScriptTagInActiveTextEditor()) {
         return window.showWarningMessage('Looks like there is no script tag in this file!');
@@ -202,6 +216,13 @@ const importFile = commands.registerCommand('VueDiscoveryMTM.importFile', async 
     await addComponentSnippet(file, componentName);
 });
 
+/**
+ * Sets the configuration option for VueDiscoveryMTM.tests.
+ *
+ * @param {string} command - The command to register.
+ * @param {Function} callback - The callback function to execute when the command is triggered.
+ * @returns {Disposable} - A disposable object that can be used to unregister the command.
+ */
 const setConfigOption = commands.registerCommand('VueDiscoveryMTM.tests.setConfigOption', setConfig);
 
 /**
@@ -279,32 +300,56 @@ const showComponentHelp = context =>
         );
     });
 
+/**
+ * Deletes the node_modules folder for the specified URI.
+ *
+ * @param {vscode.Uri} uri - The URI of the file or directory.
+ */
 const deleteNodeModules = commands.registerCommand('VueDiscoveryMTM.deleteNodeModules', async uri => {
-    outputChannel.appendLine(`uri: ${uri}`);
-    outputChannel.appendLine(`uri.fsPath: ${uri.fsPath}`);
     if (uri?.fsPath) {
         const nodeModulesPath = utils.findNodeModulesPath(uri);
         outputChannel.appendLine(`nodeModulesPath a borrar: ${nodeModulesPath}`);
-        outputChannel.appendLine(`${nodeModulesPath}`);
         if (nodeModulesPath) {
-            borrarNodeModules(nodeModulesPath);
+            // preguntar al usuario si estamos seguros de borrar la carpeta, para ello generar un quickPick
+            const respuesta = await window.showQuickPick(['Sí', 'No'], {
+                placeHolder: '¿Estás seguro de que deseas eliminar la carpeta node_modules?',
+            });
+            if (respuesta === 'Sí') {
+                window.setStatusBarMessage('Eliminando la carpeta node_modules...');
+                await borrarNodeModules(nodeModulesPath);
+                window.setStatusBarMessage('');
+            } else {
+                outputChannel.appendLine('Se canceló la eliminación de la carpeta node_modules.');
+                window.showInformationMessage('Se canceló la eliminación de la carpeta node_modules.');
+            }
         } else {
             outputChannel.appendLine('No se encontró la carpeta node_modules en este directorio.');
-            window.showInformationMessage('No se encontró la carpeta node_modules en este directorio.');
+            window.showWarningMessage('No se encontró la carpeta node_modules en este directorio.');
         }
     }
 });
 
-function borrarNodeModules(nodeModulesPath) {
-    fs.rm(nodeModulesPath, { recursive: true, force: true }, err => {
-        if (err) {
-            outputChannel.appendLine(`Error al borrar node_modules: ${err.message}`);
-            window.showErrorMessage(`Error al borrar node_modules: ${err.message}`);
-        } else {
-            outputChannel.appendLine('Carpeta node_modules borrada con éxito.');
-            window.showInformationMessage('Carpeta node_modules borrada con éxito.');
-        }
+/**
+ * Deletes the node_modules folder at the specified path.
+ *
+ * @param {string} nodeModulesPath - The path to the node_modules folder.
+ * @returns {Promise<void>} A promise that resolves when the folder is deleted successfully.
+ * @throws {Error} If there is an error while deleting the folder.
+ */
+const borrarNodeModules = async nodeModulesPath => {
+    return new Promise((resolve, reject) => {
+        fs.rm(nodeModulesPath, { recursive: true, force: true }, err => {
+            if (err) {
+                outputChannel.appendLine(`Error al borrar node_modules: ${err.message}`);
+                window.showErrorMessage(`Error al borrar node_modules: ${err.message}`);
+                reject(new Error(`Error al borrar node_modules: ${err.message}`));
+            } else {
+                outputChannel.appendLine('Carpeta node_modules borrada con éxito.');
+                window.showInformationMessage('Carpeta node_modules borrada con éxito.');
+                resolve();
+            }
+        });
     });
-}
+};
 
 export { importFile, setConfigOption, showComponentHelp, deleteNodeModules };
