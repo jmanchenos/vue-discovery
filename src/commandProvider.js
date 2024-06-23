@@ -1,6 +1,7 @@
 import { commands, window, Position, SnippetString, ViewColumn } from 'vscode';
 import * as utils from './utils';
 import { outputChannel, getConfig, setConfig, getCurrentPanel, setCurrentPanel } from './config';
+import fs from 'fs';
 
 /**
  * @typedef {import ('vscode').ExtensionContext} ExtensionContext;
@@ -278,4 +279,32 @@ const showComponentHelp = context =>
         );
     });
 
-export { importFile, setConfigOption, showComponentHelp };
+const deleteNodeModules = commands.registerCommand('VueDiscoveryMTM.deleteNodeModules', async uri => {
+    outputChannel.appendLine(`uri: ${uri}`);
+    outputChannel.appendLine(`uri.fsPath: ${uri.fsPath}`);
+    if (uri?.fsPath) {
+        const nodeModulesPath = utils.findNodeModulesPath(uri);
+        outputChannel.appendLine(`nodeModulesPath a borrar: ${nodeModulesPath}`);
+        outputChannel.appendLine(`${nodeModulesPath}`);
+        if (nodeModulesPath) {
+            borrarNodeModules(nodeModulesPath);
+        } else {
+            outputChannel.appendLine('No se encontró la carpeta node_modules en este directorio.');
+            window.showInformationMessage('No se encontró la carpeta node_modules en este directorio.');
+        }
+    }
+});
+
+function borrarNodeModules(nodeModulesPath) {
+    fs.rm(nodeModulesPath, { recursive: true, force: true }, err => {
+        if (err) {
+            outputChannel.appendLine(`Error al borrar node_modules: ${err.message}`);
+            window.showErrorMessage(`Error al borrar node_modules: ${err.message}`);
+        } else {
+            outputChannel.appendLine('Carpeta node_modules borrada con éxito.');
+            window.showInformationMessage('Carpeta node_modules borrada con éxito.');
+        }
+    });
+}
+
+export { importFile, setConfigOption, showComponentHelp, deleteNodeModules };

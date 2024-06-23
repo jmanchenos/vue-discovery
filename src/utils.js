@@ -844,6 +844,12 @@ const getRefs = document => {
     return refs;
 };
 
+const findNodeModulesPath = uri => {
+    const rootPath = workspace.getWorkspaceFolder(uri).uri.fsPath;
+    const nodeModulesPath = path.join(rootPath, 'node_modules');
+    return fs.existsSync(nodeModulesPath) ? nodeModulesPath : null;
+};
+
 export {
     getRootPath,
     getAlias,
@@ -898,4 +904,5 @@ export {
     getComponentTuple,
     translateRange,
     getRefs,
+    findNodeModulesPath,
 };

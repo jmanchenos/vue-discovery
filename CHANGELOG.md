@@ -2,6 +2,10 @@
 
 All notable changes to the "vue-discovery" extension will be documented in this file.
 
+## [0.7.4] 2024-06-23
+
+- Add posibility to delete the node_modules folder in the project
+
 ## [0.7.3] 2022-12-12
 
 -   Dependencies are updated

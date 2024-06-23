@@ -4,6 +4,7 @@ import * as completionProvider from './completionProvider';
 import * as hoverProvider from './hoverProvider';
 import * as definitionProvider from './definitionProvider';
 import * as commandProvider from './commandProvider';
+import * as contextMenuProvider from './contextMenuProvider';
 import { window, workspace } from 'vscode';
 
 /**
@@ -90,7 +91,9 @@ export async function activate(ctx = null) {
             hoverProvider.componentsHoverProvider,
             commandProvider.importFile,
             commandProvider.setConfigOption,
-            commandProvider.showComponentHelp(context)
+            commandProvider.showComponentHelp(context),
+            commandProvider.deleteNodeModules,
+            contextMenuProvider.createTestFileProvider
         );
         // Suscribirse al evento onDidChangeActiveTextEditor
         window.onDidChangeActiveTextEditor(
