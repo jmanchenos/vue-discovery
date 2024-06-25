@@ -1,8 +1,8 @@
 // Import the necessary modules.
 // crear un provider que se encargue de, tras situar el boton derecho sobre un archivo .vue, crear un archivo de test en la carpeta tests/utils/ con el nombre del archivo .vue terminado en spec.js
 import { languages } from 'vscode';
-import { getVueFiles } from './config';
-import * as utils from './utils';
+import { getVueFiles } from './config.js';
+import * as utils from './utils.js';
 
 // Define the pattern for the vue files.
 const vueFilePattern = { scheme: 'file', pattern: '**/src/**/*.vue' };

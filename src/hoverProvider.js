@@ -1,5 +1,5 @@
-import { getVueFiles, getConfig } from './config';
-import * as utils from './utils';
+import { getVueFiles, getConfig } from './config.js';
+import * as utils from './utils.js';
 import { languages, Hover } from 'vscode';
 
 const vueFilePattern = { scheme: 'file', pattern: '**/src/**/*.vue' };

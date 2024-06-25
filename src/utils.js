@@ -1,11 +1,11 @@
 import { window, workspace, MarkdownString, Range, Uri } from 'vscode';
 import fetch from 'node-fetch';
-import AbortController from 'abort-controller';
+import { AbortController } from 'abort-controller';
 import { upperFirst, camelCase, kebabCase, toNumber } from 'lodash';
 import { glob } from 'glob';
 import path from 'path';
-import * as config from './config';
-import { Parser } from './parser';
+import * as config from './config.js';
+import { Parser } from './parser.js';
 // @ts-ignore
 import * as vueParser from '@vuedoc/parser';
 import * as vueCompiler from 'vue-template-compiler';
@@ -13,6 +13,8 @@ import fs from 'fs';
 import { all } from 'deepmerge';
 import { parseModule } from 'esprima-next';
 import { query } from 'esquery';
+import { outputChannel } from './config.js';
+
 const { getConfig } = config;
 /**
  * @typedef {import ('vscode').Position} Position;
@@ -23,7 +25,7 @@ const REGEX = {
     tagName: /<([^\s></]+)/,
     comments: / \/\*.*?\*\//gs, //la s final indica que el . incluye el caracter de nueva linea
     imports: /import.*?;/g,
-    plugins: /\.prototype[^\.]*?\.([\$\w]*?) = ({.*}|\w+);/gs,
+    plugins: /\.prototype[^.]*?\.([$\w]*?) = ({.*}|\w+);/gs,
     pluginFiles: /.*index|main.js/,
 };
 const vueFiles = config.getVueFiles;
@@ -50,6 +52,7 @@ const findAliases = () => {
     try {
         const { compilerOptions } = require(`${getRootPath()}/jsconfig.json`);
         return compilerOptions.paths;
+        // eslint-disable-next-line no-unused-vars
     } catch (err) {
         return [];
     }
@@ -121,13 +124,18 @@ const getFilesByExtension = async (extension, configAtrib = 'rootDirectory') => 
     const listaPromesas = listaRoot.map(
         element =>
             new Promise((resolve, reject) => {
-                const sufix = element.endsWith('/') ? '*' : '/**/*';
-                return glob(`${getRootPath()}${element}${sufix}.${extension}`, (err, res) => {
-                    if (err) {
-                        return reject(err);
-                    }
-                    resolve(res);
-                });
+                try {
+                    const suffix = element.endsWith('/') ? '*' : '/**/*';
+                    glob(`${getRootPath()}${element}${suffix}.${extension}`)
+                        .then(files => {
+                            resolve(files);
+                        })
+                        .catch(err => {
+                            reject(new Error(err));
+                        });
+                } catch (error) {
+                    reject(new Error(error));
+                }
             })
     );
 
@@ -335,7 +343,7 @@ const getComponentAtCursor = () => {
         }
         const document = getDocument();
         const regExp = /<((\w|-)+)(?:[^<])+?(?:<\/\1>|\/>)/g;
-        //filtramos todo lo que encontremos en ese regExp (tab abiertos y cerrados)
+        //filtramos toodo lo que encontremos en ese regExp (tab abiertos y cerrados)
         let text = document.getText().substring(0, document.offsetAt(position));
         while (text !== text.replace(regExp, '')) {
             text = text.replace(regExp, '');
@@ -377,7 +385,7 @@ const getTagRangeAtPosition = (document, position, selector = `(\\w|-)*`) => {
     const eol = getEol(true);
     const stringRegExp = `<(${selector})(?:.|${eol})*?(?:<\\/\\1>|\\/>){1}`;
     const regExp = new RegExp(stringRegExp, 'g');
-    // recuperamos todo el rango que incluye el componente completo aunque esté en varias líneas
+    // recuperamos toodo el rango que incluye el componente completo aunque esté en varias líneas
     return getAlternativeWordRangeAtPosition(document, position, regExp);
 };
 
@@ -400,7 +408,7 @@ const isPositionOverAComponentTag = (document, position) => {
     if (!isPositionInTemplateSection(position)) {
         return false;
     }
-    const word = document.getText(document.getWordRangeAtPosition(position, /\w[-\w\.]*/g));
+    const word = document.getText(document.getWordRangeAtPosition(position, /\w[-\w.]*/g));
     return vueFiles()?.some(item => kebabCase(item.componentName) === kebabCase(word));
 };
 /**
@@ -446,7 +454,7 @@ const getComponenteTagPositionIsOver = (document, position) => {
     if (!isPositionInTemplateSection(position)) {
         return undefined;
     }
-    const word = document.getText(document.getWordRangeAtPosition(position, /\w[-\w\.]*/g));
+    const word = document.getText(document.getWordRangeAtPosition(position, /\w[-\w.]*/g));
     // retornamos el nombre del componente para asegurarno sde que o cojemos ne el modo correcto
     // (kebab -case o PascalCase)
     return vueFiles()?.find(item => kebabCase(item.componentName) === kebabCase(word))?.componentName;
@@ -647,13 +655,11 @@ const getMarkdownData = obj => {
     const { type, initialValue } = obj;
     let text = initialValue;
     if (type === 'object') {
-        try {
-            text =
-                Object.entries(JSON.parse(initialValue)).reduce(
-                    (prev, x) => prev + '\r\n' + x[0] + ': ' + x[1]['value'],
-                    '{'
-                ) + '}';
-        } catch (err) {}
+        text =
+            Object.entries(JSON.parse(initialValue)).reduce(
+                (prev, x) => prev + '\r\n' + x[0] + ': ' + x[1]['value'],
+                '{'
+            ) + '}';
     }
     return new MarkdownString('`valor inicial', true).appendCodeblock(`${type} : ${text} `, 'javascript');
 };
@@ -732,6 +738,11 @@ const getRelativePath = fileWithoutRootPath => {
     } catch (error) {
         console.error(error);
     }
+};
+const getWorkspaceRootUri = uri => workspace.getWorkspaceFolder(uri).uri;
+
+const getRelativePathForUri = uri => {
+    return uri.path.replace(getWorkspaceRootUri(uri).path, '.');
 };
 
 const matchTagName = markup => {
@@ -850,6 +861,62 @@ const findNodeModulesPath = uri => {
     return fs.existsSync(nodeModulesPath) ? nodeModulesPath : null;
 };
 
+const findTestUnitScriptPath = uri => {
+    const rootPath = workspace.getWorkspaceFolder(uri).uri.fsPath;
+    const testUnitScriptPath = path.join(rootPath, getConfig('createTestFileLibrary'));
+    return fs.existsSync(testUnitScriptPath) ? testUnitScriptPath : null;
+};
+
+const withCustomCwd = (workspacePath, func) => {
+    const originalCwd = process.cwd();
+    process.chdir(workspacePath);
+    return async (...args) => {
+        try {
+            return await func(...args);
+        } finally {
+            process.chdir(originalCwd);
+        }
+    };
+};
+
+const executeJSMethodInWorkspace = async (filePath, methodName, workspaceFsPath, ...args) => {
+    return withCustomCwd(workspaceFsPath, async () => {
+        try {
+            // Verificar si el archivo existe
+            await fs.promises.access(filePath);
+            // Leer el contenido del archivo para determinar si es ESM o CommonJS
+            const fileContent = await fs.promises.readFile(filePath, 'utf8');
+            const isESM =
+                fileContent.includes('export default') ||
+                fileContent.includes('export function') ||
+                fileContent.includes('export const');
+            // let exportedModule;
+            let data;
+            if (isESM) {
+                // Si es ESM, usamos import dinámico
+                const moduleUrl = `file://${filePath}`;
+                //import dinamico dle metodo exec de moduleUrl
+                data = await import(moduleUrl);
+
+            } else {
+                // Si es CommonJS, usamos require
+                delete require.cache[require.resolve(filePath)]; // Limpiar caché
+                data = require(filePath);
+            }
+            const importedFunction = data[methodName];
+            // Verificar si el método existe
+            if (typeof importedFunction !== 'function') {
+                throw new Error(`El método ${methodName} no existe en el módulo`);
+            }
+            // Ejecutar el método
+            outputChannel.appendLine(`Ejecutando el método ${methodName} del fichero ${filePath} : ${importedFunction.toString()}`);
+            return await importedFunction(...args);
+        } catch (error) {
+            throw new Error(`Error al ejecutar el método: ${error.message}`);
+        }
+    })();
+};
+
 export {
     getRootPath,
     getAlias,
@@ -905,4 +972,8 @@ export {
     translateRange,
     getRefs,
     findNodeModulesPath,
+    findTestUnitScriptPath,
+    getRelativePathForUri,
+    getWorkspaceRootUri,
+    executeJSMethodInWorkspace,
 };

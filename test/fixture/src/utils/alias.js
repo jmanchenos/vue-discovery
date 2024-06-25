@@ -2,8 +2,7 @@ export const aceptarAsunto = 'aceptar-asunto';
 export const aceptarEscrito = 'aceptar-escrito';
 export const aceptarEscritoMultiple = 'aceptar-escrito-multiple';
 export const aceptarEscritos = 'aceptar-escritos';
-export const aceptarRegistroAutomaticoAsuntoIniciador =
-  'aceptar-registro-automatico-asunto-iniciador';
+export const aceptarRegistroAutomaticoAsuntoIniciador = 'aceptar-registro-automatico-asunto-iniciador';
 export const actualizarAceptarDevolucion = 'actualizar-aceptar-devolucion';
 export const actualizarAceptarDevolucionEscrito = 'actualizar-aceptar-devolucion-escrito';
 export const actualizarApuntePlazo = 'actualizar-apunte-plazo';
@@ -13,8 +12,7 @@ export const actualizarAsignacionOrigen = 'actualizar-asignacion-origen';
 export const actualizarCargo = 'actualizar-cargo-v2';
 export const actualizarClaseReparto = 'actualizar-clase-reparto';
 export const actualizarClaseRepartoCargas = 'actualizar-clase-reparto-cargas';
-export const actualizarClasesRegistroRepartoInfraestructura =
-  'actualizar-clases-registro-reparto-infraestructura';
+export const actualizarClasesRegistroRepartoInfraestructura = 'actualizar-clases-registro-reparto-infraestructura';
 export const actualizarDacion = 'actualizar-dacion';
 export const actualizarDestinoTramite = 'actualizar-destino-tramite';
 export const actualizarDocumentoEscrito = 'actualizar-documento-escrito';
@@ -53,8 +51,7 @@ export const altaAsignacionClaseRepartoOrgano = 'alta-asignacion-clase-reparto-o
 export const altaAsignacionOrigen = 'alta-asignacion-origen';
 export const altaCargo = 'alta-cargo-v2';
 export const altaClaseReparto = 'alta-clase-reparto';
-export const altaClasesRegistroRepartoInfraestructura =
-  'alta-clases-registro-reparto-infraestructura';
+export const altaClasesRegistroRepartoInfraestructura = 'alta-clases-registro-reparto-infraestructura';
 export const altaClasificacionesMateria = 'alta-clasificaciones-materia';
 export const altaDacion = 'alta-dacion';
 export const altaDocumentosEscrito = 'alta-documentos-escrito';
@@ -88,15 +85,12 @@ export const consultaAcontecimientosPendientes = 'consulta-acontecimientos-pendi
 export const consultaActoClases = 'consulta-acto-clases-v2';
 export const consultaAcuseCodigoBarras = 'consulta-acuse-codigo-barras';
 export const consultaAdscripcionOrganos = 'consulta-adscripcion-organos';
-export const consultaAdscripcionOrganosEspecializacion =
-  'consulta-adscripcion-organos-especializacion';
+export const consultaAdscripcionOrganosEspecializacion = 'consulta-adscripcion-organos-especializacion';
 export const consultaAgendaPresos = 'consulta-agenda-presos';
 export const consultaAlertaSituacionInterviniente = 'consulta-alerta-situacion-interviniente';
-export const consultaAlertaSituacionIntervinienteImprimir =
-  'consulta-alerta-situacion-interviniente-imprimir';
+export const consultaAlertaSituacionIntervinienteImprimir = 'consulta-alerta-situacion-interviniente-imprimir';
 export const consultaAlertaSituacionIntervinientes = 'consulta-alerta-situacion-intervinientes';
-export const consultaAlertaSituacionIntervinientesImprimir =
-  'consulta-alerta-situacion-intervinientes-imprimir';
+export const consultaAlertaSituacionIntervinientesImprimir = 'consulta-alerta-situacion-intervinientes-imprimir';
 export const consultaArbolClasesRegistro = 'consulta-arbol-clases-registro';
 export const consultaArbolMaterias = 'consulta-arbol-materias';
 export const consultaAsignacionClaseRepartoOrganos = 'consulta-asignacion-clase-reparto-organo';
@@ -109,8 +103,7 @@ export const consultaCaelusAgendaSenalamientos = 'consulta-caelus-agenda-senalam
 export const consultaCaelusDatosAcontecimientos = 'consulta-caelus-datos-acontecimientos';
 export const consultaCaelusDatosAsunto = 'consulta-caelus-datos-asunto';
 export const consultaCaelusDatosGenerales = 'consulta-caelus-datos-generales';
-export const consultaCaelusDatosTelematicosAcontecimiento =
-  'consulta-caelus-datos-telematicos-acontecimiento';
+export const consultaCaelusDatosTelematicosAcontecimiento = 'consulta-caelus-datos-telematicos-acontecimiento';
 export const consultaCaelusDocumentosExpediente = 'consulta-caelus-documentos-expediente';
 export const consultaCaelusEscritosProcedimiento = 'consulta-caelus-escritos-procedimiento';
 export const consultaCaelusExpedienteAdministrativo = 'consulta-caelus-expediente-administrativo';
@@ -133,23 +126,19 @@ export const consultaCargosResolucion = 'consulta-cargos-resolucion';
 export const consultaCentrosPenitenciarios = 'consulta-centros-penitenciarios';
 export const consultaCheckClaseReparto = 'consulta-check-clase-reparto';
 export const consultaCheckProcedimiento = 'consulta-check-procedimiento';
-export const consultaClaseRepartoDelitosRelacionados =
-  'consulta-clase-reparto-delitos-relacionados';
+export const consultaClaseRepartoDelitosRelacionados = 'consulta-clase-reparto-delitos-relacionados';
 export const consultaClaseRepartoOrganoCargas = 'consulta-clase-reparto-organo-cargas';
 export const consultaClasesPena = 'consulta-clases-pena';
 export const consultaClasesPenaXTipo = 'consulta-clases-pena-x-tipo';
 export const consultaClasesProcedimiento = 'consulta-clases-procedimiento';
 export const consultaClasesProcedimientoTramitar = 'consulta-clases-procedimiento-tramitar';
 export const consultaClasesProcedimientoXOrgano = 'consulta-clases-procedimiento-x-organo-v2';
-export const consultaClasesProcedimientoXOrganoTramitar =
-  'consulta-clases-procedimiento-x-organo-tramitar';
-export const consultaClasesProcedimientoXTipologiaIncoar =
-  'consulta-clases-procedimiento-x-tipologia-incoar';
+export const consultaClasesProcedimientoXOrganoTramitar = 'consulta-clases-procedimiento-x-organo-tramitar';
+export const consultaClasesProcedimientoXTipologiaIncoar = 'consulta-clases-procedimiento-x-tipologia-incoar';
 export const consultaClasesRegistroInfraestructura = 'consulta-clases-registro-infraestructura';
 export const consultaClasesRegistroMantenimientoInfraestructura =
-  'consulta-clases-registro-mantenimiento-infraestructura';
-export const consultaClasesRegistroSinRepartoInfraestructura =
-  'consulta-clases-registro-sin-reparto-infraestructura';
+    'consulta-clases-registro-mantenimiento-infraestructura';
+export const consultaClasesRegistroSinRepartoInfraestructura = 'consulta-clases-registro-sin-reparto-infraestructura';
 export const consultaClasesReparto = 'consulta-clases-reparto';
 export const consultaClasesRepartoInfraestructura = 'consulta-clases-reparto-infraestructura';
 export const consultaClasesRepartoXClaseRegistro = 'consulta-clases-reparto-x-clase-registro';
@@ -174,10 +163,8 @@ export const consultaCuerposSeguridad = 'consulta-cuerpos-seguridad';
 export const consultaDacionesProcedimiento = 'consulta-daciones-procedimiento';
 export const consultaDestinatariosActo = 'consulta-destinatarios-acto';
 export const consultaDestinatariosMinuta = 'consulta-destinatarios-minuta';
-export const consultaDetalleAcontecimientosPendientes =
-  'consulta-detalle-acontecimientos-pendientes';
-export const consultaDetalleAcontecimientosPendientesFirma =
-  'consulta-detalle-acontecimientos-pendientes-firma';
+export const consultaDetalleAcontecimientosPendientes = 'consulta-detalle-acontecimientos-pendientes';
+export const consultaDetalleAcontecimientosPendientesFirma = 'consulta-detalle-acontecimientos-pendientes-firma';
 export const consultaDetalleExpAdm = 'consulta-detalle-expAdm';
 export const consultaDetalleMensajeriaPendiente = 'consulta-detalle-mensajeria-pendiente';
 export const consultaDetalleProcedimientoTerminado = 'consulta-detalle-procedimiento-terminado';
@@ -188,8 +175,7 @@ export const consultaDevolucionEscritos = 'consulta-devolucion-escritos';
 export const consultaDevolucionHistorico = 'consulta-devolucion-historico';
 export const consultaDocumentosDacion = 'consulta-documentos-dacion';
 export const consultaDocumentosEscrito = 'consulta-documentos-escrito-v2';
-export const consultaDocumentosNotificacionTelematico =
-  'consulta-documentos-notificacion-telematico';
+export const consultaDocumentosNotificacionTelematico = 'consulta-documentos-notificacion-telematico';
 export const consultaDocumentosResolucionPendiente = 'consulta-documentos-resolucion-pendiente';
 export const consultaDomiciliosPersona = 'consulta-domicilios-persona-v2';
 export const consultaEmpresasInsolventes = 'consulta-empresas-insolventes';
@@ -202,20 +188,17 @@ export const consultaEscritosByCoprocon = 'consulta-escritos-by-coprocon';
 export const consultaEscritosByNuescanesc = 'consulta-escritos-by-nuescanesc';
 export const consultaEscritosByNuescanescJuzgado = 'consulta-escritos-by-nuescanesc-juzgado';
 export const consultaEscritosPendientes = 'consulta-escritos-pendientes';
-export const consultaEscritosPendientesProcedimiento =
-  'consulta-escritos-pendientes-procedimiento-v2';
+export const consultaEscritosPendientesProcedimiento = 'consulta-escritos-pendientes-procedimiento-v2';
 export const consultaEscritosPtesAceptacion = 'consulta-escritos-ptes-aceptacion';
 export const consultaEsquemaTramitacion = 'consulta-esquema-tramitacion';
 export const consultaEstadisticasAsuntosCargas = 'consulta-estadisticas-asuntos-cargas';
-export const consultaEstadisticasAsuntosPtesRepartir =
-  'consulta-estadisticas-asuntos-ptes-repartir';
+export const consultaEstadisticasAsuntosPtesRepartir = 'consulta-estadisticas-asuntos-ptes-repartir';
 export const consultaEstadisticasAsuntosRepartidos = 'consulta-estadisticas-asuntos-repartidos';
 export const consultaEstadisticasCargas = 'consulta-estadisticas-cargas';
 export const consultaEstadisticasComparativa = 'consulta-estadisticas-comparativa';
 export const consultaEstadisticasEscritos = 'consulta-estadisticas-escritos';
 export const consultaEstadisticasMaterias = 'consulta-estadisticas-materias';
-export const consultaEstadisticasMateriasIntervinientes =
-  'consulta-estadisticas-materias-intervinientes';
+export const consultaEstadisticasMateriasIntervinientes = 'consulta-estadisticas-materias-intervinientes';
 export const consultaEstadoAcoTareasPendientes = 'consulta-estado-aco-tareas-pendientes';
 export const consultaEstadosCiviles = 'consulta-estados-civiles';
 export const consultaEstadosCumplimentacion = 'consulta-estados-cumplimentacion';
@@ -243,15 +226,12 @@ export const consultaHistoricoClasesReparto = 'consulta-historico-clases-reparto
 export const consultaInformacionSeguridad = 'consulta-informacion-seguridad';
 export const consultaInformesCarpetillas = 'consulta-informes-carpetillas';
 export const consultaInformesDestinoDecanato = 'consulta-informes-destino-decanato-json';
-export const consultaInformesDestinoDecanatoEscritos =
-  'consulta-informes-destino-decanato-escritos-json';
-export const consultaInformesEnviadosDecanatoEscritos =
-  'consulta-informes-enviados-decanato-escritos-json';
+export const consultaInformesDestinoDecanatoEscritos = 'consulta-informes-destino-decanato-escritos-json';
+export const consultaInformesEnviadosDecanatoEscritos = 'consulta-informes-enviados-decanato-escritos-json';
 export const consultaInformesEtiquetasExhortos = 'consulta-informes-etiquetas-exhortos-json';
 export const consultaInformesExhortosScace = 'consulta-informes-exhortos-scace-json';
 export const consultaInformesGeneralDecanato = 'consulta-informes-general-decanato-json';
-export const consultaInformesGeneralDecanatoEscritos =
-  'consulta-informes-general-decanato-escritos-json';
+export const consultaInformesGeneralDecanatoEscritos = 'consulta-informes-general-decanato-escritos-json';
 export const consultaInformesPersonacionesOrigen = 'consulta-informes-personaciones-origen-json';
 export const consultaInformesProcuradoresDecanato = 'consulta-informes-procuradores-decanato-json';
 export const consultaIntervinientes = 'consulta-intervinientes-v2';
@@ -261,15 +241,11 @@ export const consultaJuzgadosGuardia = 'consulta-juzgados-guardia';
 export const consultaJuzgadoSinGuardia = 'consulta-juzgado-sin-guardia';
 export const consultaListadoAmpliatorias = 'consulta-listado-ampliatorias';
 export const consultaListadoExpedienteOrigen = 'consulta-listado-expediente-origen';
-export const consultaListadoIntervinientesProcedimiento =
-  'consulta-listado-intervinientes-procedimiento';
+export const consultaListadoIntervinientesProcedimiento = 'consulta-listado-intervinientes-procedimiento';
 export const consultaListadoPersonaciones = 'consulta-listado-personaciones';
-export const consultaListadoPersonacionesOrigenCampos =
-  'consulta-listado-personaciones-origen-campos';
-export const consultaListadoProfesionalesInterviniente =
-  'consulta-listado-profesionales-interviniente-v2';
-export const consultaListadoProfesionalesProcedimiento =
-  'consulta-listado-profesionales-procedimiento';
+export const consultaListadoPersonacionesOrigenCampos = 'consulta-listado-personaciones-origen-campos';
+export const consultaListadoProfesionalesInterviniente = 'consulta-listado-profesionales-interviniente-v2';
+export const consultaListadoProfesionalesProcedimiento = 'consulta-listado-profesionales-procedimiento';
 export const consultaMacrocausas = 'consulta-macrocausas';
 export const consultaMateriasAsunto = 'consulta-materias-asunto';
 export const consultaMateriasClasesReparto = 'consulta-materias-clases-reparto';
@@ -288,19 +264,16 @@ export const consultaNotificacionesTelematico = 'consulta-notificaciones-telemat
 export const consultaNumerosOrgano = 'consulta-numeros-organo';
 export const consultaObjetos = 'consulta-objetos-v2';
 export const consultaOpEspecialG2580Motivos = 'consulta-op-especial-G2580-motivos';
-export const consultaOpEspecialG2580RecursosInterpuestos =
-  'consulta-op-especial-G2580-recursos-interpuestos';
+export const consultaOpEspecialG2580RecursosInterpuestos = 'consulta-op-especial-G2580-recursos-interpuestos';
 export const consultaOpEspecialG3810Presos = 'consulta-op-especial-G3810-presos';
 export const consultaOrdenes = 'consulta-ordenes';
 export const consultaOrganosByUsuario = 'consulta-organos-by-usuario';
 export const consultaOrganosContexto = 'consulta-organos-contexto';
 export const consultaOrganosMagistrados = 'consulta-organos-magistrados';
 export const consultaOrganosMagistradosMultiple = 'consulta-organos-magistrados-multiple';
-export const consultaOrganosXClaseRepartoInfraestructura =
-  'consulta-organos-x-clase-reparto-infraestructura';
+export const consultaOrganosXClaseRepartoInfraestructura = 'consulta-organos-x-clase-reparto-infraestructura';
 export const consultaOrganosXClasesReparto = 'consulta-organos-x-clases-reparto';
-export const consultaOrigenDestinoNotificacionTelematico =
-  'consulta-origen-destino-notificacion-telematico';
+export const consultaOrigenDestinoNotificacionTelematico = 'consulta-origen-destino-notificacion-telematico';
 export const consultaOrigenesDenuncia = 'consulta-origenes-denuncia';
 export const consultaOtrosPresentadores = 'consulta-otros-presentadores';
 export const consultaPaises = 'consulta-paises';
@@ -312,18 +285,13 @@ export const consultaPoblaciones = 'consulta-poblaciones';
 export const consultaProcedimientos = 'consulta-procedimientos';
 export const consultaProcedimientosAnulables = 'consulta-procedimientos-anulables';
 export const consultaProcedimientosBaja = 'consulta-procedimientos-baja';
-export const consultaProcedimientosByNumeracionDecanato =
-  'consulta-procedimientos-by-numeracion-decanato';
-export const consultaProcedimientosByNumeracionJuzgado =
-  'consulta-procedimientos-by-numeracion-juzgado';
-export const consultaProcedimientosDevolviblesJuzgado =
-  'consulta-procedimientos-devolvibles-juzgado';
+export const consultaProcedimientosByNumeracionDecanato = 'consulta-procedimientos-by-numeracion-decanato';
+export const consultaProcedimientosByNumeracionJuzgado = 'consulta-procedimientos-by-numeracion-juzgado';
+export const consultaProcedimientosDevolviblesJuzgado = 'consulta-procedimientos-devolvibles-juzgado';
 export const consultaProcedimientosLocalesPersona = 'consulta-procedimientos-locales-persona';
-export const consultaProcedimientosMensajeriaPendiente =
-  'consulta-procedimientos-mensajeria-pendiente';
+export const consultaProcedimientosMensajeriaPendiente = 'consulta-procedimientos-mensajeria-pendiente';
 export const consultaProcedimientosPendientesEnvio = 'consulta-procedimientos-pendientes-envio';
-export const consultaProcedimientosPendientesTramitacion =
-  'consulta-procedimientos-pendientes-tramitacion';
+export const consultaProcedimientosPendientesTramitacion = 'consulta-procedimientos-pendientes-tramitacion';
 export const consultaProcedimientosTareasPendientes = 'consulta-procedimientos-tareas-pendientes';
 export const consultaProcedimientosXAsunto = 'consulta-procedimientos-x-asunto';
 export const consultaProcedimientosXCodigo = 'consulta-procedimientos-x-codigo';
@@ -331,32 +299,25 @@ export const consultaProcedimientosXOrigen = 'consulta-procedimientos-x-origen';
 export const consultaProcsXInterviniente = 'consulta-procs-x-interviniente';
 export const consultaProfesionalXTipo = 'consulta-profesional-x-tipo-v2';
 export const consultaProvincias = 'consulta-provincias';
-export const consultaRecursosInterpuestosProcedimiento =
-  'consulta-recursos-interpuestos-procedimiento';
-export const consultaRegistroAutomaticoCommonOrigenes =
-  'consulta-registro-automatico-common-origenes';
-export const consultaRegistroAutomaticoCommonTipificaciones =
-  'consulta-registro-automatico-common-tipificaciones';
+export const consultaRecursosInterpuestosProcedimiento = 'consulta-recursos-interpuestos-procedimiento';
+export const consultaRegistroAutomaticoCommonOrigenes = 'consulta-registro-automatico-common-origenes';
+export const consultaRegistroAutomaticoCommonTipificaciones = 'consulta-registro-automatico-common-tipificaciones';
 export const consultaRegistroAutomaticoCommonTiposComunicacionesTelematicas =
-  'consulta-registro-automatico-common-tipos-comunicaciones-telematicas';
-export const consultaRegistroAutomaticoDatosAsuntoIniciador =
-  'consulta-registro-automatico-datos-asunto-iniciador';
+    'consulta-registro-automatico-common-tipos-comunicaciones-telematicas';
+export const consultaRegistroAutomaticoDatosAsuntoIniciador = 'consulta-registro-automatico-datos-asunto-iniciador';
 export const consultaRegistroAutomaticoDocumentosEscritoAsuntoIniciador =
-  'consulta-registro-automatico-documentos-escrito-asunto-iniciador';
+    'consulta-registro-automatico-documentos-escrito-asunto-iniciador';
 export const consultaRegistroAutomaticoDomiciliosIntervinienteAsuntoIniciador =
-  'consulta-registro-automatico-domicilios-interviniente-asunto-iniciador';
-export const consultaRegistroAutomaticoEscritoAsuntoIniciador =
-  'consulta-registro-automatico-escrito-asunto-iniciador';
+    'consulta-registro-automatico-domicilios-interviniente-asunto-iniciador';
+export const consultaRegistroAutomaticoEscritoAsuntoIniciador = 'consulta-registro-automatico-escrito-asunto-iniciador';
 export const consultaRegistroAutomaticoIntervinientesAsuntoIniciador =
-  'consulta-registro-automatico-intervinientes-asunto-iniciador';
-export const consultaRegistroAutomaticoOrganosDestino =
-  'consulta-registro-automatico-organos-destino';
+    'consulta-registro-automatico-intervinientes-asunto-iniciador';
+export const consultaRegistroAutomaticoOrganosDestino = 'consulta-registro-automatico-organos-destino';
 export const consultaRegistroAutomaticoProfesionalesIntervinienteAsuntoIniciador =
-  'consulta-registro-automatico-profesionales-interviniente-asunto-iniciador';
+    'consulta-registro-automatico-profesionales-interviniente-asunto-iniciador';
 export const consultaRegistroAutomaticoRepresentantesLegalesIntervinienteAsuntoIniciador =
-  'consulta-registro-automatico-representantes-legales-interviniente-asunto-iniciador';
-export const consultaRegistroAutomaticoTiposImplicacion =
-  'consulta-registro-automatico-tipos-implicacion';
+    'consulta-registro-automatico-representantes-legales-interviniente-asunto-iniciador';
+export const consultaRegistroAutomaticoTiposImplicacion = 'consulta-registro-automatico-tipos-implicacion';
 export const consultaRelaciones = 'consulta-relaciones-v2';
 export const consultaRepresentantesLegales = 'consulta-representantes-legales-v2';
 export const consultaResoluciones = 'consulta-resoluciones';
@@ -365,14 +326,12 @@ export const consultaResolucionesPtesProcedimiento = 'consulta-resoluciones-ptes
 export const consultaResolucionProcedimiento = 'consulta-resolucion-procedimiento';
 export const consultaSemejantesRegistroAutomatico = 'consulta-semejantes-registro-automatico';
 export const consultaSexo = 'consulta-sexo';
-export const consultaSituacionDocumentoTareasPendientes =
-  'consulta-situacion-documento-tareas-pendientes';
+export const consultaSituacionDocumentoTareasPendientes = 'consulta-situacion-documento-tareas-pendientes';
 export const consultaSituacionesFinancieras = 'consulta-situaciones-financieras';
 export const consultaSituacionesInterviniente = 'consulta-situaciones-interviniente';
 export const consultaSituacionIntervinientesNoPenal = 'consulta-situacion-intervinientes-no-penal';
 export const consultaSituacionObjetos = 'consulta-situacion-objetos';
-export const consultaSolicitudesPendientesProcedimiento =
-  'consulta-solicitudes-pendientes-procedimiento';
+export const consultaSolicitudesPendientesProcedimiento = 'consulta-solicitudes-pendientes-procedimiento';
 export const consultaSolicitudesVinculadas = 'consulta-solicitudes-vinculadas';
 export const consultaTipificaciones = 'consulta-tipificaciones';
 export const consultaTipificacionesTareasPendientes = 'consulta-tipificaciones-tareas-pendientes';
@@ -380,8 +339,7 @@ export const consultaTipoComunicacionesTelematico = 'consulta-tipo-comunicacione
 export const consultaTipofirmaTareasPendientes = 'consulta-tipofirma-tareas-pendientes';
 export const consultaTiposDocumentales = 'consulta-tipos-documentales';
 export const consultaTiposDocumentalesFamilias = 'consulta-tipos-documentales-familias';
-export const consultaTiposDocumentalesTareasPendientes =
-  'consulta-tipos-documentales-tareas-pendientes';
+export const consultaTiposDocumentalesTareasPendientes = 'consulta-tipos-documentales-tareas-pendientes';
 export const consultaTiposEntidad = 'consulta-tipos-entidad';
 export const consultaTiposEscrito = 'consulta-tipos-escrito';
 export const consultaTiposExpediente = 'consulta-tipos-expediente';
@@ -413,18 +371,15 @@ export const crearApuntePlazo = 'crear-apunte-plazo';
 export const createCaelusDescargaCaratula = 'create-caelus-descarga-caratula';
 export const createCaelusDescargaCompleto = 'create-caelus-descarga-completo';
 export const datosEscrito = 'datos-escrito';
-export const deleteRegistroAutomaticoDiligenciaReparto =
-  'delete-registro-automatico-diligencia-reparto';
-export const devolverRegistroAutomaticoAsuntoIniciador =
-  'devolver-registro-automatico-asunto-iniciador';
+export const deleteRegistroAutomaticoDiligenciaReparto = 'delete-registro-automatico-diligencia-reparto';
+export const devolverRegistroAutomaticoAsuntoIniciador = 'devolver-registro-automatico-asunto-iniciador';
 export const ejecutarDevolucionAsunto = 'ejecutar-devolucion-asunto';
 export const ejecutarDevolucionAsuntoIncoado = 'ejecutar-devolucion-asunto-incoado';
 export const ejecutarDevolucionEscritoJuzgado = 'ejecutar-devolucion-escrito-juzgado';
 export const ejecutarImportacionIntervinientes = 'ejecutar-importacion-intervinientes';
 export const ejecutarIncoacionAsunto = 'ejecutar-incoacion-asunto';
 export const ejecutarOpEspecial = 'ejecutar-op-especial';
-export const ejecutarOpEspecialG2580RecursosInterpuestos =
-  'ejecutar-op-especial-G2580-recursos-interpuestos';
+export const ejecutarOpEspecialG2580RecursosInterpuestos = 'ejecutar-op-especial-G2580-recursos-interpuestos';
 export const ejecutarReparto = 'ejecutar-reparto';
 export const eliminarAdscripcionOrgano = 'eliminar-adscripcion-organo';
 export const eliminarAsignacionOrigen = 'eliminar-asignacion-origen';
@@ -458,8 +413,7 @@ export const formularioAltaRecursoInterpuestoG2520 = 'formulario-alta-recurso-in
 export const formularioAsignacionesOrigen = 'formulario-asignaciones-origen';
 export const formularioAsignacionClaseRepartoOrgano = 'formulario-asignacion-clase-reparto-organo';
 export const formularioAsignacionOrigen = 'formulario-asignacion-origen';
-export const formularioAsigacionTerminacionProcedimientoOj =
-  'formulario-asignacion-terminacion-procedimiento-oj';
+export const formularioAsigacionTerminacionProcedimientoOj = 'formulario-asignacion-terminacion-procedimiento-oj';
 export const formularioAsunto = 'formulario-asunto';
 export const formularioAsuntoEjecucion = 'formulario-asunto-ejecucion';
 export const formularioAsuntoEjecucionJuzgado = 'formulario-asunto-ejecucion-juzgado';
@@ -478,23 +432,20 @@ export const formularioCargos = 'formulario-cargos-v2';
 export const formularioClaseRepartoAcumularCargas = 'formulario-clase-reparto-acumular-cargas';
 export const formularioClaseRepartoDetalle = 'formulario-clase-reparto-detalle';
 export const formularioClasesRegistroInfraestructura = 'formulario-clases-registro-infraestructura';
-export const formularioClasesRegistroInfraestructuraDetalle =
-  'formulario-clases-registro-infraestructura-detalle';
+export const formularioClasesRegistroInfraestructuraDetalle = 'formulario-clases-registro-infraestructura-detalle';
 export const formularioClasesRepartoInfraestructura = 'formulario-clases-reparto-infraestructura';
 export const formularioCompositor = 'formulario-compositor';
 export const formularioClasificacionesDelito = 'formulario-clasificaciones-delito';
 export const formularioConsultaAmpliatorias = 'formulario-consulta-ampliatorias';
 export const formularioConsultaClasesRegistroRepartoInfraestructura =
-  'formulario-consulta-clases-registro-reparto-infraestructura';
-export const formularioConsultaProcsEmpresasInsolventes =
-  'formulario-consulta-procs-empresas-insolventes';
+    'formulario-consulta-clases-registro-reparto-infraestructura';
+export const formularioConsultaProcsEmpresasInsolventes = 'formulario-consulta-procs-empresas-insolventes';
 export const formularioConsultasGeneralMatRegRep = 'formulario-consultas-general-mat-reg-rep';
 export const formularioConsultasGeneralNig = 'formulario-consultas-general-nig';
 export const formularioDacion = 'formulario-dacion';
 export const formularioDetalleAlertaSituacion = 'formulario-detalle-alerta-situacion';
 export const formularioDetalleAlertaSituacionMedida = 'formulario-detalle-alerta-situacion-medida';
-export const formularioDetalleAlertaSituacionRequerimiento =
-  'formulario-detalle-alerta-situacion-requerimiento';
+export const formularioDetalleAlertaSituacionRequerimiento = 'formulario-detalle-alerta-situacion-requerimiento';
 export const formularioDetalleSolicitud = 'formulario-detalle-solicitud';
 export const formularioDevolucionAsunto = 'formulario-devolucion-asunto';
 export const formularioDevolucionAsuntoJuzgado = 'formulario-devolucion-asunto-juzgado';
@@ -509,8 +460,7 @@ export const formularioExpteAdm = 'formulario-expte-adm';
 export const formularioHistoricoDevolucion = 'formulario-historico-devolucion';
 export const formularioHistoricoDevoluciones = 'formulario-historico-devoluciones';
 export const formularioHistoricoDevolucionesJuzgado = 'formulario-historico-devoluciones-juzgado';
-export const formularioHistoricoMinutasAcontecimiento =
-  'formulario-historico-minutas-acontecimiento';
+export const formularioHistoricoMinutasAcontecimiento = 'formulario-historico-minutas-acontecimiento';
 export const formularioHistoricoMinutasEscrito = 'formulario-historico-minutas-escrito';
 export const formularioHistoricoMinutasProcedimiento = 'formulario-historico-minutas-procedimiento';
 export const formularioImportarIntervinientes = 'formulario-importar-intervinientes';
@@ -518,8 +468,7 @@ export const formularioInterviniente = 'formulario-interviniente-v2';
 export const formularioJuzgadoGuardiaDetalle = 'formulario-juzgado-guardia-detalle';
 export const formularioJuzgadosGuardia = 'formulario-juzgados-guardia';
 export const formularioListaAcontecimientos = 'formulario-lista-acontecimientos';
-export const formularioListaAcontecimientosProcedimiento =
-  'formulario-lista-acontecimientos-procedimiento';
+export const formularioListaAcontecimientosProcedimiento = 'formulario-lista-acontecimientos-procedimiento';
 export const formularioListadoDocumentos = 'formulario-listado-documentos';
 export const formularioListadoExpedienteOrigen = 'formulario-listado-expediente-origen';
 export const formularioListadoPersonaciones = 'formulario-listado-personaciones';
@@ -534,8 +483,7 @@ export const formularioNotificacionTelematico = 'formulario-notificacion-telemat
 export const formularioObjeto = 'formulario-objeto-v2';
 export const formularioOrganoExtrangero = 'formulario-organo-extranjero-v2';
 export const formularioOrganoOrigen = 'formulario-organo-origen';
-export const formularioOrganosXClaseRepartoInfraestructura =
-  'formulario-organos-x-clase-reparto-infraestructura';
+export const formularioOrganosXClaseRepartoInfraestructura = 'formulario-organos-x-clase-reparto-infraestructura';
 export const formularioOrganoXClaseReparto = 'formulario-organo-x-clase-reparto';
 export const formularioPersona = 'formulario-persona-v2';
 export const formularioPersonaciones = 'formulario-personaciones';
@@ -544,28 +492,22 @@ export const formularioPieza = 'formulario-pieza';
 export const formularioProcedimientoOrigen = 'formulario-procedimiento-origen';
 export const formularioRecursoInterpuesto = 'formulario-recurso-interpuesto';
 export const formularioRegistroAutomaticoAsunto = 'formulario-registro-automatico-asunto';
-export const formularioRegistroAutomaticoDatosEscritoTramite =
-  'formulario-registro-automatico-datos-escrito-tramite';
+export const formularioRegistroAutomaticoDatosEscritoTramite = 'formulario-registro-automatico-datos-escrito-tramite';
 export const formularioRegistroAutomaticoDestinosExhortoEscritosTramite =
-  'formulario-registro-automatico-destinos-exhorto-escritos-tramite';
+    'formulario-registro-automatico-destinos-exhorto-escritos-tramite';
 export const formularioRegistroAutomaticoDestinosRecursoEscritosTramite =
-  'formulario-registro-automatico-destinos-recurso-escritos-tramite';
-export const formularioRegistroAutomaticoEscritoAsunto =
-  'formulario-registro-automatico-escrito-asunto';
-export const formularioRegistroAutomaticoExhortoAPieza =
-  'formulario-registro-automatico-exhorto-a-pieza';
+    'formulario-registro-automatico-destinos-recurso-escritos-tramite';
+export const formularioRegistroAutomaticoEscritoAsunto = 'formulario-registro-automatico-escrito-asunto';
+export const formularioRegistroAutomaticoExhortoAPieza = 'formulario-registro-automatico-exhorto-a-pieza';
 export const formularioRegistroAutomaticoExpedienteAsuntoIniciador =
-  'formulario-registro-automatico-expediente-asunto-iniciador';
+    'formulario-registro-automatico-expediente-asunto-iniciador';
 export const formularioRegistroAutomaticoIntervinientesAsuntoIniciador =
-  'formulario-registro-automatico-intervinientes-asunto-iniciador';
-export const formularioRegistroAutomaticoListadoAsuntos =
-  'formulario-registro-automatico-listado-asuntos';
+    'formulario-registro-automatico-intervinientes-asunto-iniciador';
+export const formularioRegistroAutomaticoListadoAsuntos = 'formulario-registro-automatico-listado-asuntos';
 export const formularioRegistroAutomaticoListadoEscritosTramite =
-  'formulario-registro-automatico-listado-escritos-tramite';
-export const formularioRegistroAutomaticoOtroProcedimiento =
-  'formulario-registro-automatico-otro-procedimiento';
-export const formularioRegistroAutomaticoPersonaciones =
-  'formulario-registro-automatico-personaciones';
+    'formulario-registro-automatico-listado-escritos-tramite';
+export const formularioRegistroAutomaticoOtroProcedimiento = 'formulario-registro-automatico-otro-procedimiento';
+export const formularioRegistroAutomaticoPersonaciones = 'formulario-registro-automatico-personaciones';
 export const formularioRegistroAutomaticoSemejantes = 'formulario-registro-automatico-semejantes';
 export const formularioRelacionesIntervinientes = 'formulario-relaciones-intervinientes-v2';
 export const formularioRepresentanteLegal = 'formulario-representante-legal-v2';
@@ -575,8 +517,7 @@ export const formularioResolucionPendiente = 'formulario-resolucion-pendiente';
 export const formularioRespuestaSolicitud = 'formulario-respuesta-solicitud';
 export const formularioSolicitudMinuta = 'formulario-solicitud-minuta';
 export const formularioTramitarSeleccionOperaciones = 'formulario-tramitar-seleccion-operaciones';
-export const formularioTramitarSeleccionProcedimiento =
-  'formulario-tramitar-seleccion-procedimiento';
+export const formularioTramitarSeleccionProcedimiento = 'formulario-tramitar-seleccion-procedimiento';
 export const formularioVentana = 'formulario-ventana';
 export const generarCaratula = 'generar-caratula-v2';
 export const generarCaratulasEscrito = 'generar-caratulas-escrito-v2';
@@ -595,25 +536,21 @@ export const inicioRegistroAutomaticoAsuntos = 'inicio-registro-automatico-asunt
 export const inicioRevisionAsuntosJuzgado = 'inicio-revision-asuntos-juzgado';
 export const inicioTareasPendientes = 'inicio-tareas-pendientes';
 export const inicioTramitacion = 'inicio-tramitacion';
-export const insertRegistroAutomaticoDiligenciaReparto =
-  'insert-registro-automatico-diligencia-reparto';
+export const insertRegistroAutomaticoDiligenciaReparto = 'insert-registro-automatico-diligencia-reparto';
 export const listadoAsuntosRegistroAutomatico = 'listado-asuntos-registro-automatico';
 export const listadoRegistroAutomaticoDestinosExhortoEscritosTramite =
-  'listado-registro-automatico-destinos-exhorto-escritos-tramite';
+    'listado-registro-automatico-destinos-exhorto-escritos-tramite';
 export const listadoRegistroAutomaticoDestinosRecursoEscritosTramite =
-  'listado-registro-automatico-destinos-recurso-escritos-tramite';
+    'listado-registro-automatico-destinos-recurso-escritos-tramite';
 export const listadoRegistroAutomaticoPersonaciones = 'listado-registro-automatico-personaciones';
 export const notDefined = '------------';
 export const organoDestinoAnulacionReparto = 'consulta-organos-contexto';
-export const registroAutomaticoDocumentosEscritoTramite =
-  'registro-automatico-documentos-escrito-tramite';
-export const registroAutomaticoEscritosTramiteListado =
-  'registro-automatico-escritos-tramite-listado';
+export const registroAutomaticoDocumentosEscritoTramite = 'registro-automatico-documentos-escrito-tramite';
+export const registroAutomaticoEscritosTramiteListado = 'registro-automatico-escritos-tramite-listado';
 export const registroAutomaticoLinkSeleccionado = 'link-seleccionado';
 export const registroAutomaticoTransformarEscritoIniciadorATramite =
-  'registro-automatico-transformar-escrito-iniciador-a-tramite';
-export const registroAutomaticoTransformarEscritoToAsunto =
-  'registro-automatico-transformar-escrito-en-asunto';
+    'registro-automatico-transformar-escrito-iniciador-a-tramite';
+export const registroAutomaticoTransformarEscritoToAsunto = 'registro-automatico-transformar-escrito-en-asunto';
 export const updateCaelusAnularAcontecimiento = 'update-caelus-anular-acontecimiento';
 export const updateCaelusDatosAcontecimiento = 'update-caelus-datos-acontecimiento';
 export const updateCaelusEstadoProcedimiento = 'update-caelus-estado-procedimiento';
@@ -621,555 +558,555 @@ export const updateCaelusFaseProcedimiento = 'update-caelus-fase-procedimiento';
 export const updateCaelusMotivoProcedimiento = 'update-caelus-motivo-procedimiento';
 export const updateDocumentosAsunto = 'update-documentos-asunto';
 export const updateOrdenRegistroAutomaticoAsuntoIntervinientes =
-  'update-orden-registro-automatico-asunto-intervinientes';
+    'update-orden-registro-automatico-asunto-intervinientes';
 export const validarNigUt = 'validar-nig-ut';
 export const wasminAgendaActualizarProcedimiento = 'wasmin-agenda-actualizar-procedimiento';
 
 export const ALIAS = {
-  aceptarAsunto:  'aceptar-asunto',
-  aceptarEscrito,
-  aceptarEscritoMultiple,
-  aceptarEscritos,
-  aceptarRegistroAutomaticoAsuntoIniciador,
-  actualizarAceptarDevolucion,
-  actualizarAceptarDevolucionEscrito,
-  actualizarApuntePlazo,
-  actualizarApuntePreso,
-  actualizarAsignacionClaseRepartoOrgano,
-  actualizarAsignacionOrigen,
-  actualizarCargo,
-  actualizarClaseReparto,
-  actualizarClaseRepartoCargas,
-  actualizarClasesRegistroRepartoInfraestructura,
-  actualizarDacion,
-  actualizarDestinoTramite,
-  actualizarDocumentoEscrito,
-  actualizarDomicilio,
-  actualizarDomicilioInterviniente,
-  actualizarEntidad,
-  actualizarEscrito,
-  actualizarEscritoPendienteProcedimiento,
-  actualizarEstadoAcontecimiento,
-  actualizarEstadoApuntesAgenda,
-  actualizarInterviniente,
-  actualizarJuzgadoGuardia,
-  actualizarMateriasClasesReparto,
-  actualizarMinuta,
-  actualizarObjeto,
-  actualizarOrden,
-  actualizarOrganoXClaseReparto,
-  actualizarPersona,
-  actualizarProcedimiento,
-  actualizarProcedimientoGuardar,
-  actualizarProcedimientoOrigen,
-  actualizarProfesional,
-  actualizarRechazarDevolucion,
-  actualizarRechazarDevolucionEscrito,
-  actualizarRecursoInterpuesto,
-  actualizarRelacion,
-  actualizarRepresentanteLegal,
-  actualizarResolucionPendiente,
-  actualizarRespuestaSolicitudDacion,
-  actualizarRespuestaSolicitudMinuta,
-  actualizarRespuestaSolicitudResolucion,
-  actualizarSolicitudMinuta,
-  actualizarTermiProceOJ,
-  altaAdscripcionOrgano,
-  altaAsignacionClaseRepartoOrgano,
-  altaAsignacionOrigen,
-  altaCargo,
-  altaClaseReparto,
-  altaClasesRegistroRepartoInfraestructura,
-  altaClasificacionesMateria,
-  altaDacion,
-  altaDocumentosEscrito,
-  altaDomicilio,
-  altaEntidad,
-  altaEscrito,
-  altaInterviniente,
-  altaJuzgadoGuardia,
-  altaMateriasClasesReparto,
-  altaMinuta,
-  altaObjeto,
-  altaOJXClaseReparto,
-  altaOrgano,
-  altaOrganoXClaseReparto,
-  altaPersona,
-  altaProcedimiento,
-  altaProfesional,
-  altaRecursoInterpuesto,
-  altaRelacion,
-  altaRepresentanteLegal,
-  altaResolucionPendiente,
-  altaSolicitudMinuta,
-  anularEscrito,
-  anularProcedimiento,
-  anularProcedimientos,
-  anularRepartoAsuntoMasivo,
-  asociarPersonacion,
-  consultaAcontecimientos,
-  consultaAcontecimientosDocumentoMinutas,
-  consultaAcontecimientosPendientes,
-  consultaActoClases,
-  consultaAcuseCodigoBarras,
-  consultaAdscripcionOrganos,
-  consultaAdscripcionOrganosEspecializacion,
-  consultaAgendaPresos,
-  consultaAlertaSituacionInterviniente,
-  consultaAlertaSituacionIntervinienteImprimir,
-  consultaAlertaSituacionIntervinientes,
-  consultaAlertaSituacionIntervinientesImprimir,
-  consultaArbolClasesRegistro,
-  consultaArbolMaterias,
-  consultaAsignacionClaseRepartoOrganos,
-  consultaAsignacionesOrigen,
-  consultaAsuntosPtesAceptacion,
-  consultaAsuntosPtesIncoacion,
-  consultaCaelusAcontecimientos,
-  consultaCaelusAgendaApuntes,
-  consultaCaelusAgendaSenalamientos,
-  consultaCaelusDatosAcontecimientos,
-  consultaCaelusDatosAsunto,
-  consultaCaelusDatosGenerales,
-  consultaCaelusDatosTelematicosAcontecimiento,
-  consultaCaelusDocumentosExpediente,
-  consultaCaelusEscritosProcedimiento,
-  consultaCaelusExpedienteAdministrativo,
-  consultaCaelusExpedienteJudicial,
-  consultaCaelusFasesProcedimiento,
-  consultaCaelusFiltrosAcontecimientos,
-  consultaCaelusFiltrosFase,
-  consultaCaelusListadoEstados,
-  consultaCaelusListadoFasesTramitacion,
-  consultaCaelusListadoMotivos,
-  consultaCaelusMapaAsunto,
-  consultaCaelusObjetoDetalle,
-  consultaCaelusObjetos,
-  consultaCaelusPenasInterviniente,
-  consultaCaelusPersonaciones,
-  consultaCaelusUrlAcontecimiento,
-  consultaCallejeroPoblacion,
-  consultaCargos,
-  consultaCargosResolucion,
-  consultaCentrosPenitenciarios,
-  consultaCheckClaseReparto,
-  consultaCheckProcedimiento,
-  consultaClaseRepartoDelitosRelacionados,
-  consultaClaseRepartoOrganoCargas,
-  consultaClasesPena,
-  consultaClasesPenaXTipo,
-  consultaClasesProcedimiento,
-  consultaClasesProcedimientoTramitar,
-  consultaClasesProcedimientoXOrgano,
-  consultaClasesProcedimientoXOrganoTramitar,
-  consultaClasesProcedimientoXTipologiaIncoar,
-  consultaClasesRegistroInfraestructura,
-  consultaClasesRegistroMantenimientoInfraestructura,
-  consultaClasesRegistroSinRepartoInfraestructura,
-  consultaClasesReparto,
-  consultaClasesRepartoInfraestructura,
-  consultaClasesRepartoXClaseRegistro,
-  consultaClasesRepartoXMateria,
-  consultaClasificacionesMateria,
-  consultaColectivos,
-  consultaColectivosXTipoYProvincia,
-  consultaColegiosProfesionalesXTipo,
-  consultaConceptosPena,
-  consultaConsultaAgendaPlazos,
-  consultaConsultaEscritos,
-  consultaConsultaMultiple,
-  consultaConsultaMultipleImprimir,
-  consultaConsultaObjetos,
-  consultaOpEspecialG2580Motivos,
-  consultaOpEspecialG2580RecursosInterpuestos,
-  consultaOpEspecialG3810Presos,
-  consultaOperacionesXTramite,
-  consultaConsultaXMateriaClasificacion,
-  consultaConsultaXProfesional,
-  consultaConsultaXSmac,
-  consultaControlSumario,
-  consultaCuantias,
-  consultaCuerposSeguridad,
-  consultaDacionesProcedimiento,
-  consultaDestinatariosActo,
-  consultaDestinatariosMinuta,
-  consultaDetalleAcontecimientosPendientes,
-  consultaDetalleAcontecimientosPendientesFirma,
-  consultaDetalleExpAdm,
-  consultaDetalleMensajeriaPendiente,
-  consultaDetalleProcedimientoTerminado,
-  consultaDetalleProcedimientoTramite,
-  consultaDetalleProfesional,
-  consultaDevolucionAsuntos,
-  consultaDevolucionEscritos,
-  consultaDevolucionHistorico,
-  consultaDocumentosDacion,
-  consultaDocumentosEscrito,
-  consultaDocumentosResolucionPendiente,
-  consultaDocumentosNotificacionTelematico,
-  consultaDomiciliosPersona,
-  consultaEmpresasInsolventes,
-  consultaEntidad,
-  consultaEntidades,
-  consultaEquiposOrgano,
-  consultaEquiposUsuarios,
-  consultaEscritosBaja,
-  consultaEscritosByCoprocon,
-  consultaEscritosByNuescanesc,
-  consultaEscritosByNuescanescJuzgado,
-  consultaEscritosPendientes,
-  consultaEscritosPendientesProcedimiento,
-  consultaEscritosPtesAceptacion,
-  consultaEsquemaTramitacion,
-  consultaEstadisticasAsuntosCargas,
-  consultaEstadisticasAsuntosPtesRepartir,
-  consultaEstadisticasAsuntosRepartidos,
-  consultaEstadisticasCargas,
-  consultaEstadisticasComparativa,
-  consultaEstadisticasEscritos,
-  consultaEstadisticasMaterias,
-  consultaEstadisticasMateriasIntervinientes,
-  consultaEstadoAcoTareasPendientes,
-  consultaEstadosCiviles,
-  consultaEstadosCumplimentacion,
-  consultaEstadosEscrito,
-  consultaEstadosInterviniente,
-  consultaEstadosMinutas,
-  consultaEstadosNotificacionesTelematico,
-  consultaEstadosPenas,
-  consultaEstadosProcedimiento,
-  consultaEstadosTramite,
-  consultaExtensionesConvertirPdf,
-  consultaExtensionesDocumento,
-  consultaFamiliaNaturalezaObjetos,
-  consultaFasesTareasPendientes,
-  consultaFasesTramitacion,
-  consultaFiltroUsuariosTareasPendientes,
-  consultaFormasPresentacion,
-  consultaFormularioEsquemaCompleto,
-  consultaGeneracionCarpetilla,
-  consultaGeneracionCarpetillaBinario,
-  consultaGradosEjecucion,
-  consultaGradosParticipacion,
-  consultaGruposTramitacion,
-  consultaHistoricoClasesReparto,
-  consultaInformacionSeguridad,
-  consultaInformesCarpetillas,
-  consultaInformesDestinoDecanato,
-  consultaInformesDestinoDecanatoEscritos,
-  consultaInformesEnviadosDecanatoEscritos,
-  consultaInformesEtiquetasExhortos,
-  consultaInformesExhortosScace,
-  consultaInformesGeneralDecanato,
-  consultaInformesGeneralDecanatoEscritos,
-  consultaInformesPersonacionesOrigen,
-  consultaInformesProcuradoresDecanato,
-  consultaIntervinienteProfesional,
-  consultaIntervinientes,
-  consultaIntervinientesPenas,
-  consultaJuzgadosGuardia,
-  consultaJuzgadoSinGuardia,
-  consultaListadoAmpliatorias,
-  consultaListadoExpedienteOrigen,
-  consultaListadoIntervinientesProcedimiento,
-  consultaListadoPersonaciones,
-  consultaListadoPersonacionesOrigenCampos,
-  consultaListadoProfesionalesInterviniente,
-  consultaListadoProfesionalesProcedimiento,
-  consultaMacrocausas,
-  consultaMateriasAsunto,
-  consultaMateriasClasesReparto,
-  consultaMateriasClasesRepartoAll,
-  consultaMateriasSinClasesReparto,
-  consultaMetatabla,
-  consultaMinutas,
-  consultaMinutasPendientesAceptacion,
-  consultaMinutasProcedimiento,
-  consultaModelo,
-  consultaModelosXTramite,
-  consultaMotivoEstadosProcedimiento,
-  consultaMotivosAcuseNegativo,
-  consultaMunicipios,
-  consultaNotificacionesTelematico,
-  consultaNumerosOrgano,
-  consultaObjetos,
-  consultaOrdenes,
-  consultaOrganosByUsuario,
-  consultaOrganosContexto,
-  consultaOrganosMagistrados,
-  consultaOrganosMagistradosMultiple,
-  consultaOrganosXClaseRepartoInfraestructura,
-  consultaOrganosXClasesReparto,
-  consultaOrigenDestinoNotificacionTelematico,
-  consultaOrigenesDenuncia,
-  consultaOtrosPresentadores,
-  consultaPaises,
-  consultaPenasXCriterios,
-  consultaPersona,
-  consultaPersonalOrganoContexto,
-  consultaPersonas,
-  consultaPoblaciones,
-  consultaProcedimientos,
-  consultaProcedimientosAnulables,
-  consultaProcedimientosBaja,
-  consultaProcedimientosByNumeracionDecanato,
-  consultaProcedimientosByNumeracionJuzgado,
-  consultaProcedimientosDevolviblesJuzgado,
-  consultaProcedimientosLocalesPersona,
-  consultaProcedimientosMensajeriaPendiente,
-  consultaProcedimientosPendientesEnvio,
-  consultaProcedimientosPendientesTramitacion,
-  consultaProcedimientosTareasPendientes,
-  consultaProcedimientosXAsunto,
-  consultaProcedimientosXCodigo,
-  consultaProcedimientosXOrigen,
-  consultaProcsXInterviniente,
-  consultaProfesionalXTipo,
-  consultaProvincias,
-  consultaRecursosInterpuestosProcedimiento,
-  consultaRegistroAutomaticoCommonOrigenes,
-  consultaRegistroAutomaticoCommonTipificaciones,
-  consultaRegistroAutomaticoCommonTiposComunicacionesTelematicas,
-  consultaRegistroAutomaticoDatosAsuntoIniciador,
-  consultaRegistroAutomaticoDocumentosEscritoAsuntoIniciador,
-  consultaRegistroAutomaticoDomiciliosIntervinienteAsuntoIniciador,
-  consultaRegistroAutomaticoEscritoAsuntoIniciador,
-  consultaRegistroAutomaticoIntervinientesAsuntoIniciador,
-  consultaRegistroAutomaticoOrganosDestino,
-  consultaRegistroAutomaticoProfesionalesIntervinienteAsuntoIniciador,
-  consultaRegistroAutomaticoRepresentantesLegalesIntervinienteAsuntoIniciador,
-  consultaRegistroAutomaticoTiposImplicacion,
-  consultaRelaciones,
-  consultaRepresentantesLegales,
-  consultaResoluciones,
-  consultaResolucionesProcedimiento,
-  consultaResolucionesPtesProcedimiento,
-  consultaResolucionProcedimiento,
-  consultaSemejantesRegistroAutomatico,
-  consultaSexo,
-  consultaSituacionDocumentoTareasPendientes,
-  consultaSituacionesFinancieras,
-  consultaSituacionesInterviniente,
-  consultaSituacionIntervinientesNoPenal,
-  consultaSituacionObjetos,
-  consultaSolicitudesPendientesProcedimiento,
-  consultaSolicitudesVinculadas,
-  consultaTipificaciones,
-  consultaTipificacionesTareasPendientes,
-  consultaTipoComunicacionesTelematico,
-  consultaTipofirmaTareasPendientes,
-  consultaTiposDocumentales,
-  consultaTiposDocumentalesFamilias,
-  consultaTiposDocumentalesTareasPendientes,
-  consultaTiposEntidad,
-  consultaTiposEscrito,
-  consultaTiposExpediente,
-  consultaTiposExpedienteOriSmac,
-  consultaTiposIdentificacion,
-  consultaTiposIdentificacionColectivos,
-  consultaTiposImplicacionOri,
-  consultaTiposImplicacionUt,
-  consultaTiposMensajeTareasPendientes,
-  consultaTiposObjetos,
-  consultaTiposOrganoUnidadTramitacion,
-  consultaTiposPena,
-  consultaTiposProfesionales,
-  consultaTiposProfesionalMultiple,
-  consultaTiposRecurso,
-  consultaTiposRelacion,
-  consultaTiposResolucionEjecucion,
-  consultaTiposResolucionRecurso,
-  consultaTiposResolucionSentencia,
-  consultaTiposVia,
-  consultaTramitesFaseXProcedimiento,
-  consultaTramitesGlobales,
-  consultaTramitesLibresXProcedimiento,
-  consultaUsuariosEquipo,
-  consultaUsuariosOrgano,
-  consultaUsuariosTareasPendientes,
-  convertirEscritoATramite,
-  crearApuntePlazo,
-  createCaelusDescargaCaratula,
-  createCaelusDescargaCompleto,
-  datosEscrito,
-  deleteRegistroAutomaticoDiligenciaReparto,
-  devolverRegistroAutomaticoAsuntoIniciador,
-  ejecutarDevolucionAsunto,
-  ejecutarDevolucionAsuntoIncoado,
-  ejecutarDevolucionEscritoJuzgado,
-  ejecutarImportacionIntervinientes,
-  ejecutarIncoacionAsunto,
-  ejecutarOpEspecial,
-  ejecutarOpEspecialG2580RecursosInterpuestos,
-  ejecutarReparto,
-  eliminarAdscripcionOrgano,
-  eliminarAsignacionOrigen,
-  eliminarCargo,
-  eliminarClaseReparto,
-  eliminarDacion,
-  eliminarDocumentoEscrito,
-  eliminarDocumentosEscrito,
-  eliminarInterviniente,
-  eliminarJuzgadoGuardia,
-  eliminarMateriasClasesReparto,
-  eliminarMinuta,
-  eliminarObjeto,
-  eliminarOrganoXClaseReparto,
-  eliminarPersonaDesenlazada,
-  eliminarProfesional,
-  eliminarRecursoInterpuesto,
-  eliminarRelacion,
-  eliminarRepresentanteLegal,
-  eliminarSolicitud,
-  enviarListaEscritos,
-  enviarListaProcedimientos,
-  expedienteEscrito,
-  formularioAccesoDetalleAsunto,
-  formularioActualizarSolicitud,
-  formularioAdscripcionOrgano,
-  formularioAdscripcionOrganos,
-  formularioAlertaSituacionInterviniente,
-  formularioAlertaSituacionIntervinientes,
-  formularioAltaRecursoInterpuestoG2520,
-  formularioAsignacionesOrigen,
-  formularioAsignacionClaseRepartoOrgano,
-  formularioAsignacionOrigen,
-  formularioAsigacionTerminacionProcedimientoOj,
-  formularioAsunto,
-  formularioAsuntoEjecucion,
-  formularioAsuntoEjecucionJuzgado,
-  formularioAsuntoExhorto,
-  formularioAsuntoPrincipal,
-  formularioAsuntoRecurso,
-  formularioBuscarColectivo,
-  formularioBuscarProfesional,
-  formularioBuscarSeleccionarColectivos,
-  formularioBuscarSeleccionarEntidades,
-  formularioBuscarSeleccionarPersonas,
-  formularioCaelus,
-  formularioCaelusMantenimientoAgenda,
-  formularioCaelusMantenimientoFases,
-  formularioCargos,
-  formularioClaseRepartoAcumularCargas,
-  formularioClaseRepartoDetalle,
-  formularioClasesRegistroInfraestructura,
-  formularioClasesRegistroInfraestructuraDetalle,
-  formularioClasesRepartoInfraestructura,
-  formularioCompositor,
-  formularioClasificacionesDelito,
-  formularioConsultaAmpliatorias,
-  formularioConsultaClasesRegistroRepartoInfraestructura,
-  formularioConsultaProcsEmpresasInsolventes,
-  formularioConsultasGeneralMatRegRep,
-  formularioConsultasGeneralNig,
-  formularioDacion,
-  formularioDetalleAlertaSituacion,
-  formularioDetalleAlertaSituacionMedida,
-  formularioDetalleAlertaSituacionRequerimiento,
-  formularioDetalleSolicitud,
-  formularioDevolucionAsunto,
-  formularioDevolucionAsuntoJuzgado,
-  formularioDevolucionEscrito,
-  formularioDevolucionEscritoJuzgado,
-  formularioDomicilio,
-  formularioEntidad,
-  formularioEscrito,
-  formularioEscritoAlta,
-  formularioEscritoIniciador,
-  formularioExpteAdm,
-  formularioHistoricoDevolucion,
-  formularioHistoricoDevoluciones,
-  formularioHistoricoDevolucionesJuzgado,
-  formularioHistoricoMinutasAcontecimiento,
-  formularioHistoricoMinutasEscrito,
-  formularioHistoricoMinutasProcedimiento,
-  formularioImportarIntervinientes,
-  formularioInterviniente,
-  formularioJuzgadoGuardiaDetalle,
-  formularioJuzgadosGuardia,
-  formularioListaAcontecimientos,
-  formularioListaAcontecimientosProcedimiento,
-  formularioListadoDocumentos,
-  formularioListadoExpedienteOrigen,
-  formularioListadoPersonaciones,
-  formularioListaEscritos,
-  formularioMateriasClasesReparto,
-  formularioMateriasClasesRepartoDetalle,
-  formularioMinuta,
-  formularioMinutaRespuestaMultiple,
-  formularioMultidelito,
-  formularioNotaProcedimiento,
-  formularioNotificacionTelematico,
-  formularioObjeto,
-  formularioOrganoExtrangero,
-  formularioOrganoOrigen,
-  formularioOrganosXClaseRepartoInfraestructura,
-  formularioOrganoXClaseReparto,
-  formularioPersona,
-  formularioPersonaciones,
-  formularioPersonacionesAlta,
-  formularioPieza,
-  formularioProcedimientoOrigen,
-  formularioRecursoInterpuesto,
-  formularioRegistroAutomaticoAsunto,
-  formularioRegistroAutomaticoDatosEscritoTramite,
-  formularioRegistroAutomaticoDestinosExhortoEscritosTramite,
-  formularioRegistroAutomaticoDestinosRecursoEscritosTramite,
-  formularioRegistroAutomaticoEscritoAsunto,
-  formularioRegistroAutomaticoExhortoAPieza,
-  formularioRegistroAutomaticoExpedienteAsuntoIniciador,
-  formularioRegistroAutomaticoIntervinientesAsuntoIniciador,
-  formularioRegistroAutomaticoListadoAsuntos,
-  formularioRegistroAutomaticoListadoEscritosTramite,
-  formularioRegistroAutomaticoOtroProcedimiento,
-  formularioRegistroAutomaticoPersonaciones,
-  formularioRegistroAutomaticoSemejantes,
-  formularioRelacionesIntervinientes,
-  formularioRepresentanteLegal,
-  formularioResolucionesG2521,
-  formularioResolucionesProcedimiento,
-  formularioResolucionPendiente,
-  formularioRespuestaSolicitud,
-  formularioSolicitudMinuta,
-  formularioTramitarSeleccionOperaciones,
-  formularioTramitarSeleccionProcedimiento,
-  formularioVentana,
-  generarCaratula,
-  generarCaratulasEscrito,
-  inicioAceptacionAsuntos,
-  inicioAceptacionEscritos,
-  inicioAnulacionAsuntos,
-  inicioBajaEscritos,
-  inicioConsultaAgendaPlazos,
-  inicioConsultaAgendaPresos,
-  inicioConsultaMarcas,
-  inicioConsultaMultiple,
-  inicioDevolucionAsuntosJuzgado,
-  inicioIncoacionAsuntos,
-  inicioMateriasClasesReparto,
-  inicioRegistroAutomaticoAsuntos,
-  inicioRevisionAsuntosJuzgado,
-  inicioTareasPendientes,
-  inicioTramitacion,
-  insertRegistroAutomaticoDiligenciaReparto,
-  listadoAsuntosRegistroAutomatico,
-  listadoRegistroAutomaticoDestinosExhortoEscritosTramite,
-  listadoRegistroAutomaticoDestinosRecursoEscritosTramite,
-  listadoRegistroAutomaticoPersonaciones,
-  notDefined,
-  organoDestinoAnulacionReparto,
-  registroAutomaticoDocumentosEscritoTramite,
-  registroAutomaticoEscritosTramiteListado,
-  registroAutomaticoLinkSeleccionado,
-  registroAutomaticoTransformarEscritoIniciadorATramite,
-  registroAutomaticoTransformarEscritoToAsunto,
-  updateCaelusAnularAcontecimiento,
-  updateCaelusDatosAcontecimiento,
-  updateCaelusEstadoProcedimiento,
-  updateCaelusFaseProcedimiento,
-  updateCaelusMotivoProcedimiento,
-  updateDocumentosAsunto,
-  updateOrdenRegistroAutomaticoAsuntoIntervinientes,
-  validarNigUt,
-  wasminAgendaActualizarProcedimiento,
+    aceptarAsunto: 'aceptar-asunto',
+    aceptarEscrito,
+    aceptarEscritoMultiple,
+    aceptarEscritos,
+    aceptarRegistroAutomaticoAsuntoIniciador,
+    actualizarAceptarDevolucion,
+    actualizarAceptarDevolucionEscrito,
+    actualizarApuntePlazo,
+    actualizarApuntePreso,
+    actualizarAsignacionClaseRepartoOrgano,
+    actualizarAsignacionOrigen,
+    actualizarCargo,
+    actualizarClaseReparto,
+    actualizarClaseRepartoCargas,
+    actualizarClasesRegistroRepartoInfraestructura,
+    actualizarDacion,
+    actualizarDestinoTramite,
+    actualizarDocumentoEscrito,
+    actualizarDomicilio,
+    actualizarDomicilioInterviniente,
+    actualizarEntidad,
+    actualizarEscrito,
+    actualizarEscritoPendienteProcedimiento,
+    actualizarEstadoAcontecimiento,
+    actualizarEstadoApuntesAgenda,
+    actualizarInterviniente,
+    actualizarJuzgadoGuardia,
+    actualizarMateriasClasesReparto,
+    actualizarMinuta,
+    actualizarObjeto,
+    actualizarOrden,
+    actualizarOrganoXClaseReparto,
+    actualizarPersona,
+    actualizarProcedimiento,
+    actualizarProcedimientoGuardar,
+    actualizarProcedimientoOrigen,
+    actualizarProfesional,
+    actualizarRechazarDevolucion,
+    actualizarRechazarDevolucionEscrito,
+    actualizarRecursoInterpuesto,
+    actualizarRelacion,
+    actualizarRepresentanteLegal,
+    actualizarResolucionPendiente,
+    actualizarRespuestaSolicitudDacion,
+    actualizarRespuestaSolicitudMinuta,
+    actualizarRespuestaSolicitudResolucion,
+    actualizarSolicitudMinuta,
+    actualizarTermiProceOJ,
+    altaAdscripcionOrgano,
+    altaAsignacionClaseRepartoOrgano,
+    altaAsignacionOrigen,
+    altaCargo,
+    altaClaseReparto,
+    altaClasesRegistroRepartoInfraestructura,
+    altaClasificacionesMateria,
+    altaDacion,
+    altaDocumentosEscrito,
+    altaDomicilio,
+    altaEntidad,
+    altaEscrito,
+    altaInterviniente,
+    altaJuzgadoGuardia,
+    altaMateriasClasesReparto,
+    altaMinuta,
+    altaObjeto,
+    altaOJXClaseReparto,
+    altaOrgano,
+    altaOrganoXClaseReparto,
+    altaPersona,
+    altaProcedimiento,
+    altaProfesional,
+    altaRecursoInterpuesto,
+    altaRelacion,
+    altaRepresentanteLegal,
+    altaResolucionPendiente,
+    altaSolicitudMinuta,
+    anularEscrito,
+    anularProcedimiento,
+    anularProcedimientos,
+    anularRepartoAsuntoMasivo,
+    asociarPersonacion,
+    consultaAcontecimientos,
+    consultaAcontecimientosDocumentoMinutas,
+    consultaAcontecimientosPendientes,
+    consultaActoClases,
+    consultaAcuseCodigoBarras,
+    consultaAdscripcionOrganos,
+    consultaAdscripcionOrganosEspecializacion,
+    consultaAgendaPresos,
+    consultaAlertaSituacionInterviniente,
+    consultaAlertaSituacionIntervinienteImprimir,
+    consultaAlertaSituacionIntervinientes,
+    consultaAlertaSituacionIntervinientesImprimir,
+    consultaArbolClasesRegistro,
+    consultaArbolMaterias,
+    consultaAsignacionClaseRepartoOrganos,
+    consultaAsignacionesOrigen,
+    consultaAsuntosPtesAceptacion,
+    consultaAsuntosPtesIncoacion,
+    consultaCaelusAcontecimientos,
+    consultaCaelusAgendaApuntes,
+    consultaCaelusAgendaSenalamientos,
+    consultaCaelusDatosAcontecimientos,
+    consultaCaelusDatosAsunto,
+    consultaCaelusDatosGenerales,
+    consultaCaelusDatosTelematicosAcontecimiento,
+    consultaCaelusDocumentosExpediente,
+    consultaCaelusEscritosProcedimiento,
+    consultaCaelusExpedienteAdministrativo,
+    consultaCaelusExpedienteJudicial,
+    consultaCaelusFasesProcedimiento,
+    consultaCaelusFiltrosAcontecimientos,
+    consultaCaelusFiltrosFase,
+    consultaCaelusListadoEstados,
+    consultaCaelusListadoFasesTramitacion,
+    consultaCaelusListadoMotivos,
+    consultaCaelusMapaAsunto,
+    consultaCaelusObjetoDetalle,
+    consultaCaelusObjetos,
+    consultaCaelusPenasInterviniente,
+    consultaCaelusPersonaciones,
+    consultaCaelusUrlAcontecimiento,
+    consultaCallejeroPoblacion,
+    consultaCargos,
+    consultaCargosResolucion,
+    consultaCentrosPenitenciarios,
+    consultaCheckClaseReparto,
+    consultaCheckProcedimiento,
+    consultaClaseRepartoDelitosRelacionados,
+    consultaClaseRepartoOrganoCargas,
+    consultaClasesPena,
+    consultaClasesPenaXTipo,
+    consultaClasesProcedimiento,
+    consultaClasesProcedimientoTramitar,
+    consultaClasesProcedimientoXOrgano,
+    consultaClasesProcedimientoXOrganoTramitar,
+    consultaClasesProcedimientoXTipologiaIncoar,
+    consultaClasesRegistroInfraestructura,
+    consultaClasesRegistroMantenimientoInfraestructura,
+    consultaClasesRegistroSinRepartoInfraestructura,
+    consultaClasesReparto,
+    consultaClasesRepartoInfraestructura,
+    consultaClasesRepartoXClaseRegistro,
+    consultaClasesRepartoXMateria,
+    consultaClasificacionesMateria,
+    consultaColectivos,
+    consultaColectivosXTipoYProvincia,
+    consultaColegiosProfesionalesXTipo,
+    consultaConceptosPena,
+    consultaConsultaAgendaPlazos,
+    consultaConsultaEscritos,
+    consultaConsultaMultiple,
+    consultaConsultaMultipleImprimir,
+    consultaConsultaObjetos,
+    consultaOpEspecialG2580Motivos,
+    consultaOpEspecialG2580RecursosInterpuestos,
+    consultaOpEspecialG3810Presos,
+    consultaOperacionesXTramite,
+    consultaConsultaXMateriaClasificacion,
+    consultaConsultaXProfesional,
+    consultaConsultaXSmac,
+    consultaControlSumario,
+    consultaCuantias,
+    consultaCuerposSeguridad,
+    consultaDacionesProcedimiento,
+    consultaDestinatariosActo,
+    consultaDestinatariosMinuta,
+    consultaDetalleAcontecimientosPendientes,
+    consultaDetalleAcontecimientosPendientesFirma,
+    consultaDetalleExpAdm,
+    consultaDetalleMensajeriaPendiente,
+    consultaDetalleProcedimientoTerminado,
+    consultaDetalleProcedimientoTramite,
+    consultaDetalleProfesional,
+    consultaDevolucionAsuntos,
+    consultaDevolucionEscritos,
+    consultaDevolucionHistorico,
+    consultaDocumentosDacion,
+    consultaDocumentosEscrito,
+    consultaDocumentosResolucionPendiente,
+    consultaDocumentosNotificacionTelematico,
+    consultaDomiciliosPersona,
+    consultaEmpresasInsolventes,
+    consultaEntidad,
+    consultaEntidades,
+    consultaEquiposOrgano,
+    consultaEquiposUsuarios,
+    consultaEscritosBaja,
+    consultaEscritosByCoprocon,
+    consultaEscritosByNuescanesc,
+    consultaEscritosByNuescanescJuzgado,
+    consultaEscritosPendientes,
+    consultaEscritosPendientesProcedimiento,
+    consultaEscritosPtesAceptacion,
+    consultaEsquemaTramitacion,
+    consultaEstadisticasAsuntosCargas,
+    consultaEstadisticasAsuntosPtesRepartir,
+    consultaEstadisticasAsuntosRepartidos,
+    consultaEstadisticasCargas,
+    consultaEstadisticasComparativa,
+    consultaEstadisticasEscritos,
+    consultaEstadisticasMaterias,
+    consultaEstadisticasMateriasIntervinientes,
+    consultaEstadoAcoTareasPendientes,
+    consultaEstadosCiviles,
+    consultaEstadosCumplimentacion,
+    consultaEstadosEscrito,
+    consultaEstadosInterviniente,
+    consultaEstadosMinutas,
+    consultaEstadosNotificacionesTelematico,
+    consultaEstadosPenas,
+    consultaEstadosProcedimiento,
+    consultaEstadosTramite,
+    consultaExtensionesConvertirPdf,
+    consultaExtensionesDocumento,
+    consultaFamiliaNaturalezaObjetos,
+    consultaFasesTareasPendientes,
+    consultaFasesTramitacion,
+    consultaFiltroUsuariosTareasPendientes,
+    consultaFormasPresentacion,
+    consultaFormularioEsquemaCompleto,
+    consultaGeneracionCarpetilla,
+    consultaGeneracionCarpetillaBinario,
+    consultaGradosEjecucion,
+    consultaGradosParticipacion,
+    consultaGruposTramitacion,
+    consultaHistoricoClasesReparto,
+    consultaInformacionSeguridad,
+    consultaInformesCarpetillas,
+    consultaInformesDestinoDecanato,
+    consultaInformesDestinoDecanatoEscritos,
+    consultaInformesEnviadosDecanatoEscritos,
+    consultaInformesEtiquetasExhortos,
+    consultaInformesExhortosScace,
+    consultaInformesGeneralDecanato,
+    consultaInformesGeneralDecanatoEscritos,
+    consultaInformesPersonacionesOrigen,
+    consultaInformesProcuradoresDecanato,
+    consultaIntervinienteProfesional,
+    consultaIntervinientes,
+    consultaIntervinientesPenas,
+    consultaJuzgadosGuardia,
+    consultaJuzgadoSinGuardia,
+    consultaListadoAmpliatorias,
+    consultaListadoExpedienteOrigen,
+    consultaListadoIntervinientesProcedimiento,
+    consultaListadoPersonaciones,
+    consultaListadoPersonacionesOrigenCampos,
+    consultaListadoProfesionalesInterviniente,
+    consultaListadoProfesionalesProcedimiento,
+    consultaMacrocausas,
+    consultaMateriasAsunto,
+    consultaMateriasClasesReparto,
+    consultaMateriasClasesRepartoAll,
+    consultaMateriasSinClasesReparto,
+    consultaMetatabla,
+    consultaMinutas,
+    consultaMinutasPendientesAceptacion,
+    consultaMinutasProcedimiento,
+    consultaModelo,
+    consultaModelosXTramite,
+    consultaMotivoEstadosProcedimiento,
+    consultaMotivosAcuseNegativo,
+    consultaMunicipios,
+    consultaNotificacionesTelematico,
+    consultaNumerosOrgano,
+    consultaObjetos,
+    consultaOrdenes,
+    consultaOrganosByUsuario,
+    consultaOrganosContexto,
+    consultaOrganosMagistrados,
+    consultaOrganosMagistradosMultiple,
+    consultaOrganosXClaseRepartoInfraestructura,
+    consultaOrganosXClasesReparto,
+    consultaOrigenDestinoNotificacionTelematico,
+    consultaOrigenesDenuncia,
+    consultaOtrosPresentadores,
+    consultaPaises,
+    consultaPenasXCriterios,
+    consultaPersona,
+    consultaPersonalOrganoContexto,
+    consultaPersonas,
+    consultaPoblaciones,
+    consultaProcedimientos,
+    consultaProcedimientosAnulables,
+    consultaProcedimientosBaja,
+    consultaProcedimientosByNumeracionDecanato,
+    consultaProcedimientosByNumeracionJuzgado,
+    consultaProcedimientosDevolviblesJuzgado,
+    consultaProcedimientosLocalesPersona,
+    consultaProcedimientosMensajeriaPendiente,
+    consultaProcedimientosPendientesEnvio,
+    consultaProcedimientosPendientesTramitacion,
+    consultaProcedimientosTareasPendientes,
+    consultaProcedimientosXAsunto,
+    consultaProcedimientosXCodigo,
+    consultaProcedimientosXOrigen,
+    consultaProcsXInterviniente,
+    consultaProfesionalXTipo,
+    consultaProvincias,
+    consultaRecursosInterpuestosProcedimiento,
+    consultaRegistroAutomaticoCommonOrigenes,
+    consultaRegistroAutomaticoCommonTipificaciones,
+    consultaRegistroAutomaticoCommonTiposComunicacionesTelematicas,
+    consultaRegistroAutomaticoDatosAsuntoIniciador,
+    consultaRegistroAutomaticoDocumentosEscritoAsuntoIniciador,
+    consultaRegistroAutomaticoDomiciliosIntervinienteAsuntoIniciador,
+    consultaRegistroAutomaticoEscritoAsuntoIniciador,
+    consultaRegistroAutomaticoIntervinientesAsuntoIniciador,
+    consultaRegistroAutomaticoOrganosDestino,
+    consultaRegistroAutomaticoProfesionalesIntervinienteAsuntoIniciador,
+    consultaRegistroAutomaticoRepresentantesLegalesIntervinienteAsuntoIniciador,
+    consultaRegistroAutomaticoTiposImplicacion,
+    consultaRelaciones,
+    consultaRepresentantesLegales,
+    consultaResoluciones,
+    consultaResolucionesProcedimiento,
+    consultaResolucionesPtesProcedimiento,
+    consultaResolucionProcedimiento,
+    consultaSemejantesRegistroAutomatico,
+    consultaSexo,
+    consultaSituacionDocumentoTareasPendientes,
+    consultaSituacionesFinancieras,
+    consultaSituacionesInterviniente,
+    consultaSituacionIntervinientesNoPenal,
+    consultaSituacionObjetos,
+    consultaSolicitudesPendientesProcedimiento,
+    consultaSolicitudesVinculadas,
+    consultaTipificaciones,
+    consultaTipificacionesTareasPendientes,
+    consultaTipoComunicacionesTelematico,
+    consultaTipofirmaTareasPendientes,
+    consultaTiposDocumentales,
+    consultaTiposDocumentalesFamilias,
+    consultaTiposDocumentalesTareasPendientes,
+    consultaTiposEntidad,
+    consultaTiposEscrito,
+    consultaTiposExpediente,
+    consultaTiposExpedienteOriSmac,
+    consultaTiposIdentificacion,
+    consultaTiposIdentificacionColectivos,
+    consultaTiposImplicacionOri,
+    consultaTiposImplicacionUt,
+    consultaTiposMensajeTareasPendientes,
+    consultaTiposObjetos,
+    consultaTiposOrganoUnidadTramitacion,
+    consultaTiposPena,
+    consultaTiposProfesionales,
+    consultaTiposProfesionalMultiple,
+    consultaTiposRecurso,
+    consultaTiposRelacion,
+    consultaTiposResolucionEjecucion,
+    consultaTiposResolucionRecurso,
+    consultaTiposResolucionSentencia,
+    consultaTiposVia,
+    consultaTramitesFaseXProcedimiento,
+    consultaTramitesGlobales,
+    consultaTramitesLibresXProcedimiento,
+    consultaUsuariosEquipo,
+    consultaUsuariosOrgano,
+    consultaUsuariosTareasPendientes,
+    convertirEscritoATramite,
+    crearApuntePlazo,
+    createCaelusDescargaCaratula,
+    createCaelusDescargaCompleto,
+    datosEscrito,
+    deleteRegistroAutomaticoDiligenciaReparto,
+    devolverRegistroAutomaticoAsuntoIniciador,
+    ejecutarDevolucionAsunto,
+    ejecutarDevolucionAsuntoIncoado,
+    ejecutarDevolucionEscritoJuzgado,
+    ejecutarImportacionIntervinientes,
+    ejecutarIncoacionAsunto,
+    ejecutarOpEspecial,
+    ejecutarOpEspecialG2580RecursosInterpuestos,
+    ejecutarReparto,
+    eliminarAdscripcionOrgano,
+    eliminarAsignacionOrigen,
+    eliminarCargo,
+    eliminarClaseReparto,
+    eliminarDacion,
+    eliminarDocumentoEscrito,
+    eliminarDocumentosEscrito,
+    eliminarInterviniente,
+    eliminarJuzgadoGuardia,
+    eliminarMateriasClasesReparto,
+    eliminarMinuta,
+    eliminarObjeto,
+    eliminarOrganoXClaseReparto,
+    eliminarPersonaDesenlazada,
+    eliminarProfesional,
+    eliminarRecursoInterpuesto,
+    eliminarRelacion,
+    eliminarRepresentanteLegal,
+    eliminarSolicitud,
+    enviarListaEscritos,
+    enviarListaProcedimientos,
+    expedienteEscrito,
+    formularioAccesoDetalleAsunto,
+    formularioActualizarSolicitud,
+    formularioAdscripcionOrgano,
+    formularioAdscripcionOrganos,
+    formularioAlertaSituacionInterviniente,
+    formularioAlertaSituacionIntervinientes,
+    formularioAltaRecursoInterpuestoG2520,
+    formularioAsignacionesOrigen,
+    formularioAsignacionClaseRepartoOrgano,
+    formularioAsignacionOrigen,
+    formularioAsigacionTerminacionProcedimientoOj,
+    formularioAsunto,
+    formularioAsuntoEjecucion,
+    formularioAsuntoEjecucionJuzgado,
+    formularioAsuntoExhorto,
+    formularioAsuntoPrincipal,
+    formularioAsuntoRecurso,
+    formularioBuscarColectivo,
+    formularioBuscarProfesional,
+    formularioBuscarSeleccionarColectivos,
+    formularioBuscarSeleccionarEntidades,
+    formularioBuscarSeleccionarPersonas,
+    formularioCaelus,
+    formularioCaelusMantenimientoAgenda,
+    formularioCaelusMantenimientoFases,
+    formularioCargos,
+    formularioClaseRepartoAcumularCargas,
+    formularioClaseRepartoDetalle,
+    formularioClasesRegistroInfraestructura,
+    formularioClasesRegistroInfraestructuraDetalle,
+    formularioClasesRepartoInfraestructura,
+    formularioCompositor,
+    formularioClasificacionesDelito,
+    formularioConsultaAmpliatorias,
+    formularioConsultaClasesRegistroRepartoInfraestructura,
+    formularioConsultaProcsEmpresasInsolventes,
+    formularioConsultasGeneralMatRegRep,
+    formularioConsultasGeneralNig,
+    formularioDacion,
+    formularioDetalleAlertaSituacion,
+    formularioDetalleAlertaSituacionMedida,
+    formularioDetalleAlertaSituacionRequerimiento,
+    formularioDetalleSolicitud,
+    formularioDevolucionAsunto,
+    formularioDevolucionAsuntoJuzgado,
+    formularioDevolucionEscrito,
+    formularioDevolucionEscritoJuzgado,
+    formularioDomicilio,
+    formularioEntidad,
+    formularioEscrito,
+    formularioEscritoAlta,
+    formularioEscritoIniciador,
+    formularioExpteAdm,
+    formularioHistoricoDevolucion,
+    formularioHistoricoDevoluciones,
+    formularioHistoricoDevolucionesJuzgado,
+    formularioHistoricoMinutasAcontecimiento,
+    formularioHistoricoMinutasEscrito,
+    formularioHistoricoMinutasProcedimiento,
+    formularioImportarIntervinientes,
+    formularioInterviniente,
+    formularioJuzgadoGuardiaDetalle,
+    formularioJuzgadosGuardia,
+    formularioListaAcontecimientos,
+    formularioListaAcontecimientosProcedimiento,
+    formularioListadoDocumentos,
+    formularioListadoExpedienteOrigen,
+    formularioListadoPersonaciones,
+    formularioListaEscritos,
+    formularioMateriasClasesReparto,
+    formularioMateriasClasesRepartoDetalle,
+    formularioMinuta,
+    formularioMinutaRespuestaMultiple,
+    formularioMultidelito,
+    formularioNotaProcedimiento,
+    formularioNotificacionTelematico,
+    formularioObjeto,
+    formularioOrganoExtrangero,
+    formularioOrganoOrigen,
+    formularioOrganosXClaseRepartoInfraestructura,
+    formularioOrganoXClaseReparto,
+    formularioPersona,
+    formularioPersonaciones,
+    formularioPersonacionesAlta,
+    formularioPieza,
+    formularioProcedimientoOrigen,
+    formularioRecursoInterpuesto,
+    formularioRegistroAutomaticoAsunto,
+    formularioRegistroAutomaticoDatosEscritoTramite,
+    formularioRegistroAutomaticoDestinosExhortoEscritosTramite,
+    formularioRegistroAutomaticoDestinosRecursoEscritosTramite,
+    formularioRegistroAutomaticoEscritoAsunto,
+    formularioRegistroAutomaticoExhortoAPieza,
+    formularioRegistroAutomaticoExpedienteAsuntoIniciador,
+    formularioRegistroAutomaticoIntervinientesAsuntoIniciador,
+    formularioRegistroAutomaticoListadoAsuntos,
+    formularioRegistroAutomaticoListadoEscritosTramite,
+    formularioRegistroAutomaticoOtroProcedimiento,
+    formularioRegistroAutomaticoPersonaciones,
+    formularioRegistroAutomaticoSemejantes,
+    formularioRelacionesIntervinientes,
+    formularioRepresentanteLegal,
+    formularioResolucionesG2521,
+    formularioResolucionesProcedimiento,
+    formularioResolucionPendiente,
+    formularioRespuestaSolicitud,
+    formularioSolicitudMinuta,
+    formularioTramitarSeleccionOperaciones,
+    formularioTramitarSeleccionProcedimiento,
+    formularioVentana,
+    generarCaratula,
+    generarCaratulasEscrito,
+    inicioAceptacionAsuntos,
+    inicioAceptacionEscritos,
+    inicioAnulacionAsuntos,
+    inicioBajaEscritos,
+    inicioConsultaAgendaPlazos,
+    inicioConsultaAgendaPresos,
+    inicioConsultaMarcas,
+    inicioConsultaMultiple,
+    inicioDevolucionAsuntosJuzgado,
+    inicioIncoacionAsuntos,
+    inicioMateriasClasesReparto,
+    inicioRegistroAutomaticoAsuntos,
+    inicioRevisionAsuntosJuzgado,
+    inicioTareasPendientes,
+    inicioTramitacion,
+    insertRegistroAutomaticoDiligenciaReparto,
+    listadoAsuntosRegistroAutomatico,
+    listadoRegistroAutomaticoDestinosExhortoEscritosTramite,
+    listadoRegistroAutomaticoDestinosRecursoEscritosTramite,
+    listadoRegistroAutomaticoPersonaciones,
+    notDefined,
+    organoDestinoAnulacionReparto,
+    registroAutomaticoDocumentosEscritoTramite,
+    registroAutomaticoEscritosTramiteListado,
+    registroAutomaticoLinkSeleccionado,
+    registroAutomaticoTransformarEscritoIniciadorATramite,
+    registroAutomaticoTransformarEscritoToAsunto,
+    updateCaelusAnularAcontecimiento,
+    updateCaelusDatosAcontecimiento,
+    updateCaelusEstadoProcedimiento,
+    updateCaelusFaseProcedimiento,
+    updateCaelusMotivoProcedimiento,
+    updateDocumentosAsunto,
+    updateOrdenRegistroAutomaticoAsuntoIntervinientes,
+    validarNigUt,
+    wasminAgendaActualizarProcedimiento,
 };

@@ -1,5 +1,5 @@
-const assert = require('assert');
-const vscode = require('vscode');
+import assert from 'assert';
+import vscode from 'vscode';
 
 const rangeEquals = (range, value) => {
     const editor = vscode.window.activeTextEditor;
@@ -84,11 +84,4 @@ const testHover = async (docUri, position, expectedHover) => {
 
 const markedStringToString = s => (typeof s === 'string' ? s : s.value);
 
-module.exports = {
-    testHover,
-    rangeEquals,
-    testLineEquals,
-    testCompletion,
-    triggerCompletion,
-    testCompletionDoesNotContainItems,
-};
+export { testHover, rangeEquals, testLineEquals, testCompletion, triggerCompletion, testCompletionDoesNotContainItems };

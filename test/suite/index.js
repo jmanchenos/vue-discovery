@@ -1,9 +1,13 @@
-const path = require('path');
-const Mocha = require('mocha');
-const glob = require('glob');
+import Mocha from 'mocha';
+import { glob } from 'glob';
+import { fileURLToPath } from 'url';
+import path, { dirname } from 'path';
 
-function run() {
-    // Create the mocha test
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+async function run() {
+    // Crear la prueba de mocha
     const mocha = new Mocha({
         ui: 'bdd',
         color: true,
@@ -11,17 +15,13 @@ function run() {
 
     const testsRoot = path.resolve(__dirname, '..');
 
-    return new Promise((c, e) => {
-        glob('**/**.test.js', { cwd: testsRoot }, (err, files) => {
-            if (err) {
-                return e(err);
-            }
+        const files = await glob('**/**.test.js', { cwd: testsRoot });
+        // Añadir archivos a la suite de pruebas
+        files.forEach(f => mocha.addFile(path.resolve(testsRoot, f)));
 
-            // Add files to the test suite
-            files.forEach(f => mocha.addFile(path.resolve(testsRoot, f)));
-
+        return new Promise((c, e) => {
             try {
-                // Run the mocha test
+                // Ejecutar la prueba de mocha
                 mocha.run(failures => {
                     if (failures > 0) {
                         e(new Error(`${failures} tests failed.`));
@@ -30,13 +30,10 @@ function run() {
                     }
                 });
             } catch (err) {
-                console.error(err);
-                e(err);
+                e(new Error(err));
             }
         });
-    });
-}
+    }
 
-module.exports = {
-    run,
-};
+
+export { run };

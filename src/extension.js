@@ -1,10 +1,10 @@
-import * as utils from './utils';
-import * as config from './config';
-import * as completionProvider from './completionProvider';
-import * as hoverProvider from './hoverProvider';
-import * as definitionProvider from './definitionProvider';
-import * as commandProvider from './commandProvider';
-import * as contextMenuProvider from './contextMenuProvider';
+import * as utils from './utils.js';
+import * as config from './config.js';
+import * as completionProvider from './completionProvider.js';
+import * as hoverProvider from './hoverProvider.js';
+import * as definitionProvider from './definitionProvider.js';
+import * as commandProvider from './commandProvider.js';
+import * as contextMenuProvider from './contextMenuProvider.js';
 import { window, workspace } from 'vscode';
 
 /**
@@ -93,6 +93,7 @@ export async function activate(ctx = null) {
             commandProvider.setConfigOption,
             commandProvider.showComponentHelp(context),
             commandProvider.deleteNodeModules,
+            commandProvider.createTestUnitFile,
             contextMenuProvider.createTestFileProvider
         );
         // Suscribirse al evento onDidChangeActiveTextEditor

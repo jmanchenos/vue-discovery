@@ -13,7 +13,7 @@ let plugins = [];
 let constants = [];
 let vueFiles = [];
 let vueRegisteredFiles = [];
-let currentPanel = undefined;
+let currentPanel;
 let currentWorkspaceFolder;
 
 //indicar que la variable que vamos a definir parsedVudeMap es del tipo Map
@@ -82,7 +82,6 @@ export {
     outputChannel,
     setConfig,
     getConfig,
-    currentPanel,
     setVueFiles,
     setVueRegisteredFiles,
     setJsFiles,

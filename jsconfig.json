@@ -1,11 +1,15 @@
 {
     "compilerOptions": {
-        "module": "ESNext",
+        "module": "NodeNext",
         "target": "ESNext",
         "checkJs": true,
-        "lib": ["esnext"],
+        "lib": [
+            "ESNext"
+        ],
         "newLine": "lf",
-        "moduleResolution": "Node"
+        "moduleResolution": "NodeNext"
     },
-    "includes": ["src/**/*"]
+    "includes": [
+        "src/**/*"
+    ]
 }

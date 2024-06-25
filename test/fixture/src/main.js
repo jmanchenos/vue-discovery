@@ -1,5 +1,3 @@
-/* eslint-disable global-require */
-
 import Vue from 'vue';
 import PortalVue from 'portal-vue';
 // TODO: Cuando la libreria de componentes esté completa, apuntar a la version correspondiente
@@ -57,7 +55,7 @@ Vue.prototype.$UTILS_SHORTKEYS = UtilsShortkeys;
 Vue.prototype.$ICONS = ICONS;
 
 Object.keys(sgntj).forEach(name => {
-  Vue.component(name, sgntj[name]);
+    Vue.component(name, sgntj[name]);
 });
 
 // Limpieza del catálogo de componentes que estan acoplados al proyecto y se estan migrando al proyecto principal
@@ -83,24 +81,23 @@ Vue.use(UtilsGeneric);
 Vue.use(Helpers, { store });
 Vue.use(Plugin);
 
-
 Vue.config.productionTip = false;
 Vue.prototype.$electron = window.Cypress ? electronCypress : electron;
 
 (async function init() {
-  if (electron) {
-    const configuracionApp = await electron.ipcRenderer.invoke('get-configuracion');
-    store.commit(SET_CONFIGURACION_APP, configuracionApp);
-  }
-  store.dispatch('auth/AUTO_REFRESH_TOKEN');
-  const app = new Vue({
-    router,
-    store,
-    i18n,
-    render: h => h(App),
-  }).$mount('#app');
-  if (window.Cypress) {
-    // Add `store` to the window object only when testing with Cypress
-    window.app = app;
-  }
+    if (electron) {
+        const configuracionApp = await electron.ipcRenderer.invoke('get-configuracion');
+        store.commit(SET_CONFIGURACION_APP, configuracionApp);
+    }
+    store.dispatch('auth/AUTO_REFRESH_TOKEN');
+    const app = new Vue({
+        router,
+        store,
+        i18n,
+        render: h => h(App),
+    }).$mount('#app');
+    if (window.Cypress) {
+        // Add `store` to the window object only when testing with Cypress
+        window.app = app;
+    }
 })();

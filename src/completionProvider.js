@@ -1,5 +1,5 @@
-import * as utils from './utils';
-import { getConfig, getVueFiles, getPlugins, getConstants, getVueObjects } from './config';
+import * as utils from './utils.js';
+import { getConfig, getVueFiles, getPlugins, getConstants, getVueObjects } from './config.js';
 import { Range, SnippetString, languages, CompletionItem, CompletionItemKind, workspace } from 'vscode';
 import { kebabCase, camelCase } from 'lodash';
 
@@ -14,7 +14,7 @@ const cypressFilePattern = { scheme: 'file', pattern: '**/tests/**/*.js' };
 function getInsertObject(obj) {
     try {
         if (obj.value?.type === 'ArrowFunctionExpression') {
-            const params = obj.value?.raw?.match(/\(?([\w\,\s]*)\)?\s?=>/)?.[1] ?? [];
+            const params = obj.value?.raw?.match(/\(?([\w,\s]*)\)?\s?=>/)?.[1] ?? [];
             return `${obj.name}(${params.trim()})`;
         } else {
             return obj.name;
@@ -317,7 +317,7 @@ const refsCompletionItemProvider = languages.registerCompletionItemProvider(
     {
         async provideCompletionItems(document, position) {
             try {
-                const wordRange = document.getWordRangeAtPosition(position, /this\.\$refs\.[\(\)\w]*/);
+                const wordRange = document.getWordRangeAtPosition(position, /this\.\$refs\.[()\w]*/);
                 if (!wordRange) {
                     return;
                 }
@@ -349,13 +349,13 @@ const thisCompletionItemProvider = languages.registerCompletionItemProvider(
     {
         async provideCompletionItems(document, position) {
             try {
-                let wordRange = document.getWordRangeAtPosition(position, /this\.[\$\(\)\w]*/);
+                let wordRange = document.getWordRangeAtPosition(position, /this\.[$()\w]*/);
                 if (
                     !wordRange &&
                     utils.isPositionInTemplateSection(position) &&
                     utils.isPositionInQuotationMarks(position)
                 ) {
-                    wordRange = document.getWordRangeAtPosition(position, /(?<=\")[\$\(\)\w\.]*(?=\")/);
+                    wordRange = document.getWordRangeAtPosition(position, /(?<=")[$()\w.]*(?=")/);
                 }
                 if (!wordRange) {
                     return;
@@ -377,8 +377,8 @@ const thisCompletionItemProvider = languages.registerCompletionItemProvider(
                     array.push(...(props?.map(x => createThisCompletionItem(x, range)) || []));
                     array.push(...(methods?.map(x => createThisCompletionItem(x, range)) || []));
                 }
-                array.push(...getPlugins()?.map(x => createThisCompletionItem(x, range) || []));
-                array.push(...getConstants()?.map(x => createThisCompletionItem(x, range) || []));
+                array.push(...(getPlugins()?.map(x => createThisCompletionItem(x, range) || []) || []));
+                array.push(...(getConstants()?.map(x => createThisCompletionItem(x, range) || []) || []));
                 return array;
             } catch (err) {
                 console.error(err);
@@ -395,13 +395,13 @@ const pluginCompletionItemProvider = languages.registerCompletionItemProvider(
     {
         async provideCompletionItems(document, position) {
             try {
-                let wordRange = document.getWordRangeAtPosition(position, /this\.\$\w*\.[\(\)\w]*/);
+                let wordRange = document.getWordRangeAtPosition(position, /this\.\$\w*\.[()\w]*/);
                 if (
                     !wordRange &&
                     utils.isPositionInTemplateSection(position) &&
                     utils.isPositionInQuotationMarks(position)
                 ) {
-                    wordRange = document.getWordRangeAtPosition(position, /\$\w*\.[\(\)\w]*/);
+                    wordRange = document.getWordRangeAtPosition(position, /\$\w*\.[()\w]*/);
                 }
                 if (!wordRange) {
                     return;
@@ -510,13 +510,13 @@ const objectCompletionItemProvider = languages.registerCompletionItemProvider(
     {
         async provideCompletionItems(document, position) {
             try {
-                let wordRange = document.getWordRangeAtPosition(position, /this\.\w+\.[\(\)\w]*/);
+                let wordRange = document.getWordRangeAtPosition(position, /this\.\w+\.[()\w]*/);
                 if (
                     !wordRange &&
                     utils.isPositionInTemplateSection(position) &&
                     utils.isPositionInQuotationMarks(position)
                 ) {
-                    wordRange = document.getWordRangeAtPosition(position, /^\$\w+\.[\(\)\w]*/);
+                    wordRange = document.getWordRangeAtPosition(position, /^\$\w+\.[()\w]*/);
                 }
                 if (!wordRange) {
                     return;

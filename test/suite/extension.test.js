@@ -1,13 +1,14 @@
-const assert = require('assert');
-const vscode = require('vscode');
-const { showFile, getDocPathWithSlash, position, getDocUri, sleep, range } = require('../util');
-const {
+import assert from 'assert';
+import * as vscode from 'vscode';
+import { showFile, getDocPathWithSlash, position, getDocUri, sleep, range } from '../util.js';
+import {
     testLineEquals,
     rangeEquals,
     testHover,
     testCompletion,
     testCompletionDoesNotContainItems,
-} = require('../helpers');
+} from '../helpers.js';
+import {it, describe, before} from 'mocha';
 
 const components = [
     Object.assign(new vscode.CompletionItem('ComponentWithPropsName', vscode.CompletionItemKind.Constructor), {
@@ -36,7 +37,7 @@ const events = [
     new vscode.CompletionItem('eventInSubMixin', vscode.CompletionItemKind.Event),
 ];
 
-describe('Interactions', function() {
+describe('Interactions', function () {
     const docUri = getDocUri('App.vue');
     const componentWithoutPropsSnippet =
         '<ComponentWithPropsName :name="" :names="" :default-value=""></ComponentWithPropsName>';

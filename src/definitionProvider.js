@@ -1,6 +1,6 @@
-import * as utils from './utils';
+import * as utils from './utils.js';
 import { languages, Location, Range, Uri } from 'vscode';
-import { getVueFiles } from './config';
+import { getVueFiles } from './config.js';
 
 const vueFilePattern = { scheme: 'file', pattern: '**/src/**/*.vue' };
 const cypressFilePattern = { scheme: 'file', pattern: '**/tests/**/*.js' };

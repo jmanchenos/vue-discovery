@@ -1,11 +1,13 @@
-import vscode, { commands, window, Position, SnippetString, ViewColumn } from 'vscode';
-import * as utils from './utils';
-import { outputChannel, getConfig, setConfig, getCurrentPanel, setCurrentPanel } from './config';
+import { commands, window, Position, SnippetString, ViewColumn } from 'vscode';
+import * as utils from './utils.js';
+import { outputChannel, getConfig, setConfig, getCurrentPanel, setCurrentPanel } from './config.js';
 import fs from 'fs';
+import path from 'path';
 
 /**
  * @typedef {import ('vscode').ExtensionContext} ExtensionContext;
  * @typedef {import ('vscode').Disposable} Disposable
+ * @typedef {import ('vscode').Uri} Uri
  */
 
 function getImportPath(file, fileName) {
@@ -301,9 +303,10 @@ const showComponentHelp = context =>
     });
 
 /**
- * Deletes the node_modules folder for the specified URI.
+ * Deletes the node_modules folder for a given URI.
  *
- * @param {vscode.Uri} uri - The URI of the file or directory.
+ * @param {Uri} uri - The URI of the file or directory.
+ * @returns {Promise<void>} - A promise that resolves when the node_modules folder is deleted.
  */
 const deleteNodeModules = commands.registerCommand('VueDiscoveryMTM.deleteNodeModules', async uri => {
     if (uri?.fsPath) {
@@ -352,4 +355,37 @@ const borrarNodeModules = async nodeModulesPath => {
     });
 };
 
-export { importFile, setConfigOption, showComponentHelp, deleteNodeModules };
+/**
+ * Creates a test unit file provider command.
+ *
+ * @param {Uri} uri - The URI of the file.
+ * @returns {Promise<void>} - A promise that resolves when the test unit file is created.
+ */
+const createTestUnitFile = commands.registerCommand('VueDiscoveryMTM.createTestUnitFile', async uri => {
+    if (uri?.fsPath && path.extname(uri.fsPath) === '.vue') {
+        const workspaceFsPath = utils.getWorkspaceRootUri(uri).fsPath;
+        const relativePath = utils.getRelativePathForUri(uri).replace('./src', '@');
+        const testUnitLibrary = utils.findTestUnitScriptPath(uri);
+        const methodName = getConfig('createTestFileMethodName');
+        if (!testUnitLibrary) {
+            outputChannel.appendLine(
+                `No existe el fichero con la libreria necesaria para generar el fichero de test unitarios: ${testUnitLibrary}.${methodName}`
+            );
+            window.showErrorMessage(
+                `No existe el fichero con la libreria necesaria para generar el fichero de test unitarios: ${testUnitLibrary}.${methodName}`
+            );
+        }
+        window.setStatusBarMessage('Generando fichero de test...');
+        try {
+            await utils.executeJSMethodInWorkspace(testUnitLibrary, methodName, workspaceFsPath, relativePath);
+        } catch (error) {
+            outputChannel.appendLine(`Error al generar el fichero de test: ${error.message}`);
+            window.showErrorMessage(`Error al generar el fichero de test: ${error.message}`);
+        }
+        window.setStatusBarMessage('');
+    } else {
+        window.showWarningMessage('Este comando solo funciona con archivos .vue');
+    }
+});
+
+export { importFile, setConfigOption, showComponentHelp, deleteNodeModules, createTestUnitFile };

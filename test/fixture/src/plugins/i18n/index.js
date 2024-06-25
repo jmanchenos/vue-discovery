@@ -14,11 +14,11 @@ Vue.use(VueI18n);
  */
 
 const i18n = new VueI18n({
-  locale: 'en-es',
-  fallbackLocale: 'es-es',
-  formatFallbackMessages: true,
-  silentTranslationWarn: true,
-  messages,
+    locale: 'en-es',
+    fallbackLocale: 'es-es',
+    formatFallbackMessages: true,
+    silentTranslationWarn: true,
+    messages,
 });
 
 export default i18n;

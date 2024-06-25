@@ -15,8 +15,8 @@
 const EB = {};
 
 EB.install = Vue => {
-  const vueLocal = Vue;
-  vueLocal.prototype.$EventBus = new Vue();
+    const vueLocal = Vue;
+    vueLocal.prototype.$EventBus = new Vue();
 };
 
 export default EB;

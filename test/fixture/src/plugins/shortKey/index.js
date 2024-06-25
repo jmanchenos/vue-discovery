@@ -1,35 +1,25 @@
 function callback(keypress) {
-  const {
-    key: keypressKey,
-    ctrlKey: keypressCtrl,
-    shiftKey: keypressShift,
-    altKey: keypressAlt,
-  } = keypress;
-  const hasOnlyKey = this.filter(item => {
-    const key = (item?.key?.key || '').toLocaleLowerCase();
-    const onlyKey = item?.key?.onlyKey || false;
-    return onlyKey && keypressKey?.toLocaleLowerCase() === key;
-  });
-  if (keypressCtrl || keypressShift || keypressAlt || hasOnlyKey) {
-    const trigger = this.filter(shortkey => {
-      const { key } = shortkey;
-      const {
-        key: shortkeysKey,
-        ctrlKey: shortkeysCtrl,
-        shiftKey: shortkeysShift,
-        altKey: shortkeysAlt,
-      } = key;
-      return keypressKey?.toLocaleLowerCase() === (shortkeysKey.toLocaleLowerCase() || '') &&
-        keypressCtrl === (shortkeysCtrl || false) &&
-        keypressShift === (shortkeysShift || false) &&
-        keypressAlt === (shortkeysAlt || false)
-        ? shortkey
-        : false;
+    const { key: keypressKey, ctrlKey: keypressCtrl, shiftKey: keypressShift, altKey: keypressAlt } = keypress;
+    const hasOnlyKey = this.filter(item => {
+        const key = (item?.key?.key || '').toLocaleLowerCase();
+        const onlyKey = item?.key?.onlyKey || false;
+        return onlyKey && keypressKey?.toLocaleLowerCase() === key;
     });
-    if (trigger.length === 1 && typeof trigger[0].callback !== 'undefined') {
-      trigger[0].callback();
+    if (keypressCtrl || keypressShift || keypressAlt || hasOnlyKey) {
+        const trigger = this.filter(shortkey => {
+            const { key } = shortkey;
+            const { key: shortkeysKey, ctrlKey: shortkeysCtrl, shiftKey: shortkeysShift, altKey: shortkeysAlt } = key;
+            return keypressKey?.toLocaleLowerCase() === (shortkeysKey.toLocaleLowerCase() || '') &&
+                keypressCtrl === (shortkeysCtrl || false) &&
+                keypressShift === (shortkeysShift || false) &&
+                keypressAlt === (shortkeysAlt || false)
+                ? shortkey
+                : false;
+        });
+        if (trigger.length === 1 && typeof trigger[0].callback !== 'undefined') {
+            trigger[0].callback();
+        }
     }
-  }
 }
 /**
  * @namespace $Shortkey
@@ -76,52 +66,52 @@ function callback(keypress) {
  * @version 1.0.0
  */
 const Shortkey = {
-  install(Vue) {
-    const vueLocal = Vue;
-    let $callback;
-    vueLocal.prototype.$ShortKey = {
-      /**
-       * @namespace initShortkey
-       * @description Añade shortkeys a la pantalla actual
-       * @property {Object}           shortkeys={}            - Objeto con la configuración de las teclas
-       * @example
-       * this.$ShortKey.initShortkey([{
-       *   key: {
-       *     key: this.$UTILS_SHORTKEYS.KEYS.A,
-       *     altKey: true,
-       *   },
-       *   callback: payload.accept,
-       * }]);
-       */
-      initShortkey: shortkeys => {
-        $callback = callback.bind(shortkeys);
-        window.addEventListener('keydown', $callback);
-      },
-      /**
-       * @namespace removeShortkey
-       * @description Elimina los shortkeys en la pantalla actual
-       * @property {Object}           newCallback=null         - Objeto con la referencia a la configuración de las teclas
-       * @example
-       * // Si añadimos en la página 'this.$ShortKey.initShortkey({})'
-       * this.$ShortKey.removeShortkey();
-       * 'o'
-       * // Si no añadimos en la página 'this.$ShortKey.initShortkey({})'
-       * this.$ShortKey.removeShortKey(this.$ShortKey.getCallback());
-       */
-      removeShortkey: (newCallback = null) => {
-        window.removeEventListener('keydown', newCallback || $callback);
-      },
-      /**
-       * @namespace getCallback
-       * @description Nos devuelve la referencia al callback que se
-       * @return {Object}             return                  - Devuelve la referencia del callback con la confiración de las teclas
-       * @example
-       * // Nos devuelve la referencia actual
-       * this.$ShortKey.getCallback();
-       */
-      getCallback: () => $callback,
-    };
-  },
+    install(Vue) {
+        const vueLocal = Vue;
+        let $callback;
+        vueLocal.prototype.$ShortKey = {
+            /**
+             * @namespace initShortkey
+             * @description Añade shortkeys a la pantalla actual
+             * @property {Object}           shortkeys={}            - Objeto con la configuración de las teclas
+             * @example
+             * this.$ShortKey.initShortkey([{
+             *   key: {
+             *     key: this.$UTILS_SHORTKEYS.KEYS.A,
+             *     altKey: true,
+             *   },
+             *   callback: payload.accept,
+             * }]);
+             */
+            initShortkey: shortkeys => {
+                $callback = callback.bind(shortkeys);
+                window.addEventListener('keydown', $callback);
+            },
+            /**
+             * @namespace removeShortkey
+             * @description Elimina los shortkeys en la pantalla actual
+             * @property {Object}           newCallback=null         - Objeto con la referencia a la configuración de las teclas
+             * @example
+             * // Si añadimos en la página 'this.$ShortKey.initShortkey({})'
+             * this.$ShortKey.removeShortkey();
+             * 'o'
+             * // Si no añadimos en la página 'this.$ShortKey.initShortkey({})'
+             * this.$ShortKey.removeShortKey(this.$ShortKey.getCallback());
+             */
+            removeShortkey: (newCallback = null) => {
+                window.removeEventListener('keydown', newCallback || $callback);
+            },
+            /**
+             * @namespace getCallback
+             * @description Nos devuelve la referencia al callback que se
+             * @return {Object}             return                  - Devuelve la referencia del callback con la confiración de las teclas
+             * @example
+             * // Nos devuelve la referencia actual
+             * this.$ShortKey.getCallback();
+             */
+            getCallback: () => $callback,
+        };
+    },
 };
 
 export default Shortkey;

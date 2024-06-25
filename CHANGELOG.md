@@ -5,6 +5,8 @@ All notable changes to the "vue-discovery" extension will be documented in this 
 ## [0.7.4] 2024-06-23
 
 - Add posibility to delete the node_modules folder in the project
+- Add posibility to create a test unit file for .vue files
+- Add vite support
 
 ## [0.7.3] 2022-12-12
 

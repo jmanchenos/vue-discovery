@@ -5,17 +5,17 @@ import showLoading from './showLoading';
  */
 
 const Load = {
-  install(Vue) {
-    const vueLocal = Vue;
-    vueLocal.prototype.$Loading = {
-      show: message => {
-        showLoading.show(message);
-      },
-      hide: () => {
-        showLoading.hide();
-      },
-    };
-  },
+    install(Vue) {
+        const vueLocal = Vue;
+        vueLocal.prototype.$Loading = {
+            show: message => {
+                showLoading.show(message);
+            },
+            hide: () => {
+                showLoading.hide();
+            },
+        };
+    },
 };
 
 export default Load;
