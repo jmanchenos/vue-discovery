@@ -27,6 +27,9 @@ This extension discovers Vue components in your workspace and provides IntelliSe
 ### Provide Info of Components provided by Showcase Application (Ctrl + Shift + I)
 
 ![imagen de showCase](https://raw.githubusercontent.com/jmanchenos/vue-discovery/master/images/showcase-keybind.gif.gif)
+### Provide Contextual Menu option for creating unit test file over a selected Vue component.
+
+![imagen de Create Unit Test File](https://raw.githubusercontent.com/jmanchenos/vue-discovery/master/images/crearTestUnitario.gif)
 
 ## 🔧 Extension Settings
 
@@ -47,5 +50,6 @@ This extension can be customized with the following settings:
 - `VueDiscoveryMTM.useComponentShowcase`: Define if we will show help info for a component when hover is over that component and we push over `Ctrl` button. This help comes from the showCase application (default: `true`).
 - `VueDiscoveryMTM.componentShowcaseUrl`: URL for Components Showcase Application to show examples of how to use them. Only used when property useComponentShowcase is set to true (default: <http://10.12.19.106:32006>).
 - `VueDiscoveryMTM.componentShowcaseTimeout`: Timeout for connecting to Components Showcase Application (default: 3000).
+- - `VueDiscoveryMTM.createTestFileLibrary`: relative path of script js file to generate scaffolding ogf unit test. (default: vitest-scaffold.mjs).
 
 ## 🔖 Release Notes
