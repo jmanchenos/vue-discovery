@@ -493,13 +493,17 @@ export const exec = async ruta => {
 };
 
 (async () => {
-try {
-    log('ViteTest Scaffold', true);
-    const answers = await inquirer.prompt(questions);
-    await exec(answers.fileNameToTest);
-    log('Scaffold Created', true);
-} catch (err) {
+  try {
+    if (process.argv[2]) {
+      await exec(process.argv[2]);
+    } else {
+      log('ViteTest Scaffold', true);
+      const answers = await inquirer.prompt(questions);
+      await exec(answers.fileNameToTest);
+      log('Scaffold Created', true);
+    }
+  } catch (err) {
     log(`ERROR: ${err}`);
-}
+  }
 })();
 

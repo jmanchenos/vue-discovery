@@ -2,5 +2,6 @@
     "VueDiscoveryMTM.registeredDirectory": "/src/registeredComponents; /../../../MTM/mtm-vue/sgtnj-vue-components/src",
     // "VueDiscoveryMTM.registeredDirectory": "/src/registeredComponents",
     "VueDiscoveryMTM.rootDirectory": "/src/components;/src/mixins",
-    "VueDiscoveryMTM.pluginsDirectory": "/src/plugins;/src/"
+    "VueDiscoveryMTM.pluginsDirectory": "/src/plugins;/src/",
+    "VueDiscoveryMTM.createTestFileLibrary": "vitest-scaffold.mjs"
 }

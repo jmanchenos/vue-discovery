@@ -862,59 +862,9 @@ const findNodeModulesPath = uri => {
 };
 
 const findTestUnitScriptPath = uri => {
-    const rootPath = workspace.getWorkspaceFolder(uri).uri.fsPath;
+    const rootPath = getWorkspaceRootUri(uri).fsPath;
     const testUnitScriptPath = path.join(rootPath, getConfig('createTestFileLibrary'));
     return fs.existsSync(testUnitScriptPath) ? testUnitScriptPath : null;
-};
-
-const withCustomCwd = (workspacePath, func) => {
-    const originalCwd = process.cwd();
-    process.chdir(workspacePath);
-    return async (...args) => {
-        try {
-            return await func(...args);
-        } finally {
-            process.chdir(originalCwd);
-        }
-    };
-};
-
-const executeJSMethodInWorkspace = async (filePath, methodName, workspaceFsPath, ...args) => {
-    return withCustomCwd(workspaceFsPath, async () => {
-        try {
-            // Verificar si el archivo existe
-            await fs.promises.access(filePath);
-            // Leer el contenido del archivo para determinar si es ESM o CommonJS
-            const fileContent = await fs.promises.readFile(filePath, 'utf8');
-            const isESM =
-                fileContent.includes('export default') ||
-                fileContent.includes('export function') ||
-                fileContent.includes('export const');
-            // let exportedModule;
-            let data;
-            if (isESM) {
-                // Si es ESM, usamos import dinámico
-                const moduleUrl = `file://${filePath}`;
-                //import dinamico dle metodo exec de moduleUrl
-                data = await import(moduleUrl);
-
-            } else {
-                // Si es CommonJS, usamos require
-                delete require.cache[require.resolve(filePath)]; // Limpiar caché
-                data = require(filePath);
-            }
-            const importedFunction = data[methodName];
-            // Verificar si el método existe
-            if (typeof importedFunction !== 'function') {
-                throw new Error(`El método ${methodName} no existe en el módulo`);
-            }
-            // Ejecutar el método
-            outputChannel.appendLine(`Ejecutando el método ${methodName} del fichero ${filePath} : ${importedFunction.toString()}`);
-            return await importedFunction(...args);
-        } catch (error) {
-            throw new Error(`Error al ejecutar el método: ${error.message}`);
-        }
-    })();
 };
 
 export {
@@ -975,5 +925,5 @@ export {
     findTestUnitScriptPath,
     getRelativePathForUri,
     getWorkspaceRootUri,
-    executeJSMethodInWorkspace,
+    // executeJSMethodInWorkspace,
 };

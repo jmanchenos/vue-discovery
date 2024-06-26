@@ -3,6 +3,7 @@ import * as utils from './utils.js';
 import { outputChannel, getConfig, setConfig, getCurrentPanel, setCurrentPanel } from './config.js';
 import fs from 'fs';
 import path from 'path';
+import {exec} from 'child_process';
 
 /**
  * @typedef {import ('vscode').ExtensionContext} ExtensionContext;
@@ -362,29 +363,52 @@ const borrarNodeModules = async nodeModulesPath => {
  * @returns {Promise<void>} - A promise that resolves when the test unit file is created.
  */
 const createTestUnitFile = commands.registerCommand('VueDiscoveryMTM.createTestUnitFile', async uri => {
+    const log = (msg='', type='info') =>{
+        outputChannel.appendLine(msg);
+        switch (type) {
+            case 'error':
+                window.showErrorMessage(msg);
+                break;
+            case 'warning':
+                window.showWarningMessage(msg);
+                break;
+            case 'info':
+                window.showInformationMessage(msg);
+            default:
+        };
+    };
     if (uri?.fsPath && path.extname(uri.fsPath) === '.vue') {
         const workspaceFsPath = utils.getWorkspaceRootUri(uri).fsPath;
         const relativePath = utils.getRelativePathForUri(uri).replace('./src', '@');
         const testUnitLibrary = utils.findTestUnitScriptPath(uri);
-        const methodName = getConfig('createTestFileMethodName');
         if (!testUnitLibrary) {
-            outputChannel.appendLine(
-                `No existe el fichero con la libreria necesaria para generar el fichero de test unitarios: ${testUnitLibrary}.${methodName}`
-            );
-            window.showErrorMessage(
-                `No existe el fichero con la libreria necesaria para generar el fichero de test unitarios: ${testUnitLibrary}.${methodName}`
-            );
+            log(`No existe el fichero con la libreria necesaria para generar el fichero de test unitarios: ${testUnitLibrary}`, 'error');
+            return;
         }
         window.setStatusBarMessage('Generando fichero de test...');
         try {
-            await utils.executeJSMethodInWorkspace(testUnitLibrary, methodName, workspaceFsPath, relativePath);
+            const command = `node  ${testUnitLibrary} "${relativePath}"`;
+            exec(command, { cwd: workspaceFsPath }, (error, stdout, stderr) => {
+                if (error) {
+                    log(`Error al ejecutar: ${error.message}`, 'error');
+                    return;
+                }
+                if (stderr) {
+                    log(`Error: ${stderr}`, 'error');
+                    return;
+                }
+                if (stdout) {
+                    log(`Resultado: ${stdout}`);
+                } else{
+                    log('Fichero de test generado con éxito', 'info');
+                }
+            });
         } catch (error) {
-            outputChannel.appendLine(`Error al generar el fichero de test: ${error.message}`);
-            window.showErrorMessage(`Error al generar el fichero de test: ${error.message}`);
+            log(`Error al generar el fichero de test: ${error.message}`, 'error');
         }
         window.setStatusBarMessage('');
     } else {
-        window.showWarningMessage('Este comando solo funciona con archivos .vue');
+        log('Este comando solo funciona con archivos .vue', 'warning');
     }
 });
 

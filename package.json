@@ -139,13 +139,8 @@
                 },
                 "VueDiscoveryMTM.createTestFileLibrary": {
                     "type": "string",
-                    "default": "./vitest-scaffold.mjs",
+                    "default": "vitest-scaffold.mjs",
                     "description": "ruta relativa del fichero .js que contiene el script para generar los ficheros de test unitarios. La ruta es relativa al root del proyecto."
-                },
-                "VueDiscoveryMTM.createTestFileMethodName": {
-                    "type": "string",
-                    "default": "exec",
-                    "description": "nombre de la función dentro de la libreria que ejecuta el script de generación de test unitarios."
                 }
             }
         },
