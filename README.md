@@ -31,6 +31,10 @@ This extension discovers Vue components in your workspace and provides IntelliSe
 
 ![imagen de Create Unit Test File](https://raw.githubusercontent.com/jmanchenos/vue-discovery/master/images/crearTestUnitario.gif)
 
+### Provide Contextual Menu option for deleting node_modules.
+
+![imagen de Delete node_modules](https://raw.githubusercontent.com/jmanchenos/vue-discovery/master/images/deleteNodeModules.gif)
+
 ## 🔧 Extension Settings
 
 This extension can be customized with the following settings:
