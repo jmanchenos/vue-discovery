@@ -1,23 +1,7 @@
-import inquirer from 'inquirer';
-import chalk from 'chalk';
-import figlet from 'figlet';
 import fs from 'fs';
 import path from 'path';
 
-const log = (msg, format = false) =>
-  format
-    ? console.log(
-        chalk.cyan(
-          figlet.textSync(msg, {
-            font: 'standard',
-            horizontalLayout: 'default',
-            verticalLayout: 'default',
-            width: 80,
-            whitespaceBreak: true,
-          })
-        )
-      )
-    : console.log(msg);
+const log = (msg='') => console.log(msg);
 
 const readComponentFile = async iPath => {
   try {
@@ -164,10 +148,8 @@ const writeTestFile = (payload, answers) => {
     fs.mkdirSync(dirName, { recursive: true });
   }
 
-  fs.writeFileSync(fileName, payload, err => {
-    if (err) throw err;
-    log(`Fichero "${fileName}" creado correctamente`);
-  });
+  fs.writeFileSync(fileName, payload);
+  log(`Fichero "${fileName}" creado correctamente`);
 };
 
 const processTempalteVueFile = templatePayload => {
@@ -317,7 +299,7 @@ const getDefaultRenderOptionsAPI = (objDefault, objType) => {
     // Se usa el valor '2' ya que un valor vacio en string es '' (2 caracteres)
     (objDefault.default?.length || 0) <= 2
     ? objDefault.default
-    : `'${objDefault.default.replaceAll(`'`, '')}'`;
+    : `'${objDefault.default.replaceAll("`", "")}'`;
 };
 
 const getDefaultCase = ({ objDefault, objType, key }) => {
@@ -496,11 +478,6 @@ export const exec = async ruta => {
   try {
     if (process.argv[2]) {
       await exec(process.argv[2]);
-    } else {
-      log('ViteTest Scaffold', true);
-      const answers = await inquirer.prompt(questions);
-      await exec(answers.fileNameToTest);
-      log('Scaffold Created', true);
     }
   } catch (err) {
     log(`ERROR: ${err}`);
