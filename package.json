@@ -26,7 +26,7 @@
     "activationEvents": [
         "*"
     ],
-    "main": "./dist/extension.js",
+    "main": "./dist/extension.cjs",
     "contributes": {
         "configuration": {
             "type": "object",
@@ -186,8 +186,8 @@
         "pretest": "npm run lint",
         "test": "node ./test/runTest.js",
         "test-compile": "tsc -p ./",
-        "esbuild-base": "esbuild --bundle --platform=node --external:vscode --sourcemap  --format=esm src/extension.js",
-        "build": "npm run esbuild-base  -- --outfile=dist/extension.js",
+        "esbuild-base": "esbuild --bundle --platform=node --external:vscode --sourcemap  --format=cjs src/extension.js",
+        "build": "npm run esbuild-base  -- --outfile=dist/extension.cjs",
         "build-dev": "npm run build -- --watch",
         "vscode:prepublish": "npm run build -- --minify --keep-names",
         "vsix": "vsce package --allow-star-activation"
