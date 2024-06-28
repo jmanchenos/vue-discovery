@@ -39,8 +39,8 @@
                 },
                 "VueDiscoveryMTM.registeredDirectory": {
                     "type": "string",
-                    "default": "/sgtnj-vue-components/src/components",
-                    "description": "list of root directories in your workspace on which search registered components separated by ;"
+                    "default": "",
+                    "description": "list of root directories in your workspace on which search registered components separated by ';'. This could be a absolute path or relative path. If finished with '/' only find on that folder, excluding children folders"
                 },
                 "VueDiscoveryMTM.cypressTestsDirectory": {
                     "type": "string",
