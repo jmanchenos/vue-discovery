@@ -13,7 +13,6 @@ import fs from 'fs';
 import { all } from 'deepmerge';
 import { parseModule } from 'esprima-next';
 import { query } from 'esquery';
-import { outputChannel } from './config.js';
 
 const { getConfig } = config;
 /**
@@ -35,8 +34,8 @@ const cyFiles = config.getCyFiles;
 
 const getEditor = () => window.activeTextEditor;
 const getActiveEditorPosition = () => window.activeTextEditor.selection.active;
-const getDocument = () => getEditor().document;
-const getDocumentText = () => getDocument().getText();
+const getDocument = () => getEditor()?.document;
+const getDocumentText = () => getDocument()?.getText();
 const getIndentBase = () => {
     const editor = getEditor();
     return editor.options.insertSpaces ? ' '.repeat(toNumber(editor.options.tabSize)) : '\t';
@@ -44,9 +43,9 @@ const getIndentBase = () => {
 const getIndent = () => getIndentBase().repeat(2);
 const getRootPath = () => config.getCurrentWorkspaceFolder().uri.path.slice(1);
 const getCharBefore = (document = getDocument(), position = getActiveEditorPosition()) =>
-    document.lineAt(position.line)?.text?.charAt(position.character - 1);
+    document?.lineAt(position.line)?.text?.charAt(position.character - 1);
 const getCharAfter = (document = getDocument(), position = getActiveEditorPosition()) =>
-    document.lineAt(position.line)?.text?.charAt(position.character);
+    document?.lineAt(position.line)?.text?.charAt(position.character);
 
 const findAliases = () => {
     try {
@@ -126,7 +125,8 @@ const getFilesByExtension = async (extension, configAtrib = 'rootDirectory') => 
             new Promise((resolve, reject) => {
                 try {
                     const suffix = element.endsWith('/') ? '*' : '/**/*';
-                    glob(`${getRootPath()}${element}${suffix}.${extension}`)
+                    const expression = `${element.startsWith('/') ? getRootPath() : ''}${element}${suffix}.${extension}`;
+                    glob(expression)
                         .then(files => {
                             resolve(files);
                         })
@@ -344,7 +344,7 @@ const getComponentAtCursor = () => {
         const document = getDocument();
         const regExp = /<((\w|-)+)(?:[^<])+?(?:<\/\1>|\/>)/g;
         //filtramos toodo lo que encontremos en ese regExp (tab abiertos y cerrados)
-        let text = document.getText().substring(0, document.offsetAt(position));
+        let text = document.getText().substring(0, document?.offsetAt(position));
         while (text !== text.replace(regExp, '')) {
             text = text.replace(regExp, '');
         }
@@ -367,7 +367,7 @@ const isPositionInTemplateSection = position => {
 
         const document = getDocument();
         const text = getDocumentText();
-        const offset = document.offsetAt(position);
+        const offset = document?.offsetAt(position);
         let result;
         if ((result = regexp.exec(text)) !== null) {
             const posStart = result.index;
@@ -477,8 +477,8 @@ const isPositionInEntryTag = (selector, position) => {
     if (start === -1 || end === -1) {
         return false;
     }
-    const startPosition = document.positionAt(document.offsetAt(range.start) + start + `<${selector}`.length);
-    const endPosition = document.positionAt(document.offsetAt(range.start) + end);
+    const startPosition = document.positionAt(document?.offsetAt(range.start) + start + `<${selector}`.length);
+    const endPosition = document.positionAt(document?.offsetAt(range.start) + end);
     return startPosition.isBefore(position) && endPosition.isAfterOrEqual(position);
 };
 
@@ -491,7 +491,7 @@ const retrieveParsersMixin = (fileList, file, parsers) => {
     const { mixins } = new Parser(fs.readFileSync(file, 'utf8')).parse();
     if (mixins instanceof Array) {
         mixins.forEach(mixin => {
-            const _file = fileList?.find(f => f.includes(mixin));
+            const _file = fileList?.find(f => f.includes(mixin) && f !== file);
             if (_file) {
                 parsers.push(vueParser.parse({ filename: _file, features: ['props'] }));
                 retrieveParsersMixin(fileList, _file, parsers);

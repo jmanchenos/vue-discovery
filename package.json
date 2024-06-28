@@ -10,7 +10,7 @@
         "name": "José Luis Mancheños Gutiérrez",
         "email": "jmanchenos@gmail.com"
     },
-    "version": "0.7.4",
+    "version": "0.7.5",
     "icon": "images/icon.png",
     "extensionKind": [
         "ui",
@@ -99,10 +99,10 @@
                     "default": "Auto",
                     "description": "The type of icon shown for properties of the component (in Auto mode we  use  Snippet if snippet suggestiuon is on top, Property otherwise)"
                 },
-                "VueDiscoveryMTM.includeRefAtribute": {
+                "VueDiscoveryMTM.includeDataCyAttribute": {
                     "type": "boolean",
                     "default": true,
-                    "description": "include a 'ref' atribute in the component"
+                    "description": "include a 'data-cy' atribute in the component"
                 },
                 "VueDiscoveryMTM.hoverComponentInfoType": {
                     "type": "string",

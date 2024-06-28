@@ -3,7 +3,7 @@ import * as utils from './utils.js';
 import { outputChannel, getConfig, setConfig, getCurrentPanel, setCurrentPanel } from './config.js';
 import fs from 'fs';
 import path from 'path';
-import {exec} from 'child_process';
+import { exec } from 'child_process';
 
 /**
  * @typedef {import ('vscode').ExtensionContext} ExtensionContext;
@@ -156,13 +156,14 @@ async function addComponentSnippet(file, fileName) {
     try {
         const requiredProps = await utils.retrieveRequirePropsFromFile(file);
         const hasSlots = await utils.retrieveHasSlots(file);
-        const includeRef = getConfig('includeRefAtribute');
+        const includeDataCy = getConfig('includeDataCyAttribute');
         let tabStop = 1;
-        const ref = includeRef ? ` ref="$${tabStop++}"` : '';
-        const requiredPropsSnippetString = requiredProps.reduce(
-            (accumulator, prop) => `${accumulator} :${utils.propCase(prop)}="$${tabStop++}"`,
-            ''
-        );
+        const ref = includeDataCy ? ` data-cy="$${tabStop++}"` : '';
+        const requiredPropsSnippetString =
+            requiredProps?.reduce(
+                (accumulator, prop) => `${accumulator} :${utils.propCase(prop)}="$${tabStop++}"`,
+                ''
+            ) || '';
         const tagName = utils.componentCase(fileName);
         const openTagChar = utils.getCharBefore() === '<' ? '' : '<';
         const closeTag = hasSlots ? `>$${tabStop}</${tagName}>` : '/>';
@@ -363,7 +364,7 @@ const borrarNodeModules = async nodeModulesPath => {
  * @returns {Promise<void>} - A promise that resolves when the test unit file is created.
  */
 const createTestUnitFile = commands.registerCommand('VueDiscoveryMTM.createTestUnitFile', async uri => {
-    const log = (msg='', type='info') =>{
+    const log = (msg = '', type = 'info') => {
         outputChannel.appendLine(msg);
         switch (type) {
             case 'error':
@@ -374,15 +375,19 @@ const createTestUnitFile = commands.registerCommand('VueDiscoveryMTM.createTestU
                 break;
             case 'info':
                 window.showInformationMessage(msg);
+                break;
             default:
-        };
+        }
     };
     if (uri?.fsPath && path.extname(uri.fsPath) === '.vue') {
         const workspaceFsPath = utils.getWorkspaceRootUri(uri).fsPath;
         const relativePath = utils.getRelativePathForUri(uri).replace('./src', '@');
         const testUnitLibrary = utils.findTestUnitScriptPath(uri);
         if (!testUnitLibrary) {
-            log(`No existe el fichero con la libreria necesaria para generar el fichero de test unitarios: ${testUnitLibrary}`, 'error');
+            log(
+                `No existe el fichero con la libreria necesaria para generar el fichero de test unitarios: ${testUnitLibrary}`,
+                'error'
+            );
             return;
         }
         window.setStatusBarMessage('Generando fichero de test...');
@@ -399,7 +404,7 @@ const createTestUnitFile = commands.registerCommand('VueDiscoveryMTM.createTestU
                 }
                 if (stdout) {
                     log(`Resultado: ${stdout}`);
-                } else{
+                } else {
                     log('Fichero de test generado con éxito', 'info');
                 }
             });

@@ -464,7 +464,6 @@ const constantsCompletionItemProvider = languages.registerCompletionItemProvider
                 if (!wordRange) {
                     return;
                 }
-                console.log('constantCompletion');
                 /* Ini Necesario para que el $ lo tenga en cuenta a la hora de sustituir la cadena*/
                 const text = document.getText(wordRange);
                 const range = new Range(
