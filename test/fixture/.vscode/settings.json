@@ -1,7 +1,9 @@
 {
-    "VueDiscoveryMTM.registeredDirectory": "/src/registeredComponents;c:/workspaces/MTM_MIGRACION/sgntj-components/src",
+    "VueDiscoveryMTM.registeredDirectory": "/src/registeredComponents;c:/workspaces/MTM/sgntj-components/src/components;/node_modules/@sgntj/components/dist/sgntj-components.js",
     // "VueDiscoveryMTM.registeredDirectory": "/src/registeredComponents",
     "VueDiscoveryMTM.rootDirectory": "/src/components;/src/mixins",
     "VueDiscoveryMTM.pluginsDirectory": "/src/plugins;/src/",
-    "VueDiscoveryMTM.createTestFileLibrary": "vitest-scaffold.mjs"
+    "VueDiscoveryMTM.createTestFileLibrary": "vitest-scaffold.mjs",
+    "VueDiscoveryMTM.useComponentShowcase": true,
+    "VueDiscoveryMTM.componentShowcaseUrl": "http://10.44.62.220:32006"
 }

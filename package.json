@@ -1,23 +1,23 @@
 {
     "name": "vue-discovery-mtm",
+    "version": "0.7.6",
     "type": "module",
     "private": true,
     "displayName": "Vue Discovery MTM",
     "description": "This extension discovers Vue components in your workspace and provides IntelliSense for them.",
     "publisher": "jmanchenos",
     "repository": "https://github.com/jmanchenos/vue-discovery",
+    "icon": "images/icon.png",
     "author": {
         "name": "José Luis Mancheños Gutiérrez",
         "email": "jmanchenos@gmail.com"
     },
-    "version": "0.7.5",
-    "icon": "images/icon.png",
     "extensionKind": [
         "ui",
         "workspace"
     ],
     "engines": {
-        "vscode": "^1.90.0",
+        "vscode": "^1.98.0",
         "node": ">= 18.0.0"
     },
     "categories": [
@@ -39,7 +39,7 @@
                 },
                 "VueDiscoveryMTM.registeredDirectory": {
                     "type": "string",
-                    "default": "",
+                    "default": "/mode_modules/@sgntj/components/dist/sgntj-components.js",
                     "description": "list of root directories in your workspace on which search registered components separated by ';'. This could be a absolute path or relative path. If finished with '/' only find on that folder, excluding children folders"
                 },
                 "VueDiscoveryMTM.cypressTestsDirectory": {
@@ -124,7 +124,7 @@
                 },
                 "VueDiscoveryMTM.componentShowcaseUrl": {
                     "type": "string",
-                    "default": "http://10.12.19.59:32006",
+                    "default": "http://10.44.62.220:32006",
                     "description": "URL for Components Showcase Application to show examples of how to use them. Only used when property useComponentShowcase is set to true"
                 },
                 "VueDiscoveryMTM.componentShowcaseTimeout": {
@@ -194,28 +194,29 @@
     },
     "devDependencies": {
         "@types/glob": "^8.1.0",
-        "@types/mocha": "^10.0.7",
-        "@types/node": "^20.14.8",
-        "@types/vscode": "^1.90.0",
-        "@vscode/test-electron": "^2.4.0",
-        "@vscode/vsce": "2.29.0",
-        "esbuild": "^0.21.5",
-        "eslint": "^9.5.0",
-        "eslint-config-prettier": "^9.1.0",
-        "eslint-plugin-prettier": "^5.1.3",
-        "glob": "^10.4.2",
-        "mocha": "^10.4.0",
-        "prettier": "^3.3.2",
-        "typescript": "^5.5.2"
+        "@types/mocha": "^10.0.10",
+        "@types/node": "^22.13.10",
+        "@types/vscode": "^1.98.0",
+        "@vscode/test-electron": "^2.4.1",
+        "@vscode/vsce": "^3.2.2",
+        "esbuild": "^0.25.1",
+        "glob": "^11.0.1",
+        "typescript": "^5.8.2"
     },
     "dependencies": {
         "@vuedoc/parser": "^3.4.0",
         "abort-controller": "^3.0.0",
         "deepmerge": "^4.3.1",
+        "eslint": "^9.22.0",
+        "eslint-config-prettier": "^10.1.1",
+        "eslint-plugin-prettier": "^5.2.3",
+        "eslint-plugin-json": "^4.0.1",
         "esprima-next": "^6.0.3",
-        "esquery": "^1.5.0",
+        "esquery": "^1.6.0",
         "lodash": "^4.17.21",
+        "mocha": "^11.1.0",
         "node-fetch": "^3.3.2",
+        "prettier": "^3.5.3",
         "vue-template-compiler": "^2.7.16"
     }
 }

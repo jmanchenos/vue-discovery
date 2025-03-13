@@ -635,20 +635,21 @@ const markdownProp = (prop, isHover = false) => {
     }
 };
 
-const fetchWithTimeout = (url, options = {}, ms = 3000) => {
+const fetchWithTimeout = async (url, options = {}, ms = 3000) => {
     const controller = new AbortController();
     const timeout = setTimeout(() => {
         controller.abort();
     }, ms);
-    return fetch(url, {
-        signal: controller.signal,
-        ...options,
-    })
-        .then(response => response)
-        .catch(err => console.error(`${err.name === 'Abort' ? 'Timeout error' : err.message}`))
-        .finally(() => {
-            clearTimeout(timeout);
+    try {
+        return await fetch(url, {
+            signal: controller.signal,
+            ...options,
         });
+    } catch (error) {
+        throw new Error(error);
+    } finally {
+        clearTimeout(timeout);
+    }
 };
 
 const getMarkdownData = obj => {

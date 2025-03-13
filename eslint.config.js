@@ -2,12 +2,14 @@ import js from '@eslint/js';
 import globals from 'globals';
 import prettier from 'eslint-plugin-prettier';
 import eslintConfigPrettier from 'eslint-config-prettier';
+import json from 'eslint-plugin-json';
 
 //tener acceso a intellisense de los atrinbutos de la configuracion
 
 export default [
     js.configs.recommended,
     eslintConfigPrettier,
+    ...json.configs['recommended'],
     {
         languageOptions: {
             ecmaVersion: 'latest',
@@ -15,7 +17,6 @@ export default [
             parserOptions: {
                 ecmaFeatures: {
                     jsx: false,
-
                 },
             },
             globals: {

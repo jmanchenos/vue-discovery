@@ -183,17 +183,36 @@ async function addComponentSnippet(file, fileName) {
  * @returns {string} The generated HTML string.
  */
 const generateHtml = (url, name) => {
+    const cspSource = getCurrentPanel().webview.cspSource;
     return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="color-scheme" content="light">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalle del componente ${name}</title>
-    <style type="text/css">
-        html, body, div, iframe { margin: 0; padding: 0; height: 100%; }
-        iframe { display: block; width: 100%; border: none; }
+   <style type="text/css">
+        /* Reset CSS para el body y html */
+        html, body {
+            margin: 0;
+            padding: 0;
+            background-color: white; /* Forzar fondo blanco */
+            color: black; /* Forzar color negro */
+            font-family: sans-serif; /* Forzar fuente */
+            font-size: 16px; /* Forzar tamaño de fuente */
+            line-height: 1.5; /* Forzar interlineado */
+            /* ... otros estilos de reseteo ... */
+        }
+
+        /* Estilos para el iframe */
+        iframe {
+            display: block;
+            width: 100%;
+            height: 100vh; /* Usar altura de la ventana */
+            border: none;
+            background-color: white; /* Forzar fondo blanco */
+        }
     </style>
 </head>
 <body>
@@ -202,7 +221,6 @@ const generateHtml = (url, name) => {
 </html>
  `;
 };
-
 /**
  * Registers the 'VueDiscoveryMTM.importFile' command and imports a file into a Vue component.
  *
@@ -255,19 +273,27 @@ const showComponentHelp = context =>
             }
             componente = utils.getComponenteTagPositionIsOver(document, position);
         }
-
+        const componentName = utils.pascalCase(componente);
         // Lanzamos la carga del showcase para el componente actual
-        const url = `${urlShowcase}/docs/${utils.pascalCase(componente)}.html`;
+        const url = `${urlShowcase}/${componentName.substring(2)}`;
+        // const url = `${urlShowcase}/docs/${componentName}.html`;
+        const title = `Detalle uso del componente ${componentName}`;
+
+        // si es el mismo componente hacemos dispose
+        if (getCurrentPanel()?.title === title) {
+            getCurrentPanel().dispose();
+            return;
+        }
 
         //validamos que exista la url
         const timeout = getConfig('componentShowcaseTimeout') || 3000;
-        const response = await utils.fetchWithTimeout(url, { method: 'HEAD' }, timeout);
-        const isOk = response ? response.status === 200 : false;
-
-        if (!isOk) {
+        outputChannel.appendLine(`Llamada al comando showComponentHelp: ${url} `);
+        try {
+            await utils.fetchWithTimeout(url, { method: 'HEAD' }, timeout);
+        }catch (error) {
             getCurrentPanel()?.dispose();
             outputChannel.appendLine(
-                `Llamada al comando showComponentHelp no válida: ${response ? response.status : ''} `
+                `Llamada al comando showComponentHelp no válida: ${error.name==='Abort'?'Timeout error':error.message||''} `
             );
             return;
         }
@@ -277,7 +303,7 @@ const showComponentHelp = context =>
             setCurrentPanel(
                 window.createWebviewPanel(
                     'showComponentHelp',
-                    'Detalle uso del componente',
+                    title,
                     {
                         viewColumn: ViewColumn.Beside,
                         preserveFocus: true,
@@ -291,7 +317,7 @@ const showComponentHelp = context =>
         }
 
         // And set its HTML content
-        const text = generateHtml(url, componente);
+        const text = generateHtml(url, componentName);
         getCurrentPanel().webview.html = text;
 
         // Reset when the current panel is closed

@@ -2,9 +2,14 @@
 
 All notable changes to the "vue-discovery" extension will be documented in this file.
 
+## [0.7.6] 2025-03-12
+
+- Dependencies are updated
+- Fix access to ShowCaseView
+
 ## [0.7.5] 2024-06-28
 
-- Add support for external route sto Registered components with absolute paths
+- Add support for external routes to Registered components with absolute paths
 
 ## [0.7.4] 2024-06-23
 
