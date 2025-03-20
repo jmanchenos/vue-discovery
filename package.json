@@ -183,8 +183,8 @@
     "scripts": {
         "build-vite": "vite build",
         "build-dev-vite": "npm run build-vite -- --watch",
-        "build:extension": "esbuild ./src/extension.mjs --bundle --outfile=./dist/vue-discovery-mtm.cjs  --platform=node --format=cjs --sourcemap=linked --external:vscode --external:vue --external:vue-template-compiler",
-        "watch:extension": "esbuild ./src/extension.mjs --bundle --outfile=./dist/vue-discovery-mtm.cjs --platform=node --format=cjs --sourcemap=linked --external:vscode --external:vue --external:vue-template-compiler --watch",
+        "build:extension": "esbuild ./src/extension.mjs --bundle --outfile=./dist/vue-discovery-mtm.cjs  --platform=node --format=cjs --sourcemap=linked --external:vscode --external:vue",
+        "watch:extension": "esbuild ./src/extension.mjs --bundle --outfile=./dist/vue-discovery-mtm.cjs --platform=node --format=cjs --sourcemap=linked --external:vscode --external:vue --watch",
         "build": "npm run build:extension",
         "build-dev": "npm run watch:extension",
         "preview": "vite preview",
