@@ -1,6 +1,7 @@
 {
     "name": "vue-discovery-mtm",
     "version": "0.7.6",
+    "license": "MIT",
     "private": true,
     "displayName": "Vue Discovery MTM",
     "main": "./dist/vue-discovery-mtm.cjs",
@@ -16,7 +17,7 @@
         "workspace"
     ],
     "engines": {
-        "vscode": "^1.98.0",
+        "vscode": ">=1.95.0",
         "node": ">= 20.0.0"
     },
     "categories": [
@@ -209,7 +210,7 @@
         "@types/glob": "^8.1.0",
         "@types/mocha": "^10.0.10",
         "@types/node": "^18.6.3",
-        "@types/vscode": "^1.98.0",
+        "@types/vscode": "^1.95.0",
         "@vscode/test-electron": "^2.4.1",
         "@vscode/vsce": "^3.3.0",
         "esbuild": "^0.25.1",
