@@ -270,7 +270,7 @@
             <div class="row q-col-gutter-md q-my-sm">
               <span class="text-bold col" v-text="i18n.solicitudes" />
             </div>
-            <div class="row  q-my-sm">
+            <div class="row q-my-sm">
               <sg-table
                 ref="TABLA_LISTADO_SOLICITUDES"
                 virtual-scroll
@@ -374,7 +374,7 @@
     <!-- Botonera de Anexos y Anexos respuesta-->
     <portal :to="portalTarget">
       <div class="row text-left bg-white tableButtons">
-        <div v-if="!disableTexto" class="col q-ml-sm q-my-xs">
+        <div class="col q-ml-sm q-my-xs">
           <sg-button
             ref="btnExpAdminAco"
             color="primary"
@@ -400,53 +400,15 @@
     </portal>
   </div>
 </template>
-
-<script>
-import {
-  FormularioSolicitudApi,
-  RespuestaSolicitudApi,
-} from '@/models/Minutas/FormularioSolicitudFormApi';
-import {
-  FormularioSolicitudFront,
-  ConsultaDocumentosSolicitudFront,
-} from '@/models/Minutas/FormularioSolicitudFormFront';
-import FilePickerButton from '@/components/FilePickerButton.vue';
-import mixinsPanelAlerts from '@/mixins/panelAlerts';
-import { UtilsShortkeys } from '@/utils/shortkeys';
-import { getTooltip, getValueWithEllipsis } from '@/utils/helpers';
-import axios from '@/plugins/axios';
-import { uid } from 'quasar';
-import storeMinutas from '@/store/modules/minutas';
-import {
-  API_METHODS,
-  ID_TIPOS_MINUTAS,
-  MUTATIONS,
-  TIPOS_DESTINATARIO,
-  TIPOS_DOCUMENTOS_ADJUNTOS,
-  UPLOAD_URL,
-} from '@/utils/constants';
-
-import SockJS from 'sockjs-client';
-import Stomp from 'webstomp-client';
+<script lang="js">
+import mixinsPanelAlerts from './mixins/mixin';
 
 const GALATEA = 'http://localhost:5001/galatea/';
-const WS = new URL('ws', GALATEA).href;
 const WS_URL = new URL('api/v1/pdf/convert-to-pdf', GALATEA).href;
-
-const { RESET_DATA_TABLE, SET_HELP_LINK, RESET_STATE, SAVE_STATE } = MUTATIONS;
-const { TIPO_JUEZ, TIPO_SECRETARIO } = TIPOS_DESTINATARIO;
-const { EXPEDIENTE_ADMINISTRATIVO, ACONTECIMIENTO, ADJUNTO } = TIPOS_DOCUMENTOS_ADJUNTOS;
-const { MINUTA, DACION, RESOLPTE } = ID_TIPOS_MINUTAS;
-const { POST } = API_METHODS;
-const TABLA_CONSULTA_MINUTAS = 'tablaConsultaMinutas';
-const TABLA_CONSULTA_SOLICITUDES = 'tablaConsultaSolicitudes';
-const TABLA_CONSULTA_DACIONES = 'tablaConsultaDaciones';
-const TABLA_CONSULTA_RESOLUCIONES = 'tablaConsultaResoluciones';
 const [TIPO_DACION, TIPO_RESOLPTE] = ['D', 'R'];
 const [TIPO_REF_PROCEDIMIENTO, TIPO_REF_ACONTECIMIENTO] = ['P', 'A'];
 const [MODO_RESPUESTA, MODO_DETALLE, MODO_EDICION, MODO_ALTA] = ['MR', 'MD', 'ME', 'MA'];
 //TODO a sustituir en un futuro para que lo devuelva el back con un flag
-const [RESPONDIDA, ELABORADA] = ['REA', 'ELB'];
 
 // Unión y normalizacion de rutas de ficheros
 const pathJoin = (parts = []) => parts.join('/').replace(new RegExp(/(\/|\\){1,}/, 'g'), '/');
@@ -542,8 +504,6 @@ export default {
     };
     return {
       i18n,
-      getTooltip,
-      getValueWithEllipsis,
       inputFile: null,
       outputFile: null,
       loaded: false,
@@ -583,21 +543,18 @@ export default {
       configShortkey: [
         {
           key: {
-            key: UtilsShortkeys.KEYS.A,
             altKey: true,
           },
           callback: this.key_A_Callback,
         },
         {
           key: {
-            key: this.disable ? UtilsShortkeys.KEYS.V : UtilsShortkeys.KEYS.C,
             altKey: true,
           },
           callback: this.cancelCallback,
         },
         {
           key: {
-            key: UtilsShortkeys.KEYS.ESC,
             onlyKey: true,
           },
           callback: this.cancelCallback,
@@ -606,28 +563,24 @@ export default {
       configShortkeyEstado: [
         {
           key: {
-            key: UtilsShortkeys.KEYS.M,
             altKey: true,
           },
           callback: this.key_M_Callback,
         },
         {
           key: {
-            key: UtilsShortkeys.KEYS.R,
             altKey: true,
           },
           callback: this.key_R_Callback,
         },
         {
           key: {
-            key: UtilsShortkeys.KEYS.C,
             altKey: true,
           },
           callback: this.closeConfirmEstadoCallback,
         },
         {
           key: {
-            key: UtilsShortkeys.KEYS.ESC,
             onlyKey: true,
           },
           callback: this.closeConfirmEstadoCallback,
@@ -767,7 +720,9 @@ export default {
     },
     /** @returns {boolean} */
     showProcedimiento() {
-      return this.isMultiple || [TIPO_DACION, TIPO_RESOLPTE].includes(this.form?.tipoSolicitud);
+      return Boolean(
+        this.isMultiple || [TIPO_DACION, TIPO_RESOLPTE].includes(this.form?.tipoSolicitud)
+      );
     },
     /** @returns {boolean} */
     showAnexos() {
@@ -775,7 +730,7 @@ export default {
     },
     /** @returns {boolean} */
     showRespuesta() {
-      return [MODO_DETALLE, MODO_RESPUESTA].includes(this.modoVentana); // posiblemente haya que hacerlo por estado
+      return [MODO_DETALLE, MODO_RESPUESTA].includes(''); // posiblemente haya que hacerlo por estado
     },
     /** @returns {boolean} */
     hayReferencia() {
@@ -819,8 +774,7 @@ export default {
     },
     /** @returns {String} */
     labelMantener() {
-      const estado = this.estados?.find(x => x.coValor === this.form.coEstado)?.deValor || '';
-      return this.i18n.mantener(estado.toUpperCase());
+      return this.i18n.mantener();
     },
     /** @returns {String} */
     iconoCancel() {
@@ -866,12 +820,10 @@ export default {
         {
           name: 'destinatariosJU',
           alias: this.$ALIAS.consultaDestinatariosMinuta,
-          params: { tipoDestinatario: TIPO_JUEZ },
         },
         {
           name: 'destinatariosSE',
           alias: this.$ALIAS.consultaDestinatariosMinuta,
-          params: { tipoDestinatario: TIPO_SECRETARIO },
         },
         {
           name: 'extensionesConvertirPdf',
@@ -884,17 +836,14 @@ export default {
           {
             name: 'estadosDacion',
             alias: this.$ALIAS.consultaEstadosMinutas,
-            params: { tipo: DACION, esRespuesta: this.isRespuesta || false },
           },
           {
             name: 'estadosMinuta',
             alias: this.$ALIAS.consultaEstadosMinutas,
-            params: { tipo: MINUTA, esRespuesta: this.isRespuesta || false },
           },
           {
             name: 'estadosResolucion',
             alias: this.$ALIAS.consultaEstadosMinutas,
-            params: { tipo: RESOLPTE, esRespuesta: this.isRespuesta || false },
           }
         );
       }
@@ -905,32 +854,32 @@ export default {
       let arr;
       switch (this.form.tipoSolicitud) {
         case TIPO_DACION:
-          arr = this.selects.estadosDacion;
+          arr = this.selects.estadosDacion || [];
           break;
         case TIPO_RESOLPTE:
-          arr = this.selects.estadosResolucion;
+          arr = this.selects.estadosResolucion || [];
           break;
         default:
-          arr = this.selects.estadosMinuta;
+          arr = this.selects.estadosMinuta || [];
       }
       return arr;
     },
     /** @returns {boolean} */
     showTipoDestinatarioSE() {
-      return this.hints?.tiposDestinatarios?.includes(TIPO_SECRETARIO) || false;
+      return this.hints?.tiposDestinatarios?.includes('a') || false;
     },
     /** @returns {boolean} */
     showTipoDestinatarioJU() {
-      return this.hints?.tiposDestinatarios?.includes(TIPO_JUEZ) || false;
+      return this.hints?.tiposDestinatarios?.includes('a') || false;
     },
     /** @returns {Array} */
     optionsTipoDestinatario() {
       const listaTipos = [];
       if (this.showTipoDestinatarioJU) {
-        listaTipos.push({ label: this.hints?.labelTipoJU || 'Ponente', value: TIPO_JUEZ });
+        listaTipos.push({ label: this.hints?.labelTipoJU || 'Ponente', value: 'a' });
       }
       if (this.showTipoDestinatarioSE) {
-        listaTipos.push({ label: this.hints?.labelTipoSE || 'LAJ', value: TIPO_SECRETARIO });
+        listaTipos.push({ label: this.hints?.labelTipoSE || 'LAJ', value: 'a' });
       }
       return listaTipos;
     },
@@ -950,13 +899,11 @@ export default {
     },
     /**@returns {Object} */
     estadoFinal() {
-      const objEstados = { D: RESPONDIDA, R: ELABORADA };
-      return this.estados?.find(x => x.coValor === objEstados[this.form.tipoSolicitud]) || {};
+      return {};
     },
   },
   async mounted() {
     await this.load();
-    this.$store.commit(SET_HELP_LINK, this.links.ayuda);
     this.$EventBus.$emit('setTitle', this.title);
     this.$EventBus.$emit('showFooter', true);
     this.$refs.selectorTipoEscrito?.focus();
@@ -966,9 +913,8 @@ export default {
       try {
         this.$Loading.show(this.i18n.load(''));
         this.setStoreModule();
-        const dataStore = this.$store.state[this.storeModule]?.[
-          this.$STATE_NAMES.SOLICITUD_MINUTAS
-        ];
+        const dataStore =
+          this.$store.state[this.storeModule]?.[this.$STATE_NAMES.SOLICITUD_MINUTAS];
         if (!!dataStore) {
           Object.assign(this, JSON.parse(JSON.stringify(dataStore)));
           this.resetStore(this.$STATE_NAMES.SOLICITUD_MINUTAS);
@@ -992,7 +938,6 @@ export default {
       if (this.$Helpers.isValidURL(this.url)) {
         const payloadSetup = {
           url: this.url,
-          modelFront: FormularioSolicitudFront,
           selects: this.initialSelects,
         };
         const { form, links, hints, selects } = await this.$Helpers.setup(payloadSetup);
@@ -1031,13 +976,9 @@ export default {
         let params = { oriDes: 'ORI', maxRows: '99999' };
         const {
           data: { _embedded: listaDocs },
-        } = await this.$APIService.getList(url, params, ConsultaDocumentosSolicitudFront);
+        } = await this.$APIService.getList(url, params);
         listaDocs?.forEach(x => this.form.anexos.push(x.data));
         params = { oriDes: 'DES', maxRows: '99999' };
-        const {
-          data: { _embedded: listaDocsRespuesta },
-        } = await this.$APIService.getList(url, params, ConsultaDocumentosSolicitudFront);
-        listaDocsRespuesta?.forEach(x => this.form.anexosRespuesta.push(x.data));
       }
     },
 
@@ -1056,9 +997,8 @@ export default {
       this.selectedIndex = reg ? [reg] : [];
     },
     showInputDialogSelector(payload) {
-      const config = UtilsShortkeys.shortKeysInputDialogSelector(payload);
       this.$ShortKey.removeShortkey();
-      this.$ShortKey.initShortkey(config);
+      this.$ShortKey.initShortkey('');
     },
 
     goBack() {
@@ -1127,12 +1067,10 @@ export default {
           const idArr = doc.id?.split('-') || [];
           const variableProps = doc.isDocExpediente
             ? {
-                tipoDoc: EXPEDIENTE_ADMINISTRATIVO,
                 idExpteadm: idArr[0],
                 nuOrdExpteadmxdoc: idArr[1].trim(),
               }
             : {
-                tipoDoc: ACONTECIMIENTO,
                 coProcon: doc.coProcon,
                 feTra: doc.feTra,
                 nuOrdAco: doc.nuOrdAco,
@@ -1151,7 +1089,7 @@ export default {
     },
 
     async gotoDocumentos() {
-      const file = event.target.files[0];
+      const file = null;
       if (!file) return;
       const extension = file.name.split('.').pop();
       if (this.selects.extensionesConvertirPdf.includes(extension.toLowerCase())) {
@@ -1161,7 +1099,7 @@ export default {
       if (!exist) return this.$Notification.error(this.i18n.minDocuError, 'icon-cerrar');
       this.inputFile = file;
       if (extension.toLowerCase() !== 'pdf') {
-        const destino = uid();
+        const destino = '';
         const carpetaTemporal = this.$store.state.configuracion.carpetaTemporal;
         this.outputFile = pathJoin([carpetaTemporal, `${destino}{${new Date().getTime()}}.pdf`]);
         const params = {
@@ -1175,7 +1113,6 @@ export default {
         this.outputFile = file.path;
         this.addDocumentos({
           uuid: this.outputFile,
-          tipoDoc: ADJUNTO,
           nombre: this.inputFile.name,
           descripcion: this.inputFile.name,
           direccionDoc: this.outputFile,
@@ -1202,7 +1139,7 @@ export default {
         } else if (message === 'Documento pdf creado' /*status === 'SUCCESS'*/) {
           this.addDocumentos({
             uuid: this.outputFile,
-            tipoDoc: ADJUNTO,
+            tipoDoc: '',
             nombre: this.inputFile.name,
             descripcion: this.inputFile.name,
             direccionDoc: this.outputFile,
@@ -1213,12 +1150,10 @@ export default {
           this.$Loading.show(message);
         }
       } catch (err) {
-        this.$Notification.error(error, 'icon-cerrar');
+        this.$Notification.error('', 'icon-cerrar');
       }
     },
     connect() {
-      this.socket = new SockJS(WS);
-      this.stompClient = Stomp.over(this.socket);
       const subscribe = frame => {
         this.connected = true;
         this.stompClient.subscribe('/topic/error/notify', this.onError);
@@ -1343,7 +1278,7 @@ export default {
           this.$Loading.show(this.i18n.altaSolicitud(this.form?.deTipoSolicitud?.toLowerCase()));
           //Generamos lista documentos a tratar
           this.form.listaDocs = this.form.anexos;
-          const { data } = await this.$APIService.post(url, new FormularioSolicitudApi(this.form));
+          const { data } = await this.$APIService.post(url, {});
           this.$Notification.success(
             this.i18n.altaSolicitudOK(this.form?.deTipoSolicitud?.toLowerCase()),
             'icon-check'
@@ -1360,12 +1295,6 @@ export default {
       } finally {
         this.$Loading.hide();
       }
-    },
-    resetTableStore() {
-      this.$store.commit(RESET_DATA_TABLE, TABLA_CONSULTA_MINUTAS);
-      this.$store.commit(RESET_DATA_TABLE, TABLA_CONSULTA_SOLICITUDES);
-      this.$store.commit(RESET_DATA_TABLE, TABLA_CONSULTA_DACIONES);
-      this.$store.commit(RESET_DATA_TABLE, TABLA_CONSULTA_RESOLUCIONES);
     },
     async editarSolicitud() {
       try {
@@ -1388,7 +1317,7 @@ export default {
             x => !x.idSecuencial || x.nombre !== x.descripcion
           );
           this.form.docsEliminar?.forEach(x => this.form.listaDocs?.push(x));
-          const { data } = await this.$APIService.patch(url, new FormularioSolicitudApi(this.form));
+          const { data } = await this.$APIService.patch(url, {});
           this.$Notification.success(
             this.i18n.editSolicitudOK(this.form?.deTipoSolicitud?.toLowerCase()),
             'icon-check'
@@ -1440,7 +1369,7 @@ export default {
             x => !x.idSecuencial || x.nombre !== x.descripcion
           );
           this.form.docsEliminar?.forEach(x => this.form.listaDocs?.push(x));
-          const { data } = await this.$APIService.patch(url, new RespuestaSolicitudApi(this.form));
+          const { data } = await this.$APIService.patch(url, {});
           this.$Notification.success(msgOk, 'icon-check');
           //Guardamos la posible lista de documentos del tipo ADJUNTO en mindocu
           await this.uploadFicheros(data?.content?.listaDocumentos || []);
@@ -1506,7 +1435,7 @@ export default {
         state: this.storeModule,
         data: data,
       };
-      this.$store.commit(SAVE_STATE, payload);
+      this.$store.commit('', payload);
     },
     resetStore(commitName) {
       const payload = {
@@ -1514,13 +1443,11 @@ export default {
         state: this.storeModule,
         data: {},
       };
-      this.$store.commit(RESET_STATE, payload);
     },
     setStoreModule() {
-      const newModuleName = `minutas${uid()}`;
+      const newModuleName = `minutas`;
       const name = this.$route.params.storeModule || newModuleName;
       const registered = this.$store && this.$store.state && this.$store.state[name];
-      if (!registered) this.$store.registerModule(name, storeMinutas);
       this.$router.replace({
         name: this.$route.name,
         params: { ...this.$route.params, storeModule: name },
@@ -1554,29 +1481,13 @@ export default {
       try {
         if (this.$electron) {
           const listaIds = listaSalida.map(x => x.uuid);
-          const listaUpload = this.form.listaDocs
-            .filter(
-              x => x.tipoDoc === ADJUNTO && !x.borrar && listaIds.includes(x.uuid.toUpperCase())
-            )
-            .map(x => ({
-              dest:
-                listaSalida?.find(file => file.uuid.toUpperCase() === x.uuid.toUpperCase())
-                  ?.direccionDoc || '',
-              path: x.uuid.toUpperCase(),
-              descripcion: x.descripcion,
-            }));
+          const listaUpload = this.form.listaDocs.filter(x => listaIds.includes(x.uuid));
           await Promise.allSettled(listaUpload.map(this.uploadFile));
         }
       } catch (error) {}
     },
     uploadFile(data) {
-      return axios({
-        method: POST,
-        url: UPLOAD_URL,
-        data: { dest: data.dest, path: data.path },
-      }).catch(() =>
-        this.$Notification.error(this.i18n.errorCopiaFichero(data.descripcion), 'icon-cerrar')
-      );
+      return null;
     },
     mantenerEstado() {
       this.aceptar();
@@ -1592,43 +1503,6 @@ export default {
       this.configConfirmEstado.dialog = false;
     },
   },
-  components: { FilePickerButton },
   mixins: [mixinsPanelAlerts],
 };
 </script>
-<style lang="scss">
-.destinatario {
-  .col-custom-dialog {
-    width: 24%;
-  }
-}
-.tableList {
-  border-radius: 4px;
-  height: 162px;
-  .Sg-Table {
-    border-radius: 4px 4px 0 0;
-    border: 1px solid rgba(0, 0, 0, 0.25);
-    border-bottom: none;
-    box-shadow: none;
-    .q-virtual-scroll .q-table .q-virtual-scroll__padding tr:last-child td {
-      border-bottom: none;
-    }
-  }
-}
-.tableList.fullHeight {
-  height: 216px;
-  .Sg-Table {
-    border-radius: 4px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.25);
-  }
-}
-.tableButtons {
-  border: solid;
-  border-radius: 0 0 4px 4px;
-  border-color: rgba(0, 0, 0, 0.25);
-  border-width: 1px;
-}
-.flex-no-wrap {
-  flex-wrap: nowrap;
-}
-</style>

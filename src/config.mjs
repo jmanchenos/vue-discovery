@@ -16,43 +16,45 @@ let vueRegisteredFiles = [];
 let currentPanel;
 let currentWorkspaceFolder;
 
-//indicar que la variable que vamos a definir parsedVudeMap es del tipo Map
+//indicar que la variable que vamos a definir parsedVueMap es del tipo Map
 /** @type {Map<string, any>} */
 const parsedVueMap = new Map();
 
 const setConfig = (key, value) => {
-    configOverride[key] = value;
+  configOverride[key] = value;
 };
 const getConfig = key => {
-    try {
-        return key in configOverride ? configOverride[key] : workspace.getConfiguration().get(`VueDiscoveryMTM.${key}`);
-    } catch (error) {
-        console.error(error);
-    }
+  try {
+    return key in configOverride
+      ? configOverride[key]
+      : workspace.getConfiguration().get(`VueDiscoveryMTM.${key}`);
+  } catch (error) {
+    console.error('Error en getConfig:', error);
+  }
 };
 const setVueFiles = (files = []) => {
-    vueFiles = files;
+  vueFiles = files;
 };
 const setVueRegisteredFiles = (files = []) => {
-    vueRegisteredFiles = files;
+  vueRegisteredFiles = files;
 };
 const setJsFiles = (files = []) => {
-    jsFiles = files;
+  jsFiles = files;
 };
 const setCyFiles = (files = []) => {
-    cyFiles = files;
+  cyFiles = files;
 };
 const setPlugins = (files = []) => {
-    plugins = files;
+  plugins = files;
 };
 const setConstants = (files = []) => {
-    constants = files;
+  constants = files;
 };
 const setCurrentWorkspaceFolder = folder => {
-    currentWorkspaceFolder = folder;
+  currentWorkspaceFolder = folder;
 };
 const setCurrentPanel = panel => {
-    currentPanel = panel;
+  currentPanel = panel;
 };
 const getVueFiles = () => vueFiles;
 const getVueRegisteredFiles = () => vueRegisteredFiles;
@@ -68,37 +70,45 @@ const getCurrentPanel = () => currentPanel;
 /* guardar parseado del fichero vue actual */
 const getVueObjects = document => parsedVueMap.get(document.uri.toString());
 const setVueObjects = async document => {
-    // si el documento tiene la extension Vue
-    if (document.fileName.endsWith('.vue')) {
-        const vuedocOptions = { filename: document.fileName };
-        const { data, computed, props, methods } = await vueParser.parse(vuedocOptions);
-        parsedVueMap.set(document.uri.toString(), { data, props, methods, computed });
-        outputChannel.appendLine(`Se ha cargado la configuración para el documento vue ${document.fileName}`);
+  // si el documento tiene la extension Vue
+  if (document.fileName.endsWith('.vue')) {
+    const vuedocOptions = { filename: document.fileName };
+    try {
+      const { data, computed, props, methods } = await vueParser.parse(vuedocOptions);
+      parsedVueMap.set(document.uri.toString(), { data, props, methods, computed });
+      outputChannel.appendLine(
+        `Se ha cargado la configuración para el documento vue ${document.fileName}`
+      );
+    } catch (error) {
+      outputChannel.appendLine(
+        `Error al cargar la configuración para el documento vue ${document.fileName}: ${error.message}`
+      );
     }
+  }
 };
 const removeVueObjects = document => parsedVueMap.delete(document.uri.toString());
 
 export {
-    outputChannel,
-    setConfig,
-    getConfig,
-    setVueFiles,
-    setVueRegisteredFiles,
-    setJsFiles,
-    setCyFiles,
-    setPlugins,
-    getVueFiles,
-    getVueRegisteredFiles,
-    getJsFiles,
-    getCyFiles,
-    getPlugins,
-    setCurrentPanel,
-    getCurrentPanel,
-    getConstants,
-    setConstants,
-    getCurrentWorkspaceFolder,
-    setCurrentWorkspaceFolder,
-    getVueObjects,
-    setVueObjects,
-    removeVueObjects,
+  outputChannel,
+  setConfig,
+  getConfig,
+  setVueFiles,
+  setVueRegisteredFiles,
+  setJsFiles,
+  setCyFiles,
+  setPlugins,
+  getVueFiles,
+  getVueRegisteredFiles,
+  getJsFiles,
+  getCyFiles,
+  getPlugins,
+  setCurrentPanel,
+  getCurrentPanel,
+  getConstants,
+  setConstants,
+  getCurrentWorkspaceFolder,
+  setCurrentWorkspaceFolder,
+  getVueObjects,
+  setVueObjects,
+  removeVueObjects,
 };

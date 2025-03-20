@@ -1,5 +1,11 @@
 {
     "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "@/*": [
+                "src/*"
+            ],
+        },
         "module": "NodeNext",
         "target": "ESNext",
         "allowJs": true,
@@ -10,9 +16,9 @@
             "ESNext"
         ],
         "newLine": "lf",
-        "moduleResolution": "nodenext"
+        "moduleResolution": "nodenext",
     },
     "includes": [
         "src/**/*"
-    ]
+    ],
 }

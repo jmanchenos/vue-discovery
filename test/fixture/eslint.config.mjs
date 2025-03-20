@@ -1,0 +1,55 @@
+import prettier from 'eslint-plugin-prettier';
+import eslintConfigPrettier from 'eslint-config-prettier';
+
+//tener acceso a intellisense de los atrinbutos de la configuracion
+
+export default [
+  eslintConfigPrettier,
+  {
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: false,
+        },
+      },
+    },
+    plugins: {
+      prettier: prettier,
+    },
+    rules: {
+      'prettier/prettier': [
+        'error',
+        {
+          singleQuote: true,
+          semi: true,
+          trailingComma: 'es5',
+          tabWidth: 4,
+          useTabs: false,
+          bracketSpacing: true,
+          arrowParens: 'avoid',
+          printWidth: 120,
+          endOfLine: 'lf',
+        },
+      ],
+      'no-const-assign': 'warn',
+      'no-this-before-super': 'warn',
+      'no-undef': 'warn',
+      'no-unreachable': 'warn',
+      'no-unused-vars': 'warn',
+      'constructor-super': 'warn',
+      'valid-typeof': 'warn',
+    },
+    files: ['**/*.js', '**/*.json'],
+    ignores: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/.vscode/**',
+      '**/.vscode-test/*',
+      '**/test/*',
+      '**/.*',
+      '**/src/**/*.vue',
+    ],
+  },
+];
