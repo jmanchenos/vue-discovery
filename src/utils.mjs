@@ -69,22 +69,28 @@ const getEol = (forRegExp = false) =>
     .replace('1', forRegExp ? '\\n' : '\n')
     .replace('2', forRegExp ? '\\r|\\n' : '\r\n');
 
-/** Recupera el rango completo (multilinea) que engloba a la posicion actual para el componente y cumple con el match del regExp pasado*/
+/** Recupera el rango completo (multilinea) que engloba a la posicion actual para el componente y cumple con el match del regExp pasado
+ * @param {TextDocument} document
+ * @param {Position} position
+ * @param {RegExp} regExp
+ */
 const getAlternativeWordRangeAtPosition = (document, position, regExp) => {
   const text = document.getText();
-  //obtener el rango de las instancias de regexp que se encuentran en text
-  const matchList = text.match(regExp) || [];
-  const matched = matchList.filter(x => {
-    const posStart = document.positionAt(text.indexOf(x));
-    const posEnd = document.positionAt(text.indexOf(x) + x.length);
-    return posStart.isBeforeOrEqual(position) && posEnd.isAfterOrEqual(position);
-  })?.[0];
-  if (!matched) {
+  const posIndex = document.offsetAt(position);
+  const match = [...text.matchAll(regExp)].find(match => {
+    const start = match.index;
+    const end = start + match[0].length;
+    return start <= posIndex && posIndex <= end && start !== end;
+  });
+
+  // si no hay coincidencias, devolvemos undefined
+  if (!match) {
     return undefined;
   } else {
-    const positionStart = document.positionAt(text.indexOf(matched));
-    const positionEnd = document.positionAt(text.indexOf(matched) + matched.length);
-    return new Range(positionStart, positionEnd);
+    // si hay coincidencias, devolvemos el rango de la primera coincidencia
+    const startRange = document.positionAt(match.index);
+    const endRange = document.positionAt(match.index + match[0].length);
+    return new Range(startRange, endRange);
   }
 };
 
