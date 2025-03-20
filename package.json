@@ -38,7 +38,7 @@
                 },
                 "VueDiscoveryMTM.registeredDirectory": {
                     "type": "string",
-                    "default": "/mode_modules/@sgntj/components/dist/sgntj-components.js",
+                    "default": "/node_modules/@sgntj/components/dist/sgntj-components.js",
                     "description": "list of root directories or compiled js files in your workspace on which search registered components separated by ';'. This could be a absolute path or relative path. If finished with '/' only find on that folder, excluding children folders"
                 },
                 "VueDiscoveryMTM.cypressTestsDirectory": {
