@@ -13,8 +13,8 @@ export class Parser {
     const tagStart = `<${tag}`;
     const tagEnd = `</${tag}>`;
 
-    const indexOfTagStart = this.content?.indexOf(tagStart) || -1;
-    const indexOfTagEnd = this.content?.indexOf(tagEnd) || -1;
+    const indexOfTagStart = this.content?.indexOf?.(tagStart) || -1;
+    const indexOfTagEnd = this.content?.indexOf?.(tagEnd) || -1;
 
     return indexOfTagStart === -1 || indexOfTagEnd === -1
       ? null
@@ -52,7 +52,7 @@ export class Parser {
     return position;
   }
   static startAtAndGetPositionOfStartAndEnd(content, search, start, end) {
-    const indexOfStart = (content ?? '').indexOf(search);
+    const indexOfStart = (content ?? '').indexOf?.(search);
 
     // Can't find start of mixins
     if (indexOfStart === -1) {

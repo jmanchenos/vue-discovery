@@ -9,7 +9,7 @@ import path from 'path';
 import * as config from '@/config.mjs';
 import { Parser } from '@/parser.mjs';
 import * as vueParser from '@vuedoc/parser';
-import { parse as vueCompiler } from 'vue-template-es2015-compiler';
+import { parseComponent } from 'vue-sfc-parser';
 import fs from 'fs';
 import { all } from 'deepmerge';
 import { parseModule } from 'esprima-next';
@@ -134,21 +134,13 @@ const getFilesByExtension = async (extension, configAtrib = 'rootDirectory') => 
       new Promise(async (resolve, reject) => {
         try {
           if (extension === 'vue' && element.endsWith('.js')) {
-            //resuelve parseando el fichero js y recuperando el contenido del objeto asociado a las constantes que encuentrecon nombre que comience por _sfc_main
-            //(cada objeto es el contenido en forma de tetxo que tendria el fichero .vue)
             const filePath = `${element.startsWith('/') ? getRootPath() : ''}${element}`;
             const textFile = fs.readFileSync(filePath, 'utf8');
             const ast = parseModule(textFile, { comment: true, tolerant: true, range: true });
-            const data = query(
-              // @ts-ignore
-              ast,
-              // 'VariableDeclarator[id.name=/_sfc_main.*/] >ObjectExpression'
-              'VariableDeclarator[id.name=/_sfc_main.*/]'
-            ).map(x => {
+            const data = query(ast, 'VariableDeclarator[id.name=/_sfc_main.*/]').map(x => {
               const varName = `_sfc_render${x.id.name.substring(9)}`;
               const varValue = x.init;
               const dataSlots = query(ast, `FunctionDeclaration[id.name=${varName}]`)[0];
-              // Asumiendo que tienes acceso al código fuente original ('code') y la información de ubicación del nodo
               const startIndex = dataSlots.range[0];
               const endIndex = dataSlots.range[1];
               const functionBodyString = textFile.substring(startIndex, endIndex);
@@ -769,8 +761,8 @@ const getMarkdownProps = obj => {
 
 const getMarkdownMethods = obj => {
   const { description, syntax } = obj;
-  return new MarkdownString(`${description ? description + getEol() : ''}`, true).appendCodeblock(
-    syntax,
+  return new MarkdownString(`${description ? description + getEol() : ''}`, true)?.appendCodeblock(
+    syntax[0],
     'javascript'
   );
 };
@@ -952,7 +944,7 @@ const translateRange = async (range, filePath) => {
  */
 const getRefs = document => {
   const text = document.getText();
-  const ast = vueCompiler({
+  const ast = parseComponent({
     source: text,
     filename: 'inline-template.vue',
     compilerOptions: { whitespace: 'condense' },

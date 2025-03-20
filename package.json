@@ -204,7 +204,7 @@
         "fast-glob": "^3.3.3",
         "got": "^14.4.6",
         "lodash": "^4.17.21",
-        "vue-template-es2015-compiler": "^1.9.1"
+        "vue-sfc-parser": "^0.1.2"
     },
     "devDependencies": {
         "@types/glob": "^8.1.0",
