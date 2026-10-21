@@ -2,6 +2,38 @@
 
 All notable changes to the "vue-discovery" extension will be documented in this file.
 
+## [0.8.0] 2026-10-21
+
+### Changed
+
+- The extension source has been migrated from JavaScript (ESM) to **TypeScript** (`src/*.ts`) with
+  `strict` type checking. The generated types live in `src/types.ts` and the declarations of the
+  third party modules without types in `src/typings/vendor.d.ts`.
+- The package is now an explicit **ES Module** (`"type": "module"`).
+- The build pipeline uses `esbuild` over the TypeScript sources and the `vite` build has been
+  adapted to the Node target (the node builtins are externalized instead of being polyfilled for
+  the browser).
+- ESLint is configured with `typescript-eslint` and the Prettier configuration has been unified in
+  `.prettierrc.mjs` (it is the single source of truth).
+
+### Fixed
+
+- The path aliases of the workspace are now read from `tsconfig.json` as well as from
+  `jsconfig.json`, so the imports of the components honour the `@/` alias.
+- The props of the mixins are now collected (the mixin chain was parsed asynchronously and the
+  result was discarded) and they keep the name, the type and the default value as they are
+  written in the source code.
+- The props that are already set on a component tag are no longer offered again.
+- The `refs` provider works again: the `ref` attributes are located with the real API of
+  `vue-sfc-parser`.
+- The `importFile` command accepts both a component entry and a plain path.
+- The `insertSnippet` call is awaited, so the command does not finish before the snippet has been
+  inserted in the document.
+- The casing of the components is applied when they are shown, so changing the configuration takes
+  effect without having to rediscover the files of the workspace.
+- The unit tests run on Windows (the paths are resolved with `fileURLToPath`) and they open the
+  fixture folder as the workspace of the test instance.
+
 ## [0.7.6] 2025-03-12
 
 - Dependencies are updated

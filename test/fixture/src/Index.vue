@@ -413,6 +413,7 @@ const [MODO_RESPUESTA, MODO_DETALLE, MODO_EDICION, MODO_ALTA] = ['MR', 'MD', 'ME
 // Unión y normalizacion de rutas de ficheros
 const pathJoin = (parts = []) => parts.join('/').replace(new RegExp(/(\/|\\){1,}/, 'g'), '/');
 
+import { ref, onMounted } from 'vue';
 export default {
   name: 'view-formulario-solicitud',
   props: {
@@ -437,7 +438,7 @@ export default {
       default: () => [],
     },
   },
-  data() {
+  setup() {
     const i18n = {
       aceptar: this.$t('generic.accept'),
       actionConfirm: this.$t('confirmMessages.confirmData'),
@@ -502,7 +503,7 @@ export default {
       verDetalle: this.$t('generic.view'),
       volver: this.$t('generic.volver'),
     };
-    return {
+    const state = ref({
       i18n,
       inputFile: null,
       outputFile: null,
@@ -736,7 +737,7 @@ export default {
     hayReferencia() {
       return [TIPO_RESOLPTE, TIPO_DACION].includes(this.form?.tipoSolicitud);
     },
-    /** @return {String} */
+    /** @const state = ref({String} */
     modoVentana() {
       let valor;
       if (this.isRespuesta) valor = MODO_RESPUESTA;
@@ -849,7 +850,7 @@ export default {
       }
       return arr;
     },
-    /** @return {Array} */
+    /** @const state = ref({Array} */
     estados() {
       let arr;
       switch (this.form.tipoSolicitud) {
@@ -899,7 +900,7 @@ export default {
     },
     /**@returns {Object} */
     estadoFinal() {
-      return {};
+      const state = ref({};
     },
   },
   async mounted() {
@@ -908,7 +909,7 @@ export default {
     this.$EventBus.$emit('showFooter', true);
     this.$refs.selectorTipoEscrito?.focus();
   },
-  methods: {
+  const methods = {
     async load() {
       try {
         this.$Loading.show(this.i18n.load(''));
@@ -1076,7 +1077,7 @@ export default {
                 nuOrdAco: doc.nuOrdAco,
               };
 
-          return {
+          const state = ref({
             uuid: doc.id,
             nombre: doc.descripcion,
             descripcion: doc.descripcion,
@@ -1186,7 +1187,7 @@ export default {
         idExpteadm = '',
         nuOrdExpteadmxdoc = '',
       }) => {
-        return {
+        const state = ref({
           uuid,
           nombre,
           descripcion,

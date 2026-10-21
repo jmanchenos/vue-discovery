@@ -1,10 +1,11 @@
 {
     "name": "vue-discovery-mtm",
-    "version": "0.7.6",
+    "version": "0.8.0",
     "license": "MIT",
     "private": true,
     "displayName": "Vue Discovery MTM",
     "main": "./dist/vue-discovery-mtm.cjs",
+    "type": "module",
     "description": "This extension discovers Vue components in your workspace and provides IntelliSense for them.",
     "publisher": "jmanchenos",
     "repository": "https://github.com/jmanchenos/vue-discovery",
@@ -183,33 +184,32 @@
     "scripts": {
         "build-vite": "vite build",
         "build-dev-vite": "npm run build-vite -- --watch",
-        "build:extension": "esbuild ./src/extension.mjs --bundle --outfile=./dist/vue-discovery-mtm.cjs  --platform=node --format=cjs --sourcemap=linked --external:vscode --external:vue",
-        "watch:extension": "esbuild ./src/extension.mjs --bundle --outfile=./dist/vue-discovery-mtm.cjs --platform=node --format=cjs --sourcemap=linked --external:vscode --external:vue --watch",
+        "build:extension": "esbuild ./src/extension.ts --bundle --outfile=./dist/vue-discovery-mtm.cjs  --platform=node --format=cjs --sourcemap=linked --external:vscode --external:vue",
+        "watch:extension": "esbuild ./src/extension.ts --bundle --outfile=./dist/vue-discovery-mtm.cjs --platform=node --format=cjs --sourcemap=linked --external:vscode --external:vue --watch",
         "build": "npm run build:extension",
         "build-dev": "npm run watch:extension",
         "preview": "vite preview",
         "lint": "eslint .",
-        "pretest": "npm run lint",
+        "pretest": "npm run lint && npm run typecheck",
         "test": "node ./test/runTest.js",
-        "test-compile": "tsc -p ./",
         "vscode:prepublish": "npm run build -- --minify --keep-names",
-        "vsix": "vsce package --allow-star-activation"
+        "vsix": "vsce package --allow-star-activation",
+        "lint:fix": "eslint . --fix",
+        "typecheck": "tsc -p ./ --noEmit"
     },
     "dependencies": {
         "@vuedoc/parser": "^3.4.0",
-        "abort-controller": "^3.0.0",
-        "deepmerge": "^4.3.1",
         "esprima-next": "^6.0.3",
         "esquery": "^1.6.0",
         "fast-glob": "^3.3.3",
-        "got": "^14.4.6",
         "lodash": "^4.17.21",
         "vue-sfc-parser": "^0.1.2"
     },
     "devDependencies": {
         "@types/glob": "^8.1.0",
+        "@types/lodash": "^4.17.0",
         "@types/mocha": "^10.0.10",
-        "@types/node": "^18.6.3",
+        "@types/node": "^22.0.0",
         "@types/vscode": "^1.95.0",
         "@vscode/test-electron": "^2.4.1",
         "@vscode/vsce": "^3.3.0",
@@ -221,6 +221,7 @@
         "mocha": "^11.1.0",
         "prettier": "^3.5.3",
         "typescript": "^5.8.2",
+        "typescript-eslint": "^8.72.0",
         "vite": "^6.2.2",
         "vite-plugin-node-polyfills": "^0.23.0"
     }

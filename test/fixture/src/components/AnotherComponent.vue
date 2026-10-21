@@ -4,6 +4,7 @@
 
     <script>
 import mixinUsingMixin from '@/mixins/mixinUsingMixin';
+import { ref, onMounted } from 'vue';
 export default {
     /**
      * @example

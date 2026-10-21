@@ -1,5 +1,5 @@
 import assert from 'assert';
-import vscode from 'vscode';
+import * as vscode from 'vscode';
 
 const rangeEquals = (range, value) => {
     const editor = vscode.window.activeTextEditor;

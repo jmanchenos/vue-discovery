@@ -1,24 +1,27 @@
 {
     "compilerOptions": {
+        "target": "ES2022",
+        "lib": ["ES2022"],
+        "module": "ESNext",
+        "moduleResolution": "bundler",
         "baseUrl": ".",
         "paths": {
-            "@/*": [
-                "src/*"
-            ],
+            "@/*": ["src/*"]
         },
-        "module": "NodeNext",
-        "target": "ESNext",
-        "allowJs": true,
+        "rootDir": "src",
         "outDir": "./.ts-build-temp",
         "noEmit": true,
-        "checkJs": true,
-        "lib": [
-            "ESNext"
-        ],
+        "strict": true,
+        "noImplicitOverride": true,
+        "noFallthroughCasesInSwitch": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "forceConsistentCasingInFileNames": true,
+        "skipLibCheck": true,
         "newLine": "lf",
-        "moduleResolution": "nodenext",
+        "types": ["node", "vscode"]
     },
-    "includes": [
-        "src/**/*"
-    ],
+    "include": ["src/**/*"]
 }

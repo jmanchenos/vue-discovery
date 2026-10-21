@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { setTimeout } from 'timers';
+import { fileURLToPath } from 'url';
 
 const position = (line, char) => new vscode.Position(line, char);
 
@@ -17,7 +18,7 @@ const sameLineLocation = (uri, line, startChar, endChar) =>
     new vscode.Location(uri, sameLineRange(line, startChar, endChar));
 
 const getDocPath = p => {
-    return path.resolve(path.dirname(import.meta.url), 'fixture/src', p);
+    return path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'fixture/src', p);
 };
 
 const getDocPathWithSlash = p => getDocUri(p).path.slice(1);

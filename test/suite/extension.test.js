@@ -8,7 +8,7 @@ import {
     testCompletion,
     testCompletionDoesNotContainItems,
 } from '../helpers.js';
-import {it, describe, before} from 'mocha';
+import { it, describe, before } from 'mocha';
 
 const components = [
     Object.assign(new vscode.CompletionItem('ComponentWithPropsName', vscode.CompletionItemKind.Constructor), {
@@ -22,10 +22,12 @@ const components = [
     }),
 ];
 
-const LF = '\r\n';
+// Props declarados por ComponentWithProps.vue y por sus mixins.
+// En el tag insertado ya estan fijados name, names y defaultValue,
+// por lo que solo se ofrece la prop que todavia no esta en el tag.
+const props = [new vscode.CompletionItem('label', vscode.CompletionItemKind.Property)];
 
-const props = [
-    new vscode.CompletionItem('label', vscode.CompletionItemKind.Property),
+const propsAlreadySet = [
     new vscode.CompletionItem('defaultValue', vscode.CompletionItemKind.Property),
     new vscode.CompletionItem('name', vscode.CompletionItemKind.Property),
     new vscode.CompletionItem('names', vscode.CompletionItemKind.Property),
@@ -37,15 +39,21 @@ const events = [
     new vscode.CompletionItem('eventInSubMixin', vscode.CompletionItemKind.Event),
 ];
 
-describe('Interactions', function () {
+// Fin de linea e indentacion detectados por el editor a partir del documento abierto
+let LF = '\r\n';
+let INDENT = '  ';
+
+describe('Interactions (pascal case)', function () {
     const docUri = getDocUri('App.vue');
     const componentWithoutPropsSnippet =
-        '<ComponentWithPropsName :name="" :names="" :default-value=""></ComponentWithPropsName>';
+        '<ComponentWithPropsName :name="" :names="" :default-value="" />';
 
     before('activate', async () => {
         await vscode.commands.executeCommand('VueDiscoveryMTM.tests.setConfigOption', 'componentCase', 'pascal');
         await vscode.commands.executeCommand('VueDiscoveryMTM.tests.setConfigOption', 'propCase', 'kebab');
         await vscode.commands.executeCommand('VueDiscoveryMTM.tests.setConfigOption', 'addTrailingComma', true);
+        await vscode.commands.executeCommand('VueDiscoveryMTM.tests.setConfigOption', 'includeDataCyAttribute', false);
+        await vscode.commands.executeCommand('VueDiscoveryMTM.tests.setConfigOption', 'propIconType', 'Property');
         await vscode.commands.executeCommand(
             'VueDiscoveryMTM.tests.setConfigOption',
             'registeredDirectory',
@@ -57,6 +65,11 @@ describe('Interactions', function () {
             '/src/components;/src/mixins'
         );
         await showFile(docUri);
+
+        LF = vscode.window.activeTextEditor.document.eol === vscode.EndOfLine.CRLF ? '\r\n' : '\n';
+        INDENT = vscode.window.activeTextEditor.options.insertSpaces
+            ? ' '.repeat(vscode.window.activeTextEditor.options.tabSize)
+            : '\t';
     });
 
     it('shows available components', async () => {
@@ -85,12 +98,12 @@ describe('Interactions', function () {
     });
 
     it('imports a component and respects alias', async () => {
-        testLineEquals(8, "import ComponentWithPropsName from '@/components/ComponentWithProps.vue'");
+        testLineEquals(8, "import ComponentWithPropsName from '@/components/ComponentWithProps.vue';");
     });
 
     it('registers the component', async () => {
-        const expected = `    components: {${LF}        ComponentWithPropsName,${LF}    },${LF}`;
-        rangeEquals(range(10, 0, 13, 0), expected);
+        const expected = `${INDENT}components: {${LF}${INDENT}${INDENT}ComponentWithPropsName,${LF}${INDENT}},${LF}`;
+        rangeEquals(range(11, 0, 14, 0), expected);
     });
 
     it('shows props when hovering a component', async () => {
@@ -110,6 +123,10 @@ describe('Interactions', function () {
 
     it('completes props and events on a component', async () => {
         await testCompletion(docUri, position(3, 40), [...props, ...events]);
+    });
+
+    it('does not complete props that are already set on the component', async () => {
+        await testCompletionDoesNotContainItems(docUri, position(3, 40), propsAlreadySet);
     });
 
     it('adds the same component to the template section', async () => {
@@ -137,8 +154,8 @@ describe('Interactions', function () {
     });
 
     it('does not register the component twice', async () => {
-        const expected = `    components: {${LF}        ComponentWithPropsName,${LF}    },${LF}`;
-        rangeEquals(range(10, 0, 13, 0), expected);
+        const expected = `${INDENT}components: {${LF}${INDENT}${INDENT}ComponentWithPropsName,${LF}${INDENT}},${LF}`;
+        rangeEquals(range(11, 0, 14, 0), expected);
     });
 
     it('adds another component to the template section', async () => {
@@ -157,16 +174,16 @@ describe('Interactions', function () {
 
         testLineEquals(
             3,
-            `\t\t${componentWithoutPropsSnippet}${componentWithoutPropsSnippet}<AnotherComponentName :name="" :names=""></AnotherComponentName>`
+            `\t\t${componentWithoutPropsSnippet}${componentWithoutPropsSnippet}<AnotherComponentName :name="" :names="" />`
         );
     });
 
     it('imports another component and respects alias', async () => {
-        testLineEquals(8, "import AnotherComponentName from '@/components/AnotherComponent.vue'");
+        testLineEquals(8, "import AnotherComponentName from '@/components/AnotherComponent.vue';");
     });
 
     it('registers another component', async () => {
-        const expected = `    components: {${LF}        ComponentWithPropsName,${LF}        AnotherComponentName,${LF}    },${LF}`;
-        rangeEquals(range(11, 0, 15, 0), expected);
+        const expected = `${INDENT}components: {${LF}${INDENT}${INDENT}ComponentWithPropsName,${LF}${INDENT}${INDENT}AnotherComponentName,${LF}${INDENT}},${LF}`;
+        rangeEquals(range(12, 0, 16, 0), expected);
     });
 });

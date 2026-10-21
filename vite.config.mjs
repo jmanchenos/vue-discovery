@@ -1,65 +1,41 @@
 import { defineConfig } from 'vite';
 import path from 'path';
-import { nodePolyfills } from 'vite-plugin-node-polyfills';
+import { fileURLToPath } from 'url';
+import { builtinModules } from 'module';
+
+const rootDir = path.dirname(fileURLToPath(import.meta.url));
+
+// La extension se ejecuta en Node (extension host de VSCode), por lo que los
+// modulos nativos se externalizan en vez de polyfillarse para el navegador.
+const nodeBuiltins = [...builtinModules, ...builtinModules.map(module => `node:${module}`)];
 
 export default defineConfig({
-  plugins: [
-    nodePolyfills({
-      globals: {
-        Buffer: true,
-        global: true,
-        process: true,
-      },
-      include: [
-        'path',
-        'child_process',
-        'url',
-        'events',
-        'string_decoder',
-        'buffer',
-        'util',
-        '_stream_passthrough',
-        'stream',
-        'buffer',
-      ],
-      protocolImports: true,
-      overrides: {},
-    }),
-  ],
-  optimizeDeps: {
-    entries: ['node:stream/web'],
-    esbuildOptions: {
-      target: 'node20',
+    build: {
+        lib: {
+            entry: path.resolve(rootDir, 'src/extension.ts'),
+            name: 'vue-discovery-mtm',
+            formats: ['cjs'],
+            fileName: format => `vue-discovery-mtm.${format}`,
+        },
+        rollupOptions: {
+            shimMissingExports: false,
+            external: ['vscode', ...nodeBuiltins],
+            input: {
+                main: path.resolve(rootDir, 'src/extension.ts'),
+            },
+        },
+        outDir: 'dist',
+        // No se limpia el directorio porque convive con el bundle generado por esbuild
+        emptyOutDir: false,
+        target: 'node22',
+        sourcemap: true,
     },
-  },
-  build: {
-    lib: {
-      entry: path.resolve(__dirname, 'src/extension.mjs'),
-      name: 'vue-discovery-mtm',
-      formats: ['cjs'],
-      fileName: format => `vue-discovery-mtm.${format}`,
+    resolve: {
+        alias: {
+            '@': path.resolve(rootDir, 'src'),
+        },
     },
-    rollupOptions: {
-      shimMissingExports: false,
-      external: ['vscode'],
-      input: {
-        main: path.resolve(__dirname, 'src/extension.mjs'),
-      },
+    define: {
+        global: 'globalThis',
     },
-    outDir: 'dist',
-    emptyOutDir: true,
-    target: 'node22',
-    sourcemap: true,
-  },
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, 'src'),
-    },
-  },
-  define: {
-    // process: {
-    //   env: process.env,
-    // },
-    global: 'globalThis',
-  },
 });

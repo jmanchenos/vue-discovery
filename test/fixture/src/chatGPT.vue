@@ -5,14 +5,15 @@
 </template>
 
 <script>
+import { ref, onMounted } from 'vue';
 export default {
-  data() {
-    return {
+  setup() {
+    const state = ref({
       recognition: null,
       listening: false,
     };
   },
-  methods: {
+  const methods = {
     startListening() {
       // Pedir permiso al usuario para acceder al micrófono
       navigator.permissions.query({ name: 'microphone' }).then((permissionStatus) => {

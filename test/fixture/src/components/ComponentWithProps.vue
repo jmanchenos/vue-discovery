@@ -4,6 +4,7 @@
 
 <script>
 import mixinUsingMixin from '@/mixins/mixinUsingMixin';
+import { ref, onMounted } from 'vue';
 export default {
   mixins: [mixinUsingMixin],
   name: 'ComponentWithPropsName',
@@ -19,7 +20,9 @@ export default {
       value: '',
     },
   },
-  created() {},
+  created() {
+    this.$emit('eventInComponent');
+  },
 };
 </script>
 
