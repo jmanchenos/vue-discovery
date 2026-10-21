@@ -192,7 +192,7 @@
         "lint": "eslint .",
         "pretest": "npm run lint && npm run typecheck",
         "test": "node ./test/runTest.js",
-        "vscode:prepublish": "npm run build -- --minify --keep-names",
+        "vscode:prepublish": "npm run build:extension -- --minify --keep-names",
         "vsix": "vsce package --allow-star-activation",
         "lint:fix": "eslint . --fix",
         "typecheck": "tsc -p ./ --noEmit"

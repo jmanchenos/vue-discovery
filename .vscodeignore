@@ -13,3 +13,7 @@ vsc-extension-quickstart.md
 **/.prettierrc.js
 **/.eslintignore
 .github/**
+eslint.config.mjs
+tsconfig.json
+vite.config.mjs
+.prettierrc.mjs
